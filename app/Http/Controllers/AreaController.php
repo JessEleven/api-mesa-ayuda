@@ -9,27 +9,27 @@ use Illuminate\Support\Facades\Validator;
 
 class AreaController extends Controller
 {
-    private $rulesArea = array(
+    private $areaRules = array(
         'nombre_area'=> 'required|string|unique:areas,nombre_area',
         'peso_prioridad'=> 'required|numeric|integer|unique:areas,peso_prioridad',
     );
 
-    private $rulesAreaUpdate = array(
+    private $areaRulesUpdate = array(
         'nombre_area'=> 'required|string|unique:areas,nombre_area'
     );
 
-    private $messgesArea = array(
-        'nombre_area.required' => 'El área es requerida',
+    private $areaMessages = array(
+        'nombre_area.required'=> 'El área es requerida',
         'nombre_area.string'=> 'Debe ser una cadena de texto',
         'nombre_area.unique'=> 'El área debe ser única',
-        'peso_prioridad'=> 'La prioridad es requerida',
+        'peso_prioridad.required'=> 'La prioridad es requerida',
         'peso_prioridad.numeric'=> 'Solo se aceptan números',
         'peso_prioridad.integer'=> 'No se aceptan decimales',
         'peso_prioridad.unique'=> 'La prioridad del área es única'
     );
 
-    private $messgesAreaUpdate = array(
-        'nombre_area.required' => 'El área es requerida',
+    private $areaMessagesUpdate = array(
+        'nombre_area.required'=> 'El área es requerida',
         'nombre_area.string'=> 'Debe ser una cadena de texto',
         'nombre_area.unique'=> 'Ya exite una área igual',
     );
@@ -38,72 +38,104 @@ class AreaController extends Controller
     {
         try {
             $allAreas = Area::all();
-            return response()->json(["Total de áreas ". $allAreas->count(), $allAreas]);
+
+            if ($allAreas->isEmpty()) {
+                return response()->json([
+                    "message"=> "No se encontraron áreas"
+                ], 200);
+            }
+            return response()->json([
+                "description"=> "Total de áreas: ". $allAreas->count(),
+                "data"=> $allAreas
+            ], 200);
 
         } catch (\Exception $e) {
-            return response()->json(['error'=> $e->getMessage()], 500);
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
         }
     }
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), $this->rulesArea, $this->messgesArea);
-
-        if ($validator->fails()) {
-            $messages = $validator->messages();
-            return response()->json(["messages"=> $messages], 500);
-        }
-
         try {
+            $validator = Validator::make($request->all(), $this->areaRules, $this->areaMessages);
+
+            if ($validator->fails()) {
+                $messages = $validator->messages();
+                return response()->json(["messages"=> $messages], 422);
+            }
+
             $newArea = Area::create([
                 "nombre_area" => $request->nombre_area,
                 "peso_prioridad"=> $request->peso_prioridad,
             ]);
-            return response()->json(["success"=> "Area creada con exito", $newArea], 200);
+            return response()->json([
+                "success"=> "Area creada con exito",
+                "data"=> $newArea
+            ], 201);
 
         } catch (\Exception $e) {
-            return response()->json(["error"=> $e->getMessage()], 500);
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
         }
     }
 
     public function show($area)
     {
         try {
-            $showArea = Area::whereId($area)->findOrFail($area);
+            $showArea = Area::findOrFail($area);
+
             return response()->json([
-                "message"=> "Área encontrada con exito", $showArea], 200);
+                "message"=> "Área encontrada con exito",
+                "data"=> $showArea
+            ], 200);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error'=> 'Área no encontrada'], 404);
+            return response()->json([
+                "message"=> "Área no encontrada"
+            ], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['error'=> $e->getMessage()], 500);
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
         }
     }
 
     public function update(Request $request, $area)
     {
-        $validator = Validator::make($request->all(), $this->rulesAreaUpdate, $this->messgesAreaUpdate);
-
-        if ($validator->fails()) {
-            $messages = $validator->messages();
-            return response()->json(["messages"=> $messages], 500);
-        }
-
         try {
-            Area::whereId($area)->findOrFail($area)->update([
+            $areaExists = Area::findOrFail($area);
+
+            $validator = Validator::make($request->all(), $this->areaRulesUpdate, $this->areaMessagesUpdate);
+
+            if ($validator->fails()) {
+                $messages = $validator->messages();
+                return response()->json(["messages"=> $messages], 422);
+            }
+
+            $areaExists->update([
                 "nombre_area" => $request->nombre_area
-                // "peso_prioridad"=> $request->peso_prioridad,
             ]);
+
+            $areaExists->refresh();
             return response()->json([
-                "message"=> "Área actualizada con exito"], 200);
+                "success"=> "Área actualizada con exito",
+                "data"=> $areaExists
+            ], 200);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error'=> 'Área no encontrada'], 404);
+            return response()->json([
+                "message"=> 'Área no encontrada'
+            ], 404);
         }
 
         catch (\Exception $e) {
-            return response()->json(['error'=> $e->getMessage()], 500);
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
         }
     }
 
@@ -111,13 +143,19 @@ class AreaController extends Controller
     {
         try {
             Area::findOrFail($area)->delete();
-            return response()->json(["message"=> "Área eliminada con exito"], 200);
+            return response()->json([
+                "success"=> "Área eliminada con exito"
+            ], 200);
 
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error'=> 'Área no encontrada'], 404);
+            return response()->json([
+                "message"=> "Área no encontrada"
+            ], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['error'=> $e->getMessage()], 500);
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
         }
     }
 }

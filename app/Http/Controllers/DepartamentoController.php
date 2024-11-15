@@ -3,50 +3,157 @@
 namespace App\Http\Controllers;
 
 use App\Models\Departamento;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class DepartamentoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    private $departmentRules = array(
+        'nombre_departamento'=> 'required|string|unique:departamentos,nombre_departamento',
+        'peso_prioridad'=> 'required|numeric|integer|unique:departamentos,peso_prioridad',
+    );
+
+    private $departmentRulesUpdate = array(
+        'nombre_departamento'=> 'required|string|unique:departamentos,nombre_departamento',
+    );
+
+    private $departmentMessages = array(
+        'nombre_departamento.required'=> 'El departamento es requerido',
+        'nombre_departamento.string'=> 'Debe ser una cadena de texto',
+        'nombre_departamento.unique'=> 'El departamento debe ser único',
+        'peso_prioridad.required'=> 'La prioridad es requerida',
+        'peso_prioridad.numeric'=> 'Solo se aceptan números',
+        'peso_prioridad.integer'=> 'No se aceptan decimales',
+        'peso_prioridad.unique'=> 'La prioridad del departamento es única'
+    );
+
+    private $departmentMessagesUpdate = array(
+        'nombre_departamento.required'=> 'El departamento es requerido',
+        'nombre_departamento.string'=> 'Debe ser una cadena de texto',
+        'nombre_departamento.unique'=> 'Ya exite un departamento igual',
+    );
+
     public function index()
     {
-        $departamento = Departamento::all();
-        return response()->json([
-            "departamento_junin"=> $departamento
-        ]);
+        try {
+            $allDepartments = Departamento::all();
+
+            if ($allDepartments->isEmpty()) {
+                return response()->json([
+                    "message"=> "No se encontraron departamentos"
+                ], 200);
+            }
+            return response()->json([
+                "description"=> "Total de departamentos: ". $allDepartments->count(),
+                "data"=> $allDepartments
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['error'=> "Ha ocurrido un error inesperado"], 500);
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        try {
+            $validator = Validator::make($request->all(), $this->departmentRules, $this->departmentMessages);
+
+            if ($validator->fails()) {
+                $messages = $validator->messages();
+                return response()->json(["message"=> $messages], 422);
+            }
+
+            $newDepartment = Departamento::create([
+                "nombre_departamento"=> $request->nombre_departamento,
+                "peso_prioridad"=> $request->peso_prioridad,
+            ]);
+            return response()->json([
+                "success"=> "Departamento creado con exito",
+                "data"=> $newDepartment
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Departamento $departamento)
+    public function show($departamento)
     {
-        //
+        try {
+            $showDepartment = Departamento::findOrFail($departamento);
+            return response()->json([
+                "success"=> "Departamento encontrado con exito",
+                "data"=> $showDepartment
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                "message"=> "Departamento no encontrado"
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
+        }
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Departamento $departamento)
+    public function update(Request $request, $departamento)
     {
-        //
+        try {
+            $departmentExists = Departamento::findOrFail($departamento);
+
+            $validator = Validator::make($request->all(), $this->departmentRulesUpdate, $this->departmentMessagesUpdate);
+
+            if ($validator->fails()) {
+                $messages = $validator->messages();
+                return response()->json(["message"=> $messages], 422);
+            }
+
+            $departmentExists->update([
+                "nombre_departamento"=> $request->nombre_departamento
+            ]);
+
+            $departmentExists->refresh();
+
+            return response()->json([
+                "success"=> "Departamento actualizado con exito",
+                "data"=> $departmentExists
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                "message"=> "Departamento no encontrado"
+            ], 404);
+        }
+
+        catch (\Exception $e) {
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+            ], 500);
+        }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Departamento $departamento)
+    public function destroy($departamento)
     {
-        //
+        try {
+            Departamento::findOrFail($departamento)->delete();
+            return response()->json([
+                "success"=> "Departamento eliminado con exito"
+            ], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                "message"=> "Departamento no encontrado"
+            ], 404);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                "error"=> "Ha ocurrido un error inesperado"
+             ], 500);
+        }
     }
 }

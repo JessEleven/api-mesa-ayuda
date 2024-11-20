@@ -10,18 +10,18 @@ use Illuminate\Support\Facades\Validator;
 class CategoriaTicketController extends Controller
 {
     private $categoryRules = array (
-        "nombre_categoria"=> "required|string|unique:categoria_tickets,nombre_categoria",
+        "nombre_categoria"=> "required|regex:/^[a-zA-Z\s]+$/|unique:categoria_tickets,nombre_categoria",
     );
 
     private $categoryMessages = array (
-        "nombre_categoria.required"=> "La categoria es requerida",
-        "nombre_categoria.string"=> "Debe ser una cadena de texto",
-        "nombre_categoria.unique"=> "La categoria deber ser única",
+        "nombre_categoria.required"=> "El nombre de la categoria es requerida",
+        "nombre_categoria.regex"=> "Debe ser una cadena de texto",
+        "nombre_categoria.unique"=> "El nombre de la categoria debe ser única",
     );
 
     private $categoryMessagesUpdate = array (
-        "nombre_categoria.required"=> "La categoria es requerida",
-        "nombre_categoria.string"=> "Debe ser una cadena de texto",
+        "nombre_categoria.required"=> "El nombre de la categoria es requerida",
+        "nombre_categoria.regex"=> "Debe ser una cadena de texto",
         "nombre_categoria.unique"=> "Ya existe una categoria igual"
     );
 
@@ -143,7 +143,7 @@ class CategoriaTicketController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 "error"=> "Ha ocurrido un error inesperado"
-             ], 500);
+            ], 500);
         }
     }
 }

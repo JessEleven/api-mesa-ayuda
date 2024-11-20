@@ -10,28 +10,29 @@ use Illuminate\Support\Facades\Validator;
 class DepartamentoController extends Controller
 {
     private $departmentRules = array(
-        'nombre_departamento'=> 'required|string|unique:departamentos,nombre_departamento',
-        'peso_prioridad'=> 'required|numeric|integer|unique:departamentos,peso_prioridad',
+        "nombre_departamento"=> "required|regex:/^[a-zA-Z\s]+$/|unique:departamentos,nombre_departamento",
+        "peso_prioridad"=> "required|integer|min:1|unique:departamentos,peso_prioridad",
     );
 
     private $departmentRulesUpdate = array(
-        'nombre_departamento'=> 'required|string|unique:departamentos,nombre_departamento',
+        "nombre_departamento"=> "required|regex:/^[a-zA-Z\s]+$/|unique:departamentos,nombre_departamento",
     );
 
     private $departmentMessages = array(
-        'nombre_departamento.required'=> 'El departamento es requerido',
-        'nombre_departamento.string'=> 'Debe ser una cadena de texto',
-        'nombre_departamento.unique'=> 'El departamento debe ser único',
-        'peso_prioridad.required'=> 'La prioridad es requerida',
-        'peso_prioridad.numeric'=> 'Solo se aceptan números',
-        'peso_prioridad.integer'=> 'No se aceptan decimales',
-        'peso_prioridad.unique'=> 'La prioridad del departamento es única'
+        "nombre_departamento.required"=> "El nombre del departamento es requerido",
+        "nombre_departamento.regex"=> "Debe ser una cadena de texto",
+        "nombre_departamento.unique"=> "El nombre del departamento debe ser único",
+
+        "peso_prioridad.required"=> "La prioridad del departamento es requerida",
+        "peso_prioridad.integer"=> "Solo se aceptan números enteros",
+        "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
+        "peso_prioridad.unique"=> "La prioridad del departamento es única"
     );
 
     private $departmentMessagesUpdate = array(
-        'nombre_departamento.required'=> 'El departamento es requerido',
-        'nombre_departamento.string'=> 'Debe ser una cadena de texto',
-        'nombre_departamento.unique'=> 'Ya exite un departamento igual',
+        "nombre_departamento.required"=> "El nombre del departamento es requerido",
+        "nombre_departamento.string"=> "Debe ser una cadena de texto",
+        "nombre_departamento.unique"=> "Ya exite un departamento igual",
     );
 
     public function index()
@@ -50,7 +51,7 @@ class DepartamentoController extends Controller
             ], 200);
 
         } catch (\Exception $e) {
-            return response()->json(['error'=> "Ha ocurrido un error inesperado"], 500);
+            return response()->json(["error"=> "Ha ocurrido un error inesperado"], 500);
         }
     }
 
@@ -61,7 +62,7 @@ class DepartamentoController extends Controller
 
             if ($validator->fails()) {
                 $messages = $validator->messages();
-                return response()->json(["message"=> $messages], 422);
+                return response()->json(["messages"=> $messages], 422);
             }
 
             $newDepartment = Departamento::create([
@@ -110,7 +111,7 @@ class DepartamentoController extends Controller
 
             if ($validator->fails()) {
                 $messages = $validator->messages();
-                return response()->json(["message"=> $messages], 422);
+                return response()->json(["messages"=> $messages], 422);
             }
 
             $departmentExists->update([
@@ -118,7 +119,6 @@ class DepartamentoController extends Controller
             ]);
 
             $departmentExists->refresh();
-
             return response()->json([
                 "success"=> "Departamento actualizado con exito",
                 "data"=> $departmentExists

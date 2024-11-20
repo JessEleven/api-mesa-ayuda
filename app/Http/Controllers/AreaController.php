@@ -10,28 +10,29 @@ use Illuminate\Support\Facades\Validator;
 class AreaController extends Controller
 {
     private $areaRules = array(
-        'nombre_area'=> 'required|string|unique:areas,nombre_area',
-        'peso_prioridad'=> 'required|numeric|integer|unique:areas,peso_prioridad',
+        "nombre_area"=> "required|regex:/^[a-zA-Z\s]+$/|unique:areas,nombre_area",
+        "peso_prioridad"=> "required|integer|min:1|unique:areas,peso_prioridad",
     );
 
     private $areaRulesUpdate = array(
-        'nombre_area'=> 'required|string|unique:areas,nombre_area'
+        "nombre_area"=> "required|regex:/^[a-zA-Z\s]+$/|unique:areas,nombre_area"
     );
 
     private $areaMessages = array(
-        'nombre_area.required'=> 'El área es requerida',
-        'nombre_area.string'=> 'Debe ser una cadena de texto',
-        'nombre_area.unique'=> 'El área debe ser única',
-        'peso_prioridad.required'=> 'La prioridad es requerida',
-        'peso_prioridad.numeric'=> 'Solo se aceptan números',
-        'peso_prioridad.integer'=> 'No se aceptan decimales',
-        'peso_prioridad.unique'=> 'La prioridad del área es única'
+        "nombre_area.required"=> "El nombre del área es requerida",
+        "nombre_area.regex"=> "Debe ser una cadena de texto",
+        "nombre_area.unique"=> "El área debe ser única",
+
+        "peso_prioridad.required"=> "La prioridad de área es requerida",
+        "peso_prioridad.integer"=> "Solo se aceptan números enteros",
+        "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
+        "peso_prioridad.unique"=> "La prioridad del área es única"
     );
 
     private $areaMessagesUpdate = array(
-        'nombre_area.required'=> 'El área es requerida',
-        'nombre_area.string'=> 'Debe ser una cadena de texto',
-        'nombre_area.unique'=> 'Ya exite una área igual',
+        "nombre_area.required"=> "El nombre del área es requerida",
+        "nombre_area.regex"=> "Debe ser una cadena de texto",
+        "nombre_area.unique"=> "Ya exite una área igual",
     );
 
     public function index()
@@ -128,7 +129,7 @@ class AreaController extends Controller
 
         } catch (ModelNotFoundException $e) {
             return response()->json([
-                "message"=> 'Área no encontrada'
+                "message"=> "Área no encontrada"
             ], 404);
         }
 

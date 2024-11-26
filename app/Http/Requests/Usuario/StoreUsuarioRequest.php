@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Usuario;
 
+use App\Http\Responses\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -65,8 +66,16 @@ class StoreUsuarioRequest extends FormRequest
     {
         $errors = (new ValidationException($validator))->errors();
 
-        throw new HttpResponseException(response()->json([
-            "messages"=> $errors,
-        ], 422));
+        $errorsCount = count($errors);
+
+        $errorMessage = $errorsCount === 1
+            ? 'Se produjo un error de validación'
+            : 'Se produjeron uno o más errores de validación';
+
+        throw new HttpResponseException(ApiResponse::validation(
+            $errorMessage,
+            422,
+            $errors)
+        );
     }
 }

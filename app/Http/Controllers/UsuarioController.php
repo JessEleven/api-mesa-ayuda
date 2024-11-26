@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Usuario\StoreUsuarioRequest;
 use App\Http\Requests\Usuario\UpdateUsuarioRequest;
+use App\Http\Responses\ApiResponse;
 use App\Models\Usuario;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Validation\ValidationException;
 
 class UsuarioController extends Controller
 {
@@ -16,19 +18,22 @@ class UsuarioController extends Controller
             $allUsers = Usuario::with("areas", "departamentos")->get();
 
             if ($allUsers->isEmpty()) {
-                return response()->json([
-                    "message"=> "No se encontraron usuarios"
-                ], 200);
+                return ApiResponse::success(
+                    "No se encontraron usuarios",
+                    200,
+                    $allUsers);
             }
-            return response()->json([
-                "description"=> "Total de usuarios: ". $allUsers->count(),
-                "data"=> $allUsers
-            ],200);
+            return ApiResponse::success(
+                "Total de usuarios: ". $allUsers->count(),
+                200,
+                $allUsers
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -37,15 +42,17 @@ class UsuarioController extends Controller
         try {
             $newUser = Usuario::create($request->validated());
 
-            return response()->json([
-                "message"=> "Usuario creado con exito",
-                "data"=> $newUser
-            ], 201);
+            return ApiResponse::success(
+                "Usuario creado con exito",
+                201,
+                $newUser
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -54,59 +61,65 @@ class UsuarioController extends Controller
         try {
             $showUser = Usuario::with("areas", "departamentos")->findOrFail($usuario);
 
-            return response()->json([
-                "message"=> "Usuario encontrado con exito",
-                "data"=> $showUser
-            ], 200);
+            return ApiResponse::success(
+                "Usuario encontrado con exito",
+                200,
+                $showUser
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Usuario no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Usuario no encontrado",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
     public function update(UpdateUsuarioRequest $request, $usuario)
     {
         try {
-            $user = Usuario::findOrFail($usuario);
+            $updateUser = Usuario::findOrFail($usuario);
 
             $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
-            $existingData = collect($user->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+            $existingData = collect($updateUser->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
             if ($newData == $existingData) {
-                return response()->json([
-                    "message"=> "No hay cambios para actualizar usuario"
-                ], 200);
+                return ApiResponse::success(
+                    "No hay cambios para actualizar usuario",
+                    200,
+                    $newData
+                );
             }
+            $updateUser->update($newData);
 
-            $user->update($newData);
-
-            return response()->json([
-                "message"=> "Usuario actualizado con exito",
-                "data"=> $user->refresh()
-            ], 200);
+            return ApiResponse::success(
+                "Usuario actualizado con exito",
+                200,
+                $updateUser->refresh()
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Usuario no encontrado"
-            ], 404);
-        }
+            return ApiResponse::error(
+                "Usuario no encontrado",
+                404
+            );
 
-        catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -115,19 +128,23 @@ class UsuarioController extends Controller
         try {
             Usuario::findOrFail($usuario)->delete();
 
-            return response()->json([
-                "message"=> "Usuario eliminado con exito"
-            ], 200);
+            return ApiResponse::deleted(
+                "Usuario eliminado con exito",
+                200,
+                ["related"=> "api/v1/usuario"]
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Usuario no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Usuario no encontrado",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 }

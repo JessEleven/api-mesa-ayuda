@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Usuario extends Model
 {
@@ -41,5 +42,16 @@ class Usuario extends Model
     public function departamentos()
     {
         return $this->belongsTo(Departamento::class, 'id_departamento');
+    }
+
+    // Accesor para created_at y updated_at
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(config('app.timezone'))->format('d/m/Y H:i:s');
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(config('app.timezone'))->format('d/m/Y H:i:s');
     }
 }

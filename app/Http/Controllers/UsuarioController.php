@@ -8,23 +8,25 @@ use App\Http\Responses\ApiResponse;
 use App\Models\Usuario;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
-use Illuminate\Validation\ValidationException;
 
 class UsuarioController extends Controller
 {
     public function index()
     {
         try {
-            $allUsers = Usuario::with("areas", "departamentos")->get();
+            $allUsers = Usuario::with("areas", "departamentos")
+                ->orderBy("id", "asc")
+                ->paginate(20);
 
             if ($allUsers->isEmpty()) {
                 return ApiResponse::success(
-                    "No se encontraron usuarios",
+                    "Lista de usuarios vacia",
                     200,
-                    $allUsers);
+                    $allUsers,
+                );
             }
             return ApiResponse::success(
-                "Total de usuarios: ". $allUsers->count(),
+                "Listado de usuarios",
                 200,
                 $allUsers
             );
@@ -84,6 +86,9 @@ class UsuarioController extends Controller
     public function update(UpdateUsuarioRequest $request, $usuario)
     {
         try {
+            // Forzar un error de base de datos
+            //$result = $Usuario::table('non_existent_table')->get();
+
             $updateUser = Usuario::findOrFail($usuario);
 
             $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
@@ -109,12 +114,6 @@ class UsuarioController extends Controller
                 $updateUser->refresh()
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Usuario no encontrado",
-                404
-            );
-
         } catch (Exception $e) {
             return ApiResponse::error(
                 "Ha ocurrido un error inesperado",
@@ -128,10 +127,14 @@ class UsuarioController extends Controller
         try {
             Usuario::findOrFail($usuario)->delete();
 
+            // Devuelve la ruta completa actual de manera dinámica
+            $path = request()->path();
+            $baseRoute = preg_replace('/\/[^\/]+$/', '', $path);
+
             return ApiResponse::deleted(
                 "Usuario eliminado con exito",
                 200,
-                ["related"=> "api/v1/usuario"]
+                ["related"=> $baseRoute]
             );
 
         } catch (ModelNotFoundException $e) {

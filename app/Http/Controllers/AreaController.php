@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Area;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class AreaController extends Controller
 {
@@ -38,22 +40,26 @@ class AreaController extends Controller
     public function index()
     {
         try {
-            $allAreas = Area::all();
+            $allAreas = Area::orderBy("id", "asc")->paginate(20);
 
             if ($allAreas->isEmpty()) {
-                return response()->json([
-                    "message"=> "No se encontraron áreas"
-                ], 200);
+                return ApiResponse::success(
+                    "Lista de áreas vacia",
+                    200,
+                    $allAreas
+                );
             }
-            return response()->json([
-                "description"=> "Total de áreas: ". $allAreas->count(),
-                "data"=> $allAreas
-            ], 200);
+            return ApiResponse::success(
+                "Listado de áreas",
+                200,
+                $allAreas
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -71,15 +77,17 @@ class AreaController extends Controller
                 "nombre_area" => $request->nombre_area,
                 "peso_prioridad"=> $request->peso_prioridad,
             ]);
-            return response()->json([
-                "success"=> "Area creada con exito",
-                "data"=> $newArea
-            ], 201);
+            return ApiResponse::success(
+                "Area creada con exito",
+                200,
+                $newArea
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -88,20 +96,23 @@ class AreaController extends Controller
         try {
             $showArea = Area::findOrFail($area);
 
-            return response()->json([
-                "message"=> "Área encontrada con exito",
-                "data"=> $showArea
-            ], 200);
+            return ApiResponse::success(
+                "Área encontrada con exito",
+                200,
+                $showArea
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Área no encontrada"
-            ], 404);
+            return ApiResponse::error(
+                "Área no encontrada",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -122,21 +133,24 @@ class AreaController extends Controller
             ]);
 
             $areaExists->refresh();
-            return response()->json([
-                "success"=> "Área actualizada con exito",
-                "data"=> $areaExists
-            ], 200);
+            return ApiResponse::success(
+                "Área actualizada con exito",
+                200,
+                $areaExists
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Área no encontrada"
-            ], 404);
+            return ApiResponse::error(
+                "Área no encontrada",
+                404
+            );
         }
 
-        catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -144,19 +158,23 @@ class AreaController extends Controller
     {
         try {
             Area::findOrFail($area)->delete();
-            return response()->json([
-                "success"=> "Área eliminada con exito"
-            ], 200);
+
+            return ApiResponse::deleted(
+                "Área eliminada con exito",
+                200
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Área no encontrada"
-            ], 404);
+            return ApiResponse::error(
+                "Área no encontrada",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 }

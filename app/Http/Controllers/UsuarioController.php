@@ -127,9 +127,7 @@ class UsuarioController extends Controller
         try {
             Usuario::findOrFail($usuario)->delete();
 
-            // Devuelve la ruta completa actual de manera dinámica
-            $path = request()->path();
-            $baseRoute = preg_replace('/\/[^\/]+$/', '', $path);
+            $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
                 "Usuario eliminado con exito",

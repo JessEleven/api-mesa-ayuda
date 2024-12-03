@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\Departamento;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class DepartamentoController extends Controller
 {
@@ -38,20 +40,25 @@ class DepartamentoController extends Controller
     public function index()
     {
         try {
-            $allDepartments = Departamento::all();
+            $allDepartments = Departamento::orderBy("id","asc")->paginate(20);
 
             if ($allDepartments->isEmpty()) {
-                return response()->json([
-                    "message"=> "No se encontraron departamentos"
-                ], 200);
+                return ApiResponse::success(
+                    "Lista de departamentos vacia",
+                    200
+                );
             }
-            return response()->json([
-                "description"=> "Total de departamentos: ". $allDepartments->count(),
-                "data"=> $allDepartments
-            ], 200);
+            return ApiResponse::success(
+                "Listado de departamentos",
+                200,
+                $allDepartments
+                );
 
-        } catch (\Exception $e) {
-            return response()->json(["error"=> "Ha ocurrido un error inesperado"], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -69,15 +76,17 @@ class DepartamentoController extends Controller
                 "nombre_departamento"=> $request->nombre_departamento,
                 "peso_prioridad"=> $request->peso_prioridad,
             ]);
-            return response()->json([
-                "success"=> "Departamento creado con exito",
-                "data"=> $newDepartment
-            ], 201);
+            return ApiResponse::success(
+                "Departamento creado con exito",
+                201,
+                $newDepartment
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -85,20 +94,24 @@ class DepartamentoController extends Controller
     {
         try {
             $showDepartment = Departamento::findOrFail($departamento);
-            return response()->json([
-                "success"=> "Departamento encontrado con exito",
-                "data"=> $showDepartment
-            ], 200);
+
+            return ApiResponse::success(
+                "Departamento encontrado con exito",
+                200,
+                $showDepartment
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Departamento no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Departamento no encontrado",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -119,21 +132,24 @@ class DepartamentoController extends Controller
             ]);
 
             $departmentExists->refresh();
-            return response()->json([
-                "success"=> "Departamento actualizado con exito",
-                "data"=> $departmentExists
-            ], 200);
+            return ApiResponse::success(
+                "Departamento actualizado con exito",
+                200,
+                $departmentExists
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Departamento no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Departamento no encontrado",
+                404
+            );
         }
 
-        catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -141,19 +157,26 @@ class DepartamentoController extends Controller
     {
         try {
             Departamento::findOrFail($departamento)->delete();
-            return response()->json([
-                "success"=> "Departamento eliminado con exito"
-            ], 200);
+
+            $baseRoute = $this->getBaseRoute();
+
+            return ApiResponse::deleted(
+                "Departamento eliminado con exito",
+                200,
+                ["related"=> $baseRoute]
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Departamento no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Departamento no encontrado",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-             ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 }

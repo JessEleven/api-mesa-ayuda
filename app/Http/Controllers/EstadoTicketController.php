@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\EstadoTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class EstadoTicketController extends Controller
 {
@@ -46,22 +48,25 @@ class EstadoTicketController extends Controller
     public function index()
     {
         try {
-            $allStatus = EstadoTicket::all();
+            $allStatus = EstadoTicket::orderBy("id", "asc")->paginate(20);
 
             if ($allStatus->isEmpty()) {
-                return response()->json([
-                    "message"=> "No se encontraron estados de ticket"
-                ], 200);
+                return ApiResponse::success(
+                    "Lista de estados de ticket vacia",
+                    200
+                );
             }
-            return response()->json([
-                "description"=> "Total de estados de ticket: ". $allStatus->count(),
-                "data"=> $allStatus
-            ], 200);
+            return ApiResponse::success(
+                "Listado de estados de ticket",
+                200,
+                $allStatus
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -80,15 +85,17 @@ class EstadoTicketController extends Controller
                 "color_estado"=> $request->color_estado,
                 "orden_prioridad"=> $request->orden_prioridad,
             ]);
-            return response()->json([
-                "success"=> "Estado de ticket creado con exito",
-                "data"=> $newStatusTicket
-            ], 201);
+            return ApiResponse::success(
+                "Estado de ticket creado con exito",
+                201,
+                $newStatusTicket
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -97,20 +104,23 @@ class EstadoTicketController extends Controller
         try {
             $showStatusTicket = EstadoTicket::findOrFail($estadoTicket);
 
-            return response()->json([
-                "success"=> "Estado ticket encontrado con exito",
-                "data"=> $showStatusTicket
-            ], 200);
+            return ApiResponse::success(
+                "Estado ticket encontrado con exito",
+                200,
+                $showStatusTicket
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Estado ticket no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Estado ticket no encontrado",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -132,20 +142,23 @@ class EstadoTicketController extends Controller
             ]);
 
             $statusTicketExists->refresh();
-            return response()->json([
-                "success"=> "Estado ticket actualizado con exito",
-                "data"=> $statusTicketExists
-            ], 200);
+            return ApiResponse::success(
+                "Estado ticket actualizado con exito",
+                200,
+                $statusTicketExists
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Estado ticket no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Estado ticket no encontrado",
+                404
+            );
 
-        }   catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        }   catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -154,19 +167,26 @@ class EstadoTicketController extends Controller
     {
         try {
             EstadoTicket::findOrFail($estadoTicket)->delete();
-            return response()->json([
-                "success"=> "Estado ticket eliminado con exito"
-            ], 200);
+
+            $baseRoute = $this->getBaseRoute();
+
+            return ApiResponse::deleted(
+                "Estado ticket eliminado con exito",
+                200,
+                ["related"=> $baseRoute]
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Estado ticket no encontrado"
-            ], 404);
+            return ApiResponse::error(
+                "Estado ticket no encontrado",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-             ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 }

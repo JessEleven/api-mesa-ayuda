@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\CategoriaTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class CategoriaTicketController extends Controller
 {
@@ -28,22 +30,26 @@ class CategoriaTicketController extends Controller
     public function index()
     {
         try {
-            $allCategories = CategoriaTicket::all();
+            $allCategories = CategoriaTicket::orderBy("id", "asc")->paginate(20);
 
             if ($allCategories->isEmpty()) {
-                return response()->json([
-                    "message"=> "No se encontraron categorias de ticket"
-                ], 200);
+                return ApiResponse::success(
+                    "Lista de categorias de ticket vacia",
+                    200,
+                    $allCategories
+                );
             }
-            return response()->json([
-                "message"=> "Total de categorias de ticket: ". $allCategories->count(),
-                "data" => $allCategories
-            ],200);
+            return ApiResponse::success(
+                "Listado de categorias de ticket",
+                200,
+                $allCategories
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -60,15 +66,16 @@ class CategoriaTicketController extends Controller
             $newCategoryTicket = CategoriaTicket::create([
                 "nombre_categoria"=> $request->nombre_categoria
             ]);
-            return response()->json([
-                "success"=> "Categoria de ticket creada con exito",
-                "data"=> $newCategoryTicket
-            ], 201);
+            return ApiResponse::success(
+                "Categoria de ticket creada con exito",
+                201,
+                $newCategoryTicket
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500);
         }
     }
 
@@ -76,20 +83,24 @@ class CategoriaTicketController extends Controller
     {
         try {
             $showCategoryTicket = CategoriaTicket::findOrFail($categoriaTicket);
-            return response()->json([
-                "success"=> "Categoria ticket encontrada con exito",
-                "data"=> $showCategoryTicket
-            ], 200);
+
+            return ApiResponse::success(
+                "Categoria ticket encontrada con exito",
+                200,
+                $showCategoryTicket
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Categoria ticket no encontrada"
-            ], 404);
+            return ApiResponse::error(
+                "Categoria ticket no encontrada",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -110,20 +121,23 @@ class CategoriaTicketController extends Controller
             ]);
 
             $categoryTicketExists->refresh();
-            return response()->json([
-                "success"=> "Categoria ticket actualizada con exito",
-                "data"=> $categoryTicketExists
-            ], 200);
+            return ApiResponse::success(
+                "Categoria ticket actualizada con exito",
+                200,
+                $categoryTicketExists
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Categoria ticket no encontrada"
-            ], 404);
+            return ApiResponse::error(
+                "Categoria ticket no encontrada",
+                404
+            );
 
-        }   catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        }   catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 
@@ -131,19 +145,26 @@ class CategoriaTicketController extends Controller
     {
         try {
             CategoriaTicket::findOrFail($categoriaTicket)->delete();
-            return response()->json([
-                "success"=> "Categoria ticket eliminada con exito"
-            ], 200);
+
+            $baseRoute = $this->getBaseRoute();
+
+            return ApiResponse::deleted(
+                "Categoria ticket eliminada con exito",
+                200,
+                ["related"=> $baseRoute]
+            );
 
         } catch (ModelNotFoundException $e) {
-            return response()->json([
-                "message"=> "Categoria ticket no encontrada"
-            ], 404);
+            return ApiResponse::error(
+                "Categoria ticket no encontrada",
+                404
+            );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                "error"=> "Ha ocurrido un error inesperado"
-            ], 500);
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
         }
     }
 }

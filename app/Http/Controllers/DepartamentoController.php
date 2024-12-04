@@ -2,41 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Departamento\StoreDepartamentoRequest;
+use App\Http\Requests\Departamento\UpdateDepartamentoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Departamento;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Exception;
 
 class DepartamentoController extends Controller
 {
-    private $departmentRules = array(
-        "nombre_departamento"=> "required|regex:/^[a-zA-Z\s]+$/|unique:departamentos,nombre_departamento",
-        "peso_prioridad"=> "required|integer|min:1|unique:departamentos,peso_prioridad",
-    );
-
-    private $departmentRulesUpdate = array(
-        "nombre_departamento"=> "required|regex:/^[a-zA-Z\s]+$/|unique:departamentos,nombre_departamento",
-    );
-
-    private $departmentMessages = array(
-        "nombre_departamento.required"=> "El nombre del departamento es requerido",
-        "nombre_departamento.regex"=> "Debe ser una cadena de texto",
-        "nombre_departamento.unique"=> "El nombre del departamento debe ser único",
-
-        "peso_prioridad.required"=> "La prioridad del departamento es requerida",
-        "peso_prioridad.integer"=> "Solo se aceptan números enteros",
-        "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-        "peso_prioridad.unique"=> "La prioridad del departamento es única"
-    );
-
-    private $departmentMessagesUpdate = array(
-        "nombre_departamento.required"=> "El nombre del departamento es requerido",
-        "nombre_departamento.string"=> "Debe ser una cadena de texto",
-        "nombre_departamento.unique"=> "Ya exite un departamento igual",
-    );
-
     public function index()
     {
         try {
@@ -62,20 +36,11 @@ class DepartamentoController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StoreDepartamentoRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), $this->departmentRules, $this->departmentMessages);
+            $newDepartment = Departamento::create($request->validated());
 
-            if ($validator->fails()) {
-                $messages = $validator->messages();
-                return response()->json(["messages"=> $messages], 422);
-            }
-
-            $newDepartment = Departamento::create([
-                "nombre_departamento"=> $request->nombre_departamento,
-                "peso_prioridad"=> $request->peso_prioridad,
-            ]);
             return ApiResponse::success(
                 "Departamento creado con exito",
                 201,
@@ -115,37 +80,35 @@ class DepartamentoController extends Controller
         }
     }
 
-    public function update(Request $request, $departamento)
+    public function update(UpdateDepartamentoRequest $request, $departamento)
     {
         try {
-            $departmentExists = Departamento::findOrFail($departamento);
+            $updateDepartment = Departamento::findOrFail($departamento);
 
-            $validator = Validator::make($request->all(), $this->departmentRulesUpdate, $this->departmentMessagesUpdate);
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
 
-            if ($validator->fails()) {
-                $messages = $validator->messages();
-                return response()->json(["messages"=> $messages], 422);
+            $existingData = collect($updateDepartment->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            if ($newData == $existingData) {
+                return ApiResponse::success(
+                    "No hay cambios para actualizar departamento",
+                    200,
+                    $newData
+                );
             }
+            $updateDepartment->update($newData);
 
-            $departmentExists->update([
-                "nombre_departamento"=> $request->nombre_departamento
-            ]);
-
-            $departmentExists->refresh();
             return ApiResponse::success(
                 "Departamento actualizado con exito",
                 200,
-                $departmentExists
+                $updateDepartment->refresh()
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Departamento no encontrado",
-                404
-            );
-        }
-
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return ApiResponse::error(
                 "Ha ocurrido un error inesperado",
                 500

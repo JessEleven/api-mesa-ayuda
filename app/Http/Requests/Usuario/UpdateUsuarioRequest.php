@@ -54,8 +54,8 @@ class UpdateUsuarioRequest extends FormRequest
         }
 
         return [
-            "nombre"=> "required|regex:/^[a-zA-Z\s]+$/",
-            "apellido"=> "required|regex:/^[a-zA-Z\s]+$/",
+            "nombre"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
+            "apellido"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
             "telefono"=> "required|integer|regex:/^\d{10}$/",
             "email"=> [
                 "required",
@@ -102,7 +102,7 @@ class UpdateUsuarioRequest extends FormRequest
 
         $errorMessage = $errorsCount === 1
             ? 'Se produjo un error de validación'
-            : 'Se produjeron uno o más errores de validación';
+            : 'Se produjeron varios errores de validación';
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

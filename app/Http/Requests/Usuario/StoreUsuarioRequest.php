@@ -26,8 +26,8 @@ class StoreUsuarioRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nombre"=> "required|regex:/^[a-zA-Z\s]+$/",
-            "apellido"=> "required|regex:/^[a-zA-Z\s]+$/",
+            "nombre"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
+            "apellido"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
             "telefono"=> "required|integer|regex:/^\d{10}$/",
             "email"=> "required|email|unique:usuarios,email",
             "password"=> "required|min:8|regex:/^[a-zA-Z0-9]+$/",
@@ -70,7 +70,7 @@ class StoreUsuarioRequest extends FormRequest
 
         $errorMessage = $errorsCount === 1
             ? 'Se produjo un error de validación'
-            : 'Se produjeron uno o más errores de validación';
+            : 'Se produjeron varios errores de validación';
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

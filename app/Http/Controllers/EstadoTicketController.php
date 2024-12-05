@@ -2,49 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\EstadoTicket\StoreEstadoTicketRequest;
+use App\Http\Requests\EstadoTicket\UpdateEstadoTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\EstadoTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Exception;
 
 class EstadoTicketController extends Controller
 {
-    private $statusRules = array (
-        "nombre_estado"=> "required|regex:/^[a-zA-Z\s]+$/|unique:estado_tickets,nombre_estado",
-        "color_estado"=> "required|unique:estado_tickets,color_estado",
-        "orden_prioridad"=> "required|integer|min:1|unique:estado_tickets,orden_prioridad",
-    );
-
-    private $statusRulesUpdate = array (
-        "nombre_estado"=> "required|regex:/^[a-zA-Z\s]+$/|unique:estado_tickets,nombre_estado",
-        "color_estado"=> "required|unique:estado_tickets,color_estado"
-    );
-
-    private $statusMessages = array (
-        "nombre_estado.required"=> "El nombre del estado es requerido",
-        "nombre_estado.regex"=> "Debe ser una cadena de texto",
-        "nombre_estado.unique"=> "El nombre del estado debe ser único",
-
-        "color_estado.required"=> "El color del estado es requerido",
-        "color_estado.unique"=> "El color del estado debe ser único",
-
-        "orden_prioridad.required"=> "La prioridad del estado es requerida",
-        "orden_prioridad.integer"=> "Solo se aceptan números enteros",
-        "orden_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-        "orden_prioridad.unique"=> "La prioridad del estado debe ser única",
-    );
-
-    private $statusMessagesUpdate = array (
-        "nombre_estado.required"=> "El nombre del estado es requerido",
-        "nombre_estado.regex"=> "Debe ser una cadena de texto",
-        "nombre_estado.unique"=> "Ya existe un estado igual",
-
-        "color_estado.required"=> "El color del estado es requerido",
-        "color_estado.unique"=> "Ya existe un color de estado igual",
-    );
-
     public function index()
     {
         try {
@@ -70,21 +36,10 @@ class EstadoTicketController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StoreEstadoTicketRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), $this->statusRules, $this->statusMessages);
-
-            if ($validator->fails()) {
-                $messages = $validator->messages();
-                return response()->json(["messages" => $messages],422);
-            }
-
-            $newStatusTicket = EstadoTicket::create([
-                "nombre_estado"=> $request->nombre_estado,
-                "color_estado"=> $request->color_estado,
-                "orden_prioridad"=> $request->orden_prioridad,
-            ]);
+            $newStatusTicket = EstadoTicket::create($request->validated());
             return ApiResponse::success(
                 "Estado de ticket creado con exito",
                 201,
@@ -124,34 +79,32 @@ class EstadoTicketController extends Controller
         }
     }
 
-    public function update(Request $request, $estadoTicket)
+    public function update(UpdateEstadoTicketRequest $request, $estadoTicket)
     {
         try {
-            $statusTicketExists = EstadoTicket::findOrFail($estadoTicket);
+            $updateStatusTicket = EstadoTicket::findOrFail($estadoTicket);
 
-            $validator = Validator::make($request->all(), $this->statusRulesUpdate, $this->statusMessagesUpdate);
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
 
-            if ($validator->fails()) {
-                $messages = $validator->messages();
-                return response()->json(["messages"=> $messages], 422);
+            $existingData = collect($updateStatusTicket->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            if ($newData == $existingData) {
+                return ApiResponse::success(
+                    "No hay cambios para actualizar estado ticket",
+                    200,
+                    $newData
+                );
             }
+            $updateStatusTicket->update($newData);
 
-            $statusTicketExists->update([
-                "nombre_estado"=> $request->nombre_estado,
-                "color_estado"=> $request->color_estado
-            ]);
-
-            $statusTicketExists->refresh();
             return ApiResponse::success(
                 "Estado ticket actualizado con exito",
                 200,
-                $statusTicketExists
-            );
-
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Estado ticket no encontrado",
-                404
+                $updateStatusTicket->refresh()
             );
 
         }   catch (Exception $e) {
@@ -161,7 +114,6 @@ class EstadoTicketController extends Controller
             );
         }
     }
-
 
     public function destroy($estadoTicket)
     {

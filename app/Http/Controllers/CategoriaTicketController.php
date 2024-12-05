@@ -2,31 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CategoriaTicket\StoreCategoriaTicketRequest;
+use App\Http\Requests\CategoriaTicket\UpdateCategoriaTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\CategoriaTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Exception;
 
 class CategoriaTicketController extends Controller
 {
-    private $categoryRules = array (
-        "nombre_categoria"=> "required|regex:/^[a-zA-Z\s]+$/|unique:categoria_tickets,nombre_categoria",
-    );
-
-    private $categoryMessages = array (
-        "nombre_categoria.required"=> "El nombre de la categoria es requerida",
-        "nombre_categoria.regex"=> "Debe ser una cadena de texto",
-        "nombre_categoria.unique"=> "El nombre de la categoria debe ser única",
-    );
-
-    private $categoryMessagesUpdate = array (
-        "nombre_categoria.required"=> "El nombre de la categoria es requerida",
-        "nombre_categoria.regex"=> "Debe ser una cadena de texto",
-        "nombre_categoria.unique"=> "Ya existe una categoria igual"
-    );
-
     public function index()
     {
         try {
@@ -53,19 +37,11 @@ class CategoriaTicketController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StoreCategoriaTicketRequest $request)
     {
         try {
-            $validator = Validator::make($request->all(), $this->categoryRules, $this->categoryMessages);
+            $newCategoryTicket = CategoriaTicket::create($request->validated());
 
-            if ($validator->fails()) {
-                $messages = $validator->messages();
-                return response()->json(["messages" => $messages],422);
-            }
-
-            $newCategoryTicket = CategoriaTicket::create([
-                "nombre_categoria"=> $request->nombre_categoria
-            ]);
             return ApiResponse::success(
                 "Categoria de ticket creada con exito",
                 201,
@@ -104,36 +80,35 @@ class CategoriaTicketController extends Controller
         }
     }
 
-    public function update(Request $request, $categoriaTicket)
+    public function update(UpdateCategoriaTicketRequest $request, $categoriaTicket)
     {
         try {
-            $categoryTicketExists = CategoriaTicket::findOrFail($categoriaTicket);
+            $updateCategoryTicket = CategoriaTicket::findOrFail($categoriaTicket);
 
-            $validator = Validator::make($request->all(), $this->categoryRules, $this->categoryMessagesUpdate);
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
 
-            if ($validator->fails()) {
-                $messages = $validator->messages();
-                return response()->json(["messages"=> $messages], 422);
+            $existingData = collect($updateCategoryTicket->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            if ($newData == $existingData) {
+                return ApiResponse::success(
+                    "No hay cambios para actualizar categoria ticket",
+                    200,
+                    $newData
+                );
             }
+            $updateCategoryTicket->update($newData);
 
-            $categoryTicketExists->update([
-                "nombre_categoria"=> $request->nombre_categoria
-            ]);
-
-            $categoryTicketExists->refresh();
             return ApiResponse::success(
                 "Categoria ticket actualizada con exito",
                 200,
-                $categoryTicketExists
+                $updateCategoryTicket->refresh()
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Categoria ticket no encontrada",
-                404
-            );
-
-        }   catch (Exception $e) {
+        } catch (Exception $e) {
             return ApiResponse::error(
                 "Ha ocurrido un error inesperado",
                 500

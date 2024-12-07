@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PrioridadTicket\StorePrioridadTicketRequest;
+use App\Http\Requests\PrioridadTicket\UpdatePrioridadTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\PrioridadTicket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 
 class PrioridadTicketController extends Controller
 {
     public function index()
     {
         try {
-            $allPriority = PrioridadTicket::all();
+            $allPriority = PrioridadTicket::orderBy("id", "asc")->paginate(20);
 
             if ($allPriority->isEmpty()) {
                 return ApiResponse::success(
@@ -36,17 +37,13 @@ class PrioridadTicketController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StorePrioridadTicketRequest $request)
     {
         try {
-            $newPriorityTicket = PrioridadTicket::create([
-                "nombre_prioridad"=> $request->nombre_prioridad,
-                "color_prioridad"=> $request->color_prioridad,
-                "orden_prioridad"=> $request->orden_prioridad
-            ]);
+            $newPriorityTicket = PrioridadTicket::create($request->validated());
 
             return ApiResponse::success(
-                "Prioridad de ticket creado con exito",
+                "Prioridad de ticket creada con exito",
                 201,
                 $newPriorityTicket
             );
@@ -65,14 +62,14 @@ class PrioridadTicketController extends Controller
             $showPriorityTicket = PrioridadTicket::findOrFail($prioridadTicket);
 
             return ApiResponse::success(
-                "Prioridad ticket encontrado con exito",
+                "Prioridad ticket encontrada con exito",
                 200,
                 $showPriorityTicket
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Prioridad ticket no encontrado",
+                "Prioridad ticket no encontrada",
                 404
             );
 
@@ -84,12 +81,12 @@ class PrioridadTicketController extends Controller
         }
     }
 
-    public function update(Request $request, $prioridadTicket)
+    public function update(UpdatePrioridadTicketRequest $request, $prioridadTicket)
     {
         try {
             $updatePriorityTicket = PrioridadTicket::findOrFail($prioridadTicket);
 
-            /* $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
@@ -103,14 +100,11 @@ class PrioridadTicketController extends Controller
                     200,
                     $newData
                 );
-            } */
-            $updatePriorityTicket->update([
-                "nombre_prioridad"=> $request->nombre_prioridad,
-                "color_prioridad"=> $request->color_prioridad
-            ]);
+            }
+            $updatePriorityTicket->update($newData);
 
             return ApiResponse::success(
-                "Prioridad ticket actualizado con exito",
+                "Prioridad ticket actualizada con exito",
                 200,
                 $updatePriorityTicket->refresh()
             );
@@ -131,14 +125,14 @@ class PrioridadTicketController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Prioridad ticket eliminado con exito",
+                "Prioridad ticket eliminada con exito",
                 200,
                 ["related"=> $baseRoute]
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Prioridad ticket no encontrado",
+                "Prioridad ticket no encontrada",
                 404
             );
 

@@ -14,19 +14,19 @@ class PrioridadTicketController extends Controller
     public function index()
     {
         try {
-            $allPriority = PrioridadTicket::orderBy("id", "asc")->paginate(20);
+            $allPriorities = PrioridadTicket::orderBy("id", "asc")->paginate(20);
 
-            if ($allPriority->isEmpty()) {
+            if ($allPriorities->isEmpty()) {
                 return ApiResponse::success(
                     "Lista de prioridades de ticket vacia",
                     200,
-                    $allPriority
+                    $allPriorities
                 );
             }
             return ApiResponse::success(
                 "Listado de prioridad de ticket",
                 200,
-                $allPriority
+                $allPriorities
             );
 
         } catch (Exception $e) {

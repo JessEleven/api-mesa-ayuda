@@ -19,7 +19,8 @@ class DepartamentoController extends Controller
             if ($allDepartments->isEmpty()) {
                 return ApiResponse::success(
                     "Lista de departamentos vacia",
-                    200
+                    200,
+                    $allDepartments
                 );
             }
             return ApiResponse::success(

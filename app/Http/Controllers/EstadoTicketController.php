@@ -19,7 +19,8 @@ class EstadoTicketController extends Controller
             if ($allStatus->isEmpty()) {
                 return ApiResponse::success(
                     "Lista de estados de ticket vacia",
-                    200
+                    200,
+                    $allStatus
                 );
             }
             return ApiResponse::success(
@@ -40,6 +41,7 @@ class EstadoTicketController extends Controller
     {
         try {
             $newStatusTicket = EstadoTicket::create($request->validated());
+
             return ApiResponse::success(
                 "Estado de ticket creado con exito",
                 201,

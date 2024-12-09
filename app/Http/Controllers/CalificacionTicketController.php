@@ -14,19 +14,19 @@ class CalificacionTicketController extends Controller
     public function index()
     {
         try {
-            $allQualification = CalificacionTicket::orderBy("id", "asc")->paginate(20);
+            $allQualifications = CalificacionTicket::orderBy("id", "asc")->paginate(20);
 
-            if ($allQualification->isEmpty()) {
+            if ($allQualifications->isEmpty()) {
                 return ApiResponse::success(
                     "Lista de calificaciones de ticket vacia",
                     200,
-                    $allQualification
+                    $allQualifications
                 );
             }
             return ApiResponse::success(
                 "Listado de calificaciones de ticket",
                 200,
-                $allQualification
+                $allQualifications
             );
 
         } catch (Exception $e) {

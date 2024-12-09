@@ -40,12 +40,12 @@ class PrioridadTicketController extends Controller
     public function store(StorePrioridadTicketRequest $request)
     {
         try {
-            $newPriorityTicket = PrioridadTicket::create($request->validated());
+            $newPriority = PrioridadTicket::create($request->validated());
 
             return ApiResponse::success(
                 "Prioridad de ticket creada con exito",
                 201,
-                $newPriorityTicket
+                $newPriority
             );
 
         } catch (Exception $e) {
@@ -59,12 +59,12 @@ class PrioridadTicketController extends Controller
     public function show($prioridadTicket)
     {
         try {
-            $showPriorityTicket = PrioridadTicket::findOrFail($prioridadTicket);
+            $showPriority = PrioridadTicket::findOrFail($prioridadTicket);
 
             return ApiResponse::success(
                 "Prioridad ticket encontrada con exito",
                 200,
-                $showPriorityTicket
+                $showPriority
             );
 
         } catch (ModelNotFoundException $e) {
@@ -84,13 +84,13 @@ class PrioridadTicketController extends Controller
     public function update(UpdatePrioridadTicketRequest $request, $prioridadTicket)
     {
         try {
-            $updatePriorityTicket = PrioridadTicket::findOrFail($prioridadTicket);
+            $updatePriority = PrioridadTicket::findOrFail($prioridadTicket);
 
             $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
-            $existingData = collect($updatePriorityTicket->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+            $existingData = collect($updatePriority->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
@@ -101,12 +101,12 @@ class PrioridadTicketController extends Controller
                     $newData
                 );
             }
-            $updatePriorityTicket->update($newData);
+            $updatePriority->update($newData);
 
             return ApiResponse::success(
                 "Prioridad ticket actualizada con exito",
                 200,
-                $updatePriorityTicket->refresh()
+                $updatePriority->refresh()
             );
 
         }   catch (Exception $e) {

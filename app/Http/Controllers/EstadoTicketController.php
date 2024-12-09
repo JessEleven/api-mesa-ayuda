@@ -14,19 +14,19 @@ class EstadoTicketController extends Controller
     public function index()
     {
         try {
-            $allStatus = EstadoTicket::orderBy("id", "asc")->paginate(20);
+            $allStatuses = EstadoTicket::orderBy("id", "asc")->paginate(20);
 
-            if ($allStatus->isEmpty()) {
+            if ($allStatuses->isEmpty()) {
                 return ApiResponse::success(
                     "Lista de estados de ticket vacia",
                     200,
-                    $allStatus
+                    $allStatuses
                 );
             }
             return ApiResponse::success(
                 "Listado de estados de ticket",
                 200,
-                $allStatus
+                $allStatuses
             );
 
         } catch (Exception $e) {
@@ -40,12 +40,12 @@ class EstadoTicketController extends Controller
     public function store(StoreEstadoTicketRequest $request)
     {
         try {
-            $newStatusTicket = EstadoTicket::create($request->validated());
+            $newStatus = EstadoTicket::create($request->validated());
 
             return ApiResponse::success(
                 "Estado de ticket creado con exito",
                 201,
-                $newStatusTicket
+                $newStatus
             );
 
         } catch (Exception $e) {
@@ -59,12 +59,12 @@ class EstadoTicketController extends Controller
     public function show($estadoTicket)
     {
         try {
-            $showStatusTicket = EstadoTicket::findOrFail($estadoTicket);
+            $showStatus = EstadoTicket::findOrFail($estadoTicket);
 
             return ApiResponse::success(
                 "Estado ticket encontrado con exito",
                 200,
-                $showStatusTicket
+                $showStatus
             );
 
         } catch (ModelNotFoundException $e) {
@@ -84,13 +84,13 @@ class EstadoTicketController extends Controller
     public function update(UpdateEstadoTicketRequest $request, $estadoTicket)
     {
         try {
-            $updateStatusTicket = EstadoTicket::findOrFail($estadoTicket);
+            $updateStatus = EstadoTicket::findOrFail($estadoTicket);
 
             $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
-            $existingData = collect($updateStatusTicket->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+            $existingData = collect($updateStatus->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
@@ -101,12 +101,12 @@ class EstadoTicketController extends Controller
                     $newData
                 );
             }
-            $updateStatusTicket->update($newData);
+            $updateStatus->update($newData);
 
             return ApiResponse::success(
                 "Estado ticket actualizado con exito",
                 200,
-                $updateStatusTicket->refresh()
+                $updateStatus->refresh()
             );
 
         }   catch (Exception $e) {

@@ -40,30 +40,31 @@ class CategoriaTicketController extends Controller
     public function store(StoreCategoriaTicketRequest $request)
     {
         try {
-            $newCategoryTicket = CategoriaTicket::create($request->validated());
+            $newCategory = CategoriaTicket::create($request->validated());
 
             return ApiResponse::success(
                 "Categoria de ticket creada con exito",
                 201,
-                $newCategoryTicket
+                $newCategory
             );
 
         } catch (Exception $e) {
             return ApiResponse::error(
                 "Ha ocurrido un error inesperado",
-                500);
+                500
+            );
         }
     }
 
     public function show($categoriaTicket)
     {
         try {
-            $showCategoryTicket = CategoriaTicket::findOrFail($categoriaTicket);
+            $showCategory = CategoriaTicket::findOrFail($categoriaTicket);
 
             return ApiResponse::success(
                 "Categoria ticket encontrada con exito",
                 200,
-                $showCategoryTicket
+                $showCategory
             );
 
         } catch (ModelNotFoundException $e) {
@@ -83,13 +84,13 @@ class CategoriaTicketController extends Controller
     public function update(UpdateCategoriaTicketRequest $request, $categoriaTicket)
     {
         try {
-            $updateCategoryTicket = CategoriaTicket::findOrFail($categoriaTicket);
+            $updateCategory = CategoriaTicket::findOrFail($categoriaTicket);
 
             $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
-            $existingData = collect($updateCategoryTicket->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+            $existingData = collect($updateCategory->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
                 $key => is_string($value) ? trim($value) : $value,
             ])->toArray();
 
@@ -100,12 +101,12 @@ class CategoriaTicketController extends Controller
                     $newData
                 );
             }
-            $updateCategoryTicket->update($newData);
+            $updateCategory->update($newData);
 
             return ApiResponse::success(
                 "Categoria ticket actualizada con exito",
                 200,
-                $updateCategoryTicket->refresh()
+                $updateCategory->refresh()
             );
 
         } catch (Exception $e) {

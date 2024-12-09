@@ -31,7 +31,7 @@ class StoreCalificacionTicketRequest extends FormRequest
                 "integer",
                 "in:2,4,6,8,10"
             ],
-            "observacion" => [
+            "observacion"=> [
                 "nullable",
                 // Puede contener letras, espacios, puntos, comas, punto y coma, y la letra ñ
                 "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"

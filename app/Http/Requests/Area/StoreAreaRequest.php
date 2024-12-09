@@ -26,8 +26,17 @@ class StoreAreaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nombre_area"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u|unique:areas,nombre_area",
-            "peso_prioridad"=> "required|integer|min:1|unique:areas,peso_prioridad",
+            "nombre_area"=> [
+                "required",
+                "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
+                "unique:areas,nombre_area"
+            ],
+            "peso_prioridad"=> [
+                "required",
+                "integer",
+                "min:1",
+                "unique:areas,peso_prioridad"
+            ],
         ];
     }
 
@@ -52,8 +61,8 @@ class StoreAreaRequest extends FormRequest
         $errorsCount = count($errors);
 
         $errorMessage = $errorsCount === 1
-            ? 'Se produjo un error de validación'
-            : 'Se produjeron varios errores de validación';
+            ? "Se produjo un error de validación"
+            : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

@@ -54,17 +54,35 @@ class UpdateUsuarioRequest extends FormRequest
         }
 
         return [
-            "nombre"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-            "apellido"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-            "telefono"=> "required|integer|regex:/^\d{10}$/",
+            "nombre"=> [
+                "required",
+                "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u"
+            ],
+            "apellido"=> [
+                "required",
+                "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u"
+            ],
+            "telefono"=> [
+                "required",
+                "integer",
+                "regex:/^\d{10}$/"
+            ],
             "email"=> [
                 "required",
                 "email",
                  Rule::unique('usuarios')->ignore($id)
             ],
-            "password"=> "required|min:8|regex:/^[a-zA-Z0-9]+$/",
-            "id_area"=> "required",
-            "id_departamento"=> "required"
+            "password"=> [
+                "required",
+                "min:8",
+                "regex:/^[a-zA-Z0-9]+$/"
+            ],
+            "id_area"=> [
+                "required"
+            ],
+            "id_departamento"=> [
+                "required"
+            ]
         ];
     }
 
@@ -78,7 +96,7 @@ class UpdateUsuarioRequest extends FormRequest
             "apellido.regex"=> "Debe ser una cadena de texto",
 
             "telefono.required"=> "El telefono es requerido",
-            "telefono.integer" => "Debe ser un número válido",
+            "telefono.integer"=> "Debe ser un número válido",
             "telefono.regex"=> "Debe tener al menos 10 caracteres",
 
             "email.required"=> "El correo es requerido",
@@ -86,8 +104,8 @@ class UpdateUsuarioRequest extends FormRequest
             "email.unique"=> "Ya existe un correo igual",
 
             "password.required"=> "La contraseña es requerida",
-            "password.min" => "Debe tener al menos 8 caracteres",
-            "password.regex" => "Solo puede contener letras y números",
+            "password.min"=> "Debe tener al menos 8 caracteres",
+            "password.regex"=> "Solo puede contener letras y números",
 
             "id_area"=> "El id area es requerido",
             "id_departamento"=> "El id departamento es requerido",
@@ -101,8 +119,8 @@ class UpdateUsuarioRequest extends FormRequest
         $errorsCount = count($errors);
 
         $errorMessage = $errorsCount === 1
-            ? 'Se produjo un error de validación'
-            : 'Se produjeron varios errores de validación';
+            ? "Se produjo un error de validación"
+            : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

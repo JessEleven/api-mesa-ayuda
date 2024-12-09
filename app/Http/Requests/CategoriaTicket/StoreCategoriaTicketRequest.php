@@ -26,7 +26,11 @@ class StoreCategoriaTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nombre_categoria"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u|unique:categoria_tickets,nombre_categoria",
+            "nombre_categoria"=> [
+                "required",
+                "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
+                "unique:categoria_tickets,nombre_categoria",
+            ]
         ];
     }
 
@@ -46,8 +50,8 @@ class StoreCategoriaTicketRequest extends FormRequest
         $errorsCount = count($errors);
 
         $errorMessage = $errorsCount === 1
-            ? 'Se produjo un error de validación'
-            : 'Se produjeron varios errores de validación';
+            ? "Se produjo un error de validación"
+            : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

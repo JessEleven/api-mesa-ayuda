@@ -26,8 +26,17 @@ class StoreDepartamentoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nombre_departamento"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u|unique:departamentos,nombre_departamento",
-            "peso_prioridad"=> "required|integer|min:1|unique:departamentos,peso_prioridad",
+            "nombre_departamento"=> [
+                "required",
+                "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
+                "unique:departamentos,nombre_departamento"
+            ],
+            "peso_prioridad"=> [
+                "required",
+                "integer",
+                "min:1",
+                "unique:departamentos,peso_prioridad"
+            ],
         ];
     }
 
@@ -52,8 +61,8 @@ class StoreDepartamentoRequest extends FormRequest
         $errorsCount = count($errors);
 
         $errorMessage = $errorsCount === 1
-            ? 'Se produjo un error de validación'
-            : 'Se produjeron varios errores de validación';
+            ? "Se produjo un error de validación"
+            : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

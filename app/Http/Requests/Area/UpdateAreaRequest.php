@@ -70,8 +70,8 @@ class UpdateAreaRequest extends FormRequest
         $errorsCount = count($errors);
 
         $errorMessage = $errorsCount === 1
-            ? 'Se produjo un error de validación'
-            : 'Se produjeron varios errores de validación';
+            ? "Se produjo un error de validación"
+            : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

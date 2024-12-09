@@ -26,9 +26,21 @@ class StorePrioridadTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nombre_prioridad"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u|unique:prioridad_tickets,nombre_prioridad",
-            "color_prioridad"=> "required|unique:prioridad_tickets,color_prioridad",
-            "orden_prioridad"=> "required|integer|min:1|unique:prioridad_tickets,orden_prioridad",
+            "nombre_prioridad"=> [
+                "required",
+                "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
+                "unique:prioridad_tickets,nombre_prioridad"
+            ],
+            "color_prioridad"=> [
+                "required",
+                "unique:prioridad_tickets,color_prioridad"
+            ],
+            "orden_prioridad"=> [
+                "required",
+                "integer",
+                "min:1",
+                "unique:prioridad_tickets,orden_prioridad"
+            ],
         ];
     }
 
@@ -56,8 +68,8 @@ class StorePrioridadTicketRequest extends FormRequest
         $errorsCount = count($errors);
 
         $errorMessage = $errorsCount === 1
-            ? 'Se produjo un error de validación'
-            : 'Se produjeron varios errores de validación';
+            ? "Se produjo un error de validación"
+            : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

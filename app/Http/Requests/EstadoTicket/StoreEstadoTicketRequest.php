@@ -26,9 +26,21 @@ class StoreEstadoTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "nombre_estado"=> "required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u|unique:estado_tickets,nombre_estado",
-            "color_estado"=> "required|unique:estado_tickets,color_estado",
-            "orden_prioridad"=> "required|integer|min:1|unique:estado_tickets,orden_prioridad",
+            "nombre_estado"=> [
+                "required",
+                "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
+                "unique:estado_tickets,nombre_estado"
+            ],
+            "color_estado"=> [
+                "required",
+                "unique:estado_tickets,color_estado"
+            ],
+            "orden_prioridad"=> [
+                "required",
+                "integer",
+                "min:1",
+                "unique:estado_tickets,orden_prioridad"
+            ],
         ];
     }
 
@@ -56,8 +68,8 @@ class StoreEstadoTicketRequest extends FormRequest
         $errorsCount = count($errors);
 
         $errorMessage = $errorsCount === 1
-            ? 'Se produjo un error de validación'
-            : 'Se produjeron varios errores de validación';
+            ? "Se produjo un error de validación"
+            : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
             $errorMessage,

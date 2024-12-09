@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CalificacionTicket\StoreCalificacionTicketRequest;
+use App\Http\Requests\CalificacionTicket\UpdateCalificacionTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\CalificacionTicket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 
 class CalificacionTicketController extends Controller
 {
@@ -27,6 +28,7 @@ class CalificacionTicketController extends Controller
                 200,
                 $allQualification
             );
+
         } catch (Exception $e) {
             return ApiResponse::error(
                 "Ha ocurrido un error inesperado",
@@ -35,18 +37,15 @@ class CalificacionTicketController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StoreCalificacionTicketRequest $request)
     {
         try {
-            $newQualificationTicket = CalificacionTicket::create([
-                "calificacion"=> $request->calificacion,
-                "observacion"=> $request->observacion
-            ]);
+            $newQualification = CalificacionTicket::create($request->validated());
 
             return ApiResponse::success(
                 "Calificación de ticket creada con exito",
                 201,
-                $newQualificationTicket
+                $newQualification
             );
 
         } catch (Exception $e) {
@@ -60,12 +59,12 @@ class CalificacionTicketController extends Controller
     public function show($calificacionTicket)
     {
         try {
-            $showQualificationTicket = CalificacionTicket::findOrFail($calificacionTicket);
+            $showQualification = CalificacionTicket::findOrFail($calificacionTicket);
 
             return ApiResponse::success(
                 "Calificación ticket encontrada con exito",
                 200,
-                $showQualificationTicket
+                $showQualification
             );
 
         } catch(ModelNotFoundException $e) {
@@ -82,20 +81,32 @@ class CalificacionTicketController extends Controller
         }
     }
 
-    public function update(Request $request, $calificacionTicket)
+    public function update(UpdateCalificacionTicketRequest $request, $calificacionTicket)
     {
         try {
-            $updateQualificationTicket = CalificacionTicket::findOrFail($calificacionTicket);
+            $updateQualification = CalificacionTicket::findOrFail($calificacionTicket);
 
-            $updateQualificationTicket->update([
-                "calificacion"=> $request->calificacion,
-                "observacion"=> $request->observacion
-            ]);
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            $existingData = collect($updateQualification->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            if ($newData == $existingData) {
+                return ApiResponse::success(
+                    "No hay cambios para actualizar calificación ticket",
+                    200,
+                    $newData
+                );
+            }
+            $updateQualification->update($newData);
 
             return ApiResponse::success(
                 "Calificación ticket actualizada con exito",
                 200,
-                $updateQualificationTicket
+                $updateQualification->refresh()
             );
 
         } catch (Exception $e) {

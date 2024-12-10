@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('calificacion_tickets', function (Blueprint $table) {
             $table->id();
-            $table->double('calificacion');
-            $table->string('observacion');
+            $table->integer('calificacion');
+            $table->text('observacion')->nullable();
             $table->timestamps();
         });
     }

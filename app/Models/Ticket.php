@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Ticket extends Model
 {
@@ -25,7 +26,7 @@ class Ticket extends Model
         return $this->hasMany(TecnicoAsignado::class, 'id_tecnico_asignado');
     }
 
-    public function categorias()
+    public function categoria_tickets()
     {
         return $this->belongsTo(CategoriaTicket::class, 'id_categoria');
     }
@@ -48,5 +49,16 @@ class Ticket extends Model
     public function calificacion_tickets()
     {
         return $this->belongsTo(CalificacionTicket::class, 'id_calificacion');
+    }
+
+    // Accesor para created_at y updated_at
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(config('app.timezone'))->format('d/m/Y H:i:s');
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(config('app.timezone'))->format('d/m/Y H:i:s');
     }
 }

@@ -36,7 +36,10 @@ class StoreUsuarioRequest extends FormRequest
             ],
             "telefono"=> [
                 "required",
-                "integer|regex:/^\d{10}$/"
+                // Valida que el primer carácter empiece con cero
+                "regex:/^0\d{9}$/"
+                // No valida que el primer carácter empiece con cero
+                //"regex:/^\d{10}$/"
             ],
             "email"=> [
                 "required",
@@ -66,9 +69,11 @@ class StoreUsuarioRequest extends FormRequest
             "apellido.required"=> "Los apellidos son requeridos",
             "apellido.regex"=> "Debe ser una cadena de texto",
 
-            "telefono.required"=> "El telefono es requerido",
-            "telefono.integer"=> "Debe ser un número válido",
-            "telefono.regex"=> "Debe tener al menos 10 caracteres",
+            "telefono.required"=> "El teléfono es requerido",
+            //"telefono.integer"=> "Debe ser un número válido",
+            //"telefono.regex"=> "Debe tener al menos 10 caracteres",
+            "telefono.regex"=> "Debe ser un número válido y tener 10 dígitos",
+
 
             "email.required"=> "El correo es requerido",
             "email.email"=> "La dirección del correo no es válida",
@@ -78,8 +83,8 @@ class StoreUsuarioRequest extends FormRequest
             "password.min"=> "Debe tener al menos 8 caracteres",
             "password.regex"=> "Solo puede contener letras y números",
 
-            "id_area"=> "El id area es requerido",
-            "id_departamento"=> "El id departamento es requerido",
+            "id_area"=> "El id área es requerido",
+            "id_departamento"=> "El id departamento es requerido"
         ];
     }
 

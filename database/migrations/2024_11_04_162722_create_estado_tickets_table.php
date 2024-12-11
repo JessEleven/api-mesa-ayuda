@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('estado_tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_estado');
-            $table->string('color_estado');
-            $table->integer('orden_prioridad');
+            $table->string('nombre_estado')->unique();
+            $table->string('color_estado')->unique();
+            $table->integer('orden_prioridad')->unique();
             $table->timestamps();
         });
     }

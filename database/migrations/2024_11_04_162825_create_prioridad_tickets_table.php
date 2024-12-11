@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('prioridad_tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_prioridad');
-            $table->string('color_prioridad');
-            $table->integer('orden_prioridad');
+            $table->string('nombre_prioridad')->unique();
+            $table->string('color_prioridad')->unique();
+            $table->integer('orden_prioridad')->unique();
             $table->timestamps();
         });
     }

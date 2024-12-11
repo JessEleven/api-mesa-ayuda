@@ -65,7 +65,7 @@ class UpdatePrioridadTicketRequest extends FormRequest
             "nombre_prioridad.unique"=> "El nombre de la prioridad debe ser única",
 
             "color_prioridad.required"=> "El color de la prioridad es requerida",
-            "color_prioridad.unique"=> "El color de la prioridad debe ser única",
+            "color_prioridad.unique"=> "El color de la prioridad debe ser única"
         ];
     }
 

@@ -57,7 +57,7 @@ class StorePrioridadTicketRequest extends FormRequest
             "orden_prioridad.required"=> "La prioridad del ticket es requerida",
             "orden_prioridad.integer"=> "Solo se aceptan números enteros",
             "orden_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-            "orden_prioridad.unique"=> "La prioridad del ticket debe ser única",
+            "orden_prioridad.unique"=> "La prioridad del ticket debe ser única"
         ];
     }
 

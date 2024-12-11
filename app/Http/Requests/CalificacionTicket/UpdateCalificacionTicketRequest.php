@@ -64,7 +64,7 @@ class UpdateCalificacionTicketRequest extends FormRequest
             "calificacion.integer"=> "Solo se aceptan números enteros",
             "calificacion.in"=> "La calificación debe ser 2, 4, 6, 8 o 10",
 
-            "observacion.regex"=> "Debe ser una cadena de texto",
+            "observacion.regex"=> "Debe ser una cadena de texto"
         ];
     }
 

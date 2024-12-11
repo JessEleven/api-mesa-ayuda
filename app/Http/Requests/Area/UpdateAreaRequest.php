@@ -59,7 +59,7 @@ class UpdateAreaRequest extends FormRequest
         return [
             "nombre_area.required"=> "El nombre del área es requerida",
             "nombre_area.regex"=> "Debe ser una cadena de texto",
-            "nombre_area.unique"=> "Ya exite una área igual",
+            "nombre_area.unique"=> "Ya exite una área igual"
         ];
     }
 

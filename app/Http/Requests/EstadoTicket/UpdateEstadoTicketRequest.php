@@ -65,7 +65,7 @@ class UpdateEstadoTicketRequest extends FormRequest
             "nombre_estado.unique"=> "Ya existe un estado igual",
 
             "color_estado.required"=> "El color del estado es requerido",
-            "color_estado.unique"=> "Ya existe un color de estado igual",
+            "color_estado.unique"=> "Ya existe un color de estado igual"
         ];
     }
 

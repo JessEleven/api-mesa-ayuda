@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\Organizacion\AreaSeeder;
+use Database\Seeders\Organizacion\DepartamentoSeeder;
 use Database\Seeders\Ticket\CalificacionTicketSeeder;
 use Database\Seeders\Ticket\CategoriaTicketSeeder;
 use Database\Seeders\Ticket\EstadoTicketSeeder;
@@ -17,6 +19,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            //Relacionado con la organización
+            AreaSeeder::class,
+            DepartamentoSeeder::class,
+
             //Relacionado con tickets
             CategoriaTicketSeeder::class,
             EstadoTicketSeeder::class,

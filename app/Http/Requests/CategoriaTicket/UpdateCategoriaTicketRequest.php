@@ -58,7 +58,7 @@ class UpdateCategoriaTicketRequest extends FormRequest
         return [
             "nombre_categoria.required"=> "El nombre de la categoria es requerida",
             "nombre_categoria.regex"=> "Debe ser una cadena de texto",
-            "nombre_categoria.unique"=> "Ya existe una categoria igual"
+            "nombre_categoria.unique"=> "El nombre de la categoria ya existe"
         ];
     }
 

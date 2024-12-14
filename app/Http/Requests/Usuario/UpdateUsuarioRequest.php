@@ -77,7 +77,7 @@ class UpdateUsuarioRequest extends FormRequest
             "password"=> [
                 "required",
                 "min:8",
-                "regex:/^[a-zA-Z0-9]+$/"
+                "regex:/^[a-zA-Z0-9ñÑ]+$/u"
             ],
             "id_area"=> [
                 "required"

@@ -49,7 +49,7 @@ class StoreUsuarioRequest extends FormRequest
             "password"=> [
                 "required",
                 "min:8",
-                "regex:/^[a-zA-Z0-9]+$/"
+                "regex:/^[a-zA-Z0-9ñÑ]+$/u"
             ],
             "id_area"=> [
                 "required"
@@ -73,7 +73,6 @@ class StoreUsuarioRequest extends FormRequest
             //"telefono.integer"=> "Debe ser un número válido",
             //"telefono.regex"=> "Debe tener al menos 10 caracteres",
             "telefono.regex"=> "Debe ser un número válido y tener 10 dígitos",
-
 
             "email.required"=> "El correo es requerido",
             "email.email"=> "La dirección del correo no es válida",

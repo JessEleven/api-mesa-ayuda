@@ -58,7 +58,7 @@ class UpdateDepartamentoRequest extends FormRequest
         return [
             "nombre_departamento.required"=> "El nombre del departamento es requerido",
             "nombre_departamento.regex"=> "Debe ser una cadena de texto",
-            "nombre_departamento.unique"=> "Ya exite un departamento igual"
+            "nombre_departamento.unique"=> "El nombre del departamento ya exite"
         ];
     }
 

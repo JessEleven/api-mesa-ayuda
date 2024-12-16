@@ -35,10 +35,6 @@ return new class extends Migration
             ->constrained('prioridad_tickets')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
-            $table->foreignId('id_calificacion')
-            ->constrained('calificacion_tickets')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
         });
     }
 

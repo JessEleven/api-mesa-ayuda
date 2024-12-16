@@ -25,18 +25,13 @@ class Usuario extends Model
 
     public function usuario_roles()
     {
-        return $this->hasMany(UsuarioRol::class, 'id_usuario');
+        return $this->hasOne(UsuarioRol::class, 'id_usuario');
     }
 
     // Queda revision para despejar la duda...
-    // public function tecnico_asignado()
-    // {
-    //     return $this->hasMany(TecnicoAsignado::class, 'id_usuario');
-    // }
-
-    public function areas()
+    public function tecnico_asignado()
     {
-        return $this->belongsTo(Area::class, 'id_area');
+        return $this->hasMany(TecnicoAsignado::class, 'id_usuario');
     }
 
     public function departamentos()

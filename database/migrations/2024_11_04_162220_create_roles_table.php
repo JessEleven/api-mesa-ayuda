@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
-            $table->string('descripcion');
-            $table->boolean('estado_eliminado')->nullable();
-            $table->dateTime('fecha_registro');
+            $table->string('nombre_rol');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -16,6 +16,11 @@ return new class extends Migration
             $table->integer('calificacion');
             $table->text('observacion')->nullable();
             $table->timestamps();
+
+            $table->foreignId('id_ticket')
+            ->constrained('tickets')
+            ->cascadeOnDelete()
+            ->cascadeOnUpdate();
         });
     }
 

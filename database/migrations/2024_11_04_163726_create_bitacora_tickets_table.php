@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('bitacora_tickets', function (Blueprint $table) {
             $table->id();
             $table->string('descripcion');
-            $table->boolean('estado_eliminado')->nullable();
-            $table->dateTime('fecha_registro');
+            $table->softDeletes();
             $table->timestamps();
 
             $table->foreignId('id_tecnico_asignado')

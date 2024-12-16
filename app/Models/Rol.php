@@ -3,25 +3,26 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Rol extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'roles';
 
     protected $fillable = [
-        'descripcion',
-        'estado_eliminado',
-        'fecha_registro'
+        'nombre_rol'
     ];
 
-    public function roles_permisos()
+    public function permisos()
     {
-        return $this->hasMany(RolPermiso::class, 'id_rol');
+        return $this->belongsToMany(Permiso::class, 'roles_permisos', 'id_rol', 'id_permiso');
     }
 
     public function usuario_roles()
     {
-        return $this->hasMany(UsuarioRol::class, 'id_rol');
+        return $this->hasOne(UsuarioRol::class, 'id_rol');
     }
 
 }

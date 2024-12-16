@@ -20,10 +20,6 @@ return new class extends Migration
             $table->string('password');
             $table->timestamps();
 
-            $table->foreignId('id_area')
-            ->constrained('areas')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
             $table->foreignId('id_departamento')
             ->constrained('departamentos')
             ->cascadeOnDelete()

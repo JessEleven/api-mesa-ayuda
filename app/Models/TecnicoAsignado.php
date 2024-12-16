@@ -3,21 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TecnicoAsignado extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'tecnico_asignados';
 
     protected $fillable = [
-        'estado_eliminado',
-        'fecha_registro',
         'id_usuario',
         'id_ticket'
     ];
 
     public function bitacoras()
     {
-        return $this->hasMany(BitacoraTicket::class, 'id_tecnico_asignado');
+        return $this->hasOne(BitacoraTicket::class, 'id_tecnico_asignado');
     }
 
     public function usuarios()

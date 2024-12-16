@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('usuario_roles', function (Blueprint $table) {
             $table->id();
-            $table->dateTime('fecha_registro');
             $table->timestamps();
 
             $table->foreignId('id_rol')

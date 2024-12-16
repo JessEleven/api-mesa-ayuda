@@ -23,7 +23,7 @@ class Ticket extends Model
 
     public function tecnico_asignados()
     {
-        return $this->hasMany(TecnicoAsignado::class, 'id_tecnico_asignado');
+        return $this->hasOne(TecnicoAsignado::class, 'id_tecnico_asignado');
     }
 
     public function categoria_tickets()
@@ -48,7 +48,7 @@ class Ticket extends Model
 
     public function calificacion_tickets()
     {
-        return $this->belongsTo(CalificacionTicket::class, 'id_calificacion');
+        return $this->hasOne(CalificacionTicket::class, 'id_calificacion');
     }
 
     // Accesor para created_at y updated_at

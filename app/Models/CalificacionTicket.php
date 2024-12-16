@@ -12,11 +12,12 @@ class CalificacionTicket extends Model
     protected $fillable = [
         'calificacion',
         'observacion',
+        'id_ticket'
     ];
 
     public function tickets()
     {
-        return $this->hasMany(Ticket::class, 'id_calificacion');
+        return $this->belongsTo(Ticket::class, 'id_ticket');
     }
 
     // Accesor para created_at y updated_at

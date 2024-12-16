@@ -11,12 +11,19 @@ class Departamento extends Model
 
     protected $fillable = [
         'nombre_departamento',
+        'secuencia_departamento',
+        'secuencia_departamento',
         'peso_prioridad',
     ];
 
     public function usuarios()
     {
         return $this->hasMany(Usuario::class, 'id_departamento');
+    }
+
+    public function areas()
+    {
+        return $this->belongsTo(Area::class, 'id_area');
     }
 
     // Accesor para created_at y updated_at

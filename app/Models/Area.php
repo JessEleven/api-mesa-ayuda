@@ -11,12 +11,14 @@ class Area extends Model
 
     protected $fillable = [
         'nombre_area',
+        'sigla_area',
+        'secuencia_area',
         'peso_prioridad',
     ];
 
-    public function usuarios()
+    public function departamentos()
     {
-        return $this->hasMany(Usuario::class, 'id_area');
+        return $this->hasMany(Departamento::class, 'id_area');
     }
 
     // Accesor para created_at y updated_at

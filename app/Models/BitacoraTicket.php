@@ -3,15 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BitacoraTicket extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'bitacora_tickets';
 
     protected $fillable = [
         'descripcion',
-        'estado_eliminado',
-        'fecha_registro',
         'id_tecnico_asignado'
     ];
 

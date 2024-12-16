@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('bitacora_tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('descripcion');
+            $table->text('descripcion');
             $table->softDeletes();
             $table->timestamps();
 

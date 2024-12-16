@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('departamentos', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_departamento');
-            $table->string('sigla_departamento');
-            $table->string('secuencia_departamento');
-            $table->integer('peso_prioridad');
+            $table->string('nombre_departamento')->unique();
+            $table->string('sigla_departamento')->unique();
+            $table->string('secuencia_departamento', 20);
+            $table->integer('peso_prioridad')->unique();
             $table->timestamps();
 
             $table->foreignId('id_area')

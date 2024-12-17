@@ -17,8 +17,7 @@ class Ticket extends Model
         'id_categoria',
         'id_usuario',
         'id_estado',
-        'id_prioridad',
-        'id_calificacion',
+        'id_prioridad'
     ];
 
     public function tecnico_asignados()

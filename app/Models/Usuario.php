@@ -15,7 +15,6 @@ class Usuario extends Model
         'telefono',
         'email',
         'password',
-        'id_area',
         'id_departamento'
     ];
 

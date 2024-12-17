@@ -11,9 +11,10 @@ class Departamento extends Model
 
     protected $fillable = [
         'nombre_departamento',
-        'secuencia_departamento',
+        'sigla_departamento',
         'secuencia_departamento',
         'peso_prioridad',
+        'id_area'
     ];
 
     public function usuarios()

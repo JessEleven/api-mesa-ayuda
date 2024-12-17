@@ -79,9 +79,6 @@ class UpdateUsuarioRequest extends FormRequest
                 "min:8",
                 "regex:/^[a-zA-Z0-9ñÑ]+$/u"
             ],
-            "id_area"=> [
-                "required"
-            ],
             "id_departamento"=> [
                 "required"
             ]
@@ -110,7 +107,6 @@ class UpdateUsuarioRequest extends FormRequest
             "password.min"=> "Debe tener al menos 8 caracteres",
             "password.regex"=> "Solo puede contener letras y números",
 
-            "id_area"=> "El id área es requerido",
             "id_departamento"=> "El id departamento es requerido"
         ];
     }

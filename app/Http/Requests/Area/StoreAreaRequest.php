@@ -31,6 +31,11 @@ class StoreAreaRequest extends FormRequest
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
                 "unique:areas,nombre_area"
             ],
+            "sigla_area"=> [
+                "required",
+                "regex:/^[A-Z][a-zA-Z]*$/",
+                "unique:areas,sigla_area"
+            ],
             "peso_prioridad"=> [
                 "required",
                 "integer",
@@ -46,6 +51,10 @@ class StoreAreaRequest extends FormRequest
             "nombre_area.required"=> "El nombre del área es requerida",
             "nombre_area.regex"=> "Debe ser una cadena de texto",
             "nombre_area.unique"=> "El nombre del área debe ser única",
+
+            "sigla_area.required"=> "La sigla del área es requerida",
+            "sigla_area.regex"=> "Empieza con mayúscula y puede contener minúsculas",
+            "sigla_area.unique"=> "La sigla del área deber ser única",
 
             "peso_prioridad.required"=> "La prioridad de área es requerida",
             "peso_prioridad.integer"=> "Solo se aceptan números enteros",

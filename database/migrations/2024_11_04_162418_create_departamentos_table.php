@@ -16,13 +16,17 @@ return new class extends Migration
             $table->string('nombre_departamento')->unique();
             $table->string('sigla_departamento')->unique();
             $table->string('secuencia_departamento', 20);
-            $table->integer('peso_prioridad')->unique();
+            $table->integer('peso_prioridad');
             $table->timestamps();
 
             $table->foreignId('id_area')
             ->constrained('areas')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
+
+            // Índice único compuesto agregado para que solo se repita
+            // peso_prioridad en áreas diferentes y no dentro de la misma área
+            $table->unique(['peso_prioridad', 'id_area']);
         });
     }
 

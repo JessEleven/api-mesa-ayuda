@@ -40,12 +40,40 @@ class AreaController extends Controller
     public function store(StoreAreaRequest $request)
     {
         try {
-            $newArea = Area::create($request->validated());
+            $validatedData = $request->validated();
+
+            // Se obtiene primero la última secuencia global
+            $lastSequence = Area::orderBy('id', 'desc')->value('secuencia_area');
+
+            if ($lastSequence) {
+                // Se extrae el número secuencial global
+                $sequenceNumber = (int) substr($lastSequence, 0, 3);
+                $sequenceNumber++;
+            } else {
+                // Si no existe, se inicializa en 1 la secuencia
+                $sequenceNumber = 1;
+            }
+
+            // Se formatea la secuencia a 3 dígitos y se concatena con la sigla
+            $secuencia = sprintf('%03d-%s', $sequenceNumber, $validatedData['sigla_area']);
+
+            // Se agrega la secuencia generada a los datos validados
+            $validatedData['secuencia_area'] = $secuencia;
+
+            $newArea = Area::create($validatedData);
 
             return ApiResponse::success(
                 "Area creada con exito",
                 201,
-                $newArea
+                $newArea->only([
+                    "id",
+                    "nombre_area",
+                    "sigla_area",
+                    "secuencia_area",
+                    "peso_prioridad",
+                    "created_at",
+                    "updated_at",
+                ])
             );
 
         } catch (Exception $e) {
@@ -101,12 +129,33 @@ class AreaController extends Controller
                     $newData
                 );
             }
+
+            // Se verifica si la sigla ha cambiado
+            if (isset($newData['sigla_area']) && $newData['sigla_area'] != $updateArea->sigla_area) {
+
+                // Si ha cambiado, se conserva la secuencia y se actualiza solo la sigla
+                $currentSequence = $updateArea->secuencia_area;
+
+                // Se extrae la parte numérica de la secuencia actual
+                $sequenceNumber = substr($currentSequence, 0, 3);
+
+                // Se crea la nueva secuencia concatenando el número de la secuencia con la nueva sigla
+                $newData['secuencia_area'] = sprintf('%03d-%s', $sequenceNumber, $newData['sigla_area']);
+            }
             $updateArea->update($newData);
 
             return ApiResponse::success(
                 "Área actualizada con exito",
                 200,
-                $updateArea->refresh()
+                $updateArea->refresh()->only([
+                    "id",
+                    "nombre_area",
+                    "sigla_area",
+                    "secuencia_area",
+                    "peso_prioridad",
+                    "created_at",
+                    "updated_at",
+                ])
             );
 
         } catch (Exception $e) {

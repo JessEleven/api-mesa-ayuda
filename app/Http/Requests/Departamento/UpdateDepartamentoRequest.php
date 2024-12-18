@@ -49,6 +49,14 @@ class UpdateDepartamentoRequest extends FormRequest
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
                 Rule::unique("departamentos")->ignore($id)
+            ],
+            "sigla_departamento"=> [
+                "required",
+                "regex:/^[A-Z][a-zA-Z]*$/",
+                Rule::unique("departamentos")->ignore($id)
+            ],
+            "id_area"=> [
+                "required"
             ]
         ];
     }
@@ -58,7 +66,13 @@ class UpdateDepartamentoRequest extends FormRequest
         return [
             "nombre_departamento.required"=> "El nombre del departamento es requerido",
             "nombre_departamento.regex"=> "Debe ser una cadena de texto",
-            "nombre_departamento.unique"=> "El nombre del departamento ya exite"
+            "nombre_departamento.unique"=> "El nombre del departamento ya exite",
+
+            "sigla_departamento.required"=> "La sigla del departamento es requerida",
+            "sigla_departamento.regex"=> "Empieza con mayúscula y puede contener minúsculas",
+            "sigla_departamento.unique"=> "La sigla del departamento ya existe",
+
+            "id_area"=> "El ID área es requerido"
         ];
     }
 

@@ -31,12 +31,20 @@ class StoreDepartamentoRequest extends FormRequest
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
                 "unique:departamentos,nombre_departamento"
             ],
+            "sigla_departamento"=> [
+                "required",
+                "regex:/^[A-Z][a-zA-Z]*$/",
+                "unique:departamentos,sigla_departamento"
+            ],
             "peso_prioridad"=> [
                 "required",
                 "integer",
                 "min:1",
                 "unique:departamentos,peso_prioridad"
             ],
+            "id_area"=> [
+                "required"
+            ]
         ];
     }
 
@@ -47,10 +55,16 @@ class StoreDepartamentoRequest extends FormRequest
             "nombre_departamento.regex"=> "Debe ser una cadena de texto",
             "nombre_departamento.unique"=> "El nombre del departamento debe ser único",
 
+            "sigla_departamento.required"=> "La sigla del departamento es requerida",
+            "sigla_departamento.regex"=> "Empieza con mayúscula y puede contener minúsculas",
+            "sigla_departamento.unique"=> "La sigla del departamento deber ser única",
+
             "peso_prioridad.required"=> "La prioridad del departamento es requerida",
             "peso_prioridad.integer"=> "Solo se aceptan números enteros",
             "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-            "peso_prioridad.unique"=> "La prioridad del departamento es única"
+            "peso_prioridad.unique"=> "La prioridad del departamento debe ser única por área",
+
+            "id_area"=> "El ID área es requerido"
         ];
     }
 

@@ -80,7 +80,8 @@ class UpdateUsuarioRequest extends FormRequest
                 "regex:/^[a-zA-Z0-9ñÑ]+$/u"
             ],
             "id_departamento"=> [
-                "required"
+                "required",
+                "exists:departamentos,id"
             ]
         ];
     }
@@ -107,7 +108,8 @@ class UpdateUsuarioRequest extends FormRequest
             "password.min"=> "Debe tener al menos 8 caracteres",
             "password.regex"=> "Solo puede contener letras y números",
 
-            "id_departamento"=> "El id departamento es requerido"
+            "id_departamento.required"=> "El ID departamento es requerido",
+            "id_departamento.exists"=> "El ID departamento ingresado no existe"
         ];
     }
 

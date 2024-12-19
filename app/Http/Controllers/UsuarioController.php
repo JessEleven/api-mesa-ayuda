@@ -14,7 +14,8 @@ class UsuarioController extends Controller
     public function index()
     {
         try {
-            $allUsers = Usuario::with("areas", "departamentos")
+            // Relación anidada entre las tablas departamentos y areas
+            $allUsers = Usuario::with(["departamentos.areas"])
                 ->orderBy("id", "asc")
                 ->paginate(20);
 
@@ -47,7 +48,16 @@ class UsuarioController extends Controller
             return ApiResponse::success(
                 "Usuario creado con exito",
                 201,
-                $newUser
+                $newUser->only([
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "telefono",
+                    "email",
+                    "id_departamento",
+                    "updated_at",
+                    "created_at"
+                ])
             );
 
         } catch (Exception $e) {
@@ -61,7 +71,7 @@ class UsuarioController extends Controller
     public function show($usuario)
     {
         try {
-            $showUser = Usuario::with("areas", "departamentos")->findOrFail($usuario);
+            $showUser = Usuario::with(["departamentos.areas"])->findOrFail($usuario);
 
             return ApiResponse::success(
                 "Usuario encontrado con exito",
@@ -111,7 +121,16 @@ class UsuarioController extends Controller
             return ApiResponse::success(
                 "Usuario actualizado con exito",
                 200,
-                $updateUser->refresh()
+                $updateUser->refresh()->only([
+                    "id",
+                    "nombre",
+                    "apellido",
+                    "telefono",
+                    "email",
+                    "id_departamento",
+                    "updated_at",
+                    "created_at"
+                ])
             );
 
         } catch (Exception $e) {

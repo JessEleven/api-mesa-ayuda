@@ -6,6 +6,7 @@ use App\Http\Responses\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class StoreDepartamentoRequest extends FormRequest
@@ -40,10 +41,12 @@ class StoreDepartamentoRequest extends FormRequest
                 "required",
                 "integer",
                 "min:1",
-                "unique:departamentos,peso_prioridad"
+                Rule::unique('departamentos', 'peso_prioridad')
+                    ->where('id_area', $this->input('id_area'))
             ],
             "id_area"=> [
-                "required"
+                "required",
+                "exists:areas,id"
             ]
         ];
     }
@@ -57,14 +60,15 @@ class StoreDepartamentoRequest extends FormRequest
 
             "sigla_departamento.required"=> "La sigla del departamento es requerida",
             "sigla_departamento.regex"=> "Empieza con mayúscula y puede contener minúsculas",
-            "sigla_departamento.unique"=> "La sigla del departamento deber ser única",
+            "sigla_departamento.unique"=> "La sigla del departamento debe ser única",
 
             "peso_prioridad.required"=> "La prioridad del departamento es requerida",
             "peso_prioridad.integer"=> "Solo se aceptan números enteros",
             "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
             "peso_prioridad.unique"=> "La prioridad del departamento debe ser única por área",
 
-            "id_area"=> "El ID área es requerido"
+            "id_area.required"=> "El ID área es requerido",
+            "id_area.exists"=> "El ID área ingresado no existe"
         ];
     }
 

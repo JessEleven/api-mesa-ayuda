@@ -56,7 +56,8 @@ class UpdateDepartamentoRequest extends FormRequest
                 Rule::unique("departamentos")->ignore($id)
             ],
             "id_area"=> [
-                "required"
+                "required",
+                "exists:areas,id"
             ]
         ];
     }
@@ -72,7 +73,8 @@ class UpdateDepartamentoRequest extends FormRequest
             "sigla_departamento.regex"=> "Empieza con mayúscula y puede contener minúsculas",
             "sigla_departamento.unique"=> "La sigla del departamento ya existe",
 
-            "id_area"=> "El ID área es requerido"
+            "id_area.required"=> "El ID área es requerido",
+            "id_area.exists"=> "El ID área ingresado no existe"
         ];
     }
 

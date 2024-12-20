@@ -15,28 +15,18 @@ class PrioridadTicketSeeder extends Seeder
         $prioridadTickets = [
             [
                 'nombre_prioridad'=> 'Alta',
-                'color_prioridad'=> '#FF0000', //rojo
+                'color_prioridad'=> '#ef4444', //rojo
                 'orden_prioridad'=> 1
             ],
             [
-                'nombre_prioridad'=> 'Medio',
-                'color_prioridad'=> '#FFA500', //naranja
+                'nombre_prioridad'=> 'Media',
+                'color_prioridad'=> '#fb923c', //naranja
                 'orden_prioridad'=> 2
             ],
             [
-                'nombre_prioridad'=> 'Bajo',
-                'color_prioridad'=> '#FFFF00', //amarillo
+                'nombre_prioridad'=> 'Baja',
+                'color_prioridad'=> '#facc15', //amarillo
                 'orden_prioridad'=> 3
-            ],
-            [
-                'nombre_prioridad'=> 'En espera',
-                'color_prioridad'=> '#0000FF', //azul
-                'orden_prioridad'=> 4
-            ],
-            [
-                'nombre_prioridad'=> 'Trabajo extra',
-                'color_prioridad'=> '#8F8F8F', //gris
-                'orden_prioridad'=> 5
             ]
         ];
 

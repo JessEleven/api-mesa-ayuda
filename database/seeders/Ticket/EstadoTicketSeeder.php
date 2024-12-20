@@ -15,22 +15,22 @@ class EstadoTicketSeeder extends Seeder
         $estadoTickets = [
             [
                 'nombre_estado'=> 'Nuevo',
-                'color_estado'=> '#FFA500', //naranja
+                'color_estado'=> '#a3a3a3', //gris
                 'orden_prioridad'=> 1
             ],
             [
                 'nombre_estado'=> 'En progreso',
-                'color_estado'=> '#0000FF', //azul
+                'color_estado'=> '#3b82f6', //azul
                 'orden_prioridad'=> 2
             ],
             [
                 'nombre_estado'=> 'En espera',
-                'color_estado'=> '#FFFF00', //amariilo
+                'color_estado'=> '#facc15', //amariilo
                 'orden_prioridad'=> 3
             ],
             [
                 'nombre_estado'=> 'Completado',
-                'color_estado'=> '#008000', //verde
+                'color_estado'=> '#10b981', //verde
                 'orden_prioridad'=> 4
             ]
         ];

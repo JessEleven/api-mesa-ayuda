@@ -5,7 +5,6 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Database\Seeders\Organizacion\AreaSeeder;
 use Database\Seeders\Organizacion\DepartamentoSeeder;
-use Database\Seeders\Ticket\CalificacionTicketSeeder;
 use Database\Seeders\Ticket\CategoriaTicketSeeder;
 use Database\Seeders\Ticket\EstadoTicketSeeder;
 use Database\Seeders\Ticket\PrioridadTicketSeeder;
@@ -26,8 +25,7 @@ class DatabaseSeeder extends Seeder
             //Relacionado con tickets
             CategoriaTicketSeeder::class,
             EstadoTicketSeeder::class,
-            PrioridadTicketSeeder::class,
-            CalificacionTicketSeeder::class
+            PrioridadTicketSeeder::class
         ]);
     }
 }

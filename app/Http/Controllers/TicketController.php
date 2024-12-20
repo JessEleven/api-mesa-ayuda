@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Responses\ApiResponse;
 use App\Models\Ticket;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class TicketController extends Controller
@@ -12,8 +13,11 @@ class TicketController extends Controller
     public function index()
     {
         try {
-            $allTickets = Ticket::with("usuarios", "categoria_tickets",
-            "estado_tickets", "prioridad_tickets", "calificacion_tickets")
+            // Relación anidada entre las tablas usuarios y departamentos
+            $allTickets = Ticket::with(["usuarios.departamentos"])
+            // Relación anidada entre las tablas usuarios, departamentos y areas
+            ->with(["usuarios.departamentos.areas"])
+            ->with("categoria_tickets", "estado_tickets", "prioridad_tickets")
                 ->orderBy("id", "asc")
                 ->paginate(20);
 
@@ -49,8 +53,7 @@ class TicketController extends Controller
                 "id_categoria"=> $request->id_categoria,
                 "id_usuario"=> $request->id_usuario,
                 "id_estado"=> $request->id_estado,
-                "id_prioridad"=> $request->id_prioridad,
-                "id_calificacion"=> $request->id_calificacion
+                "id_prioridad"=> $request->id_prioridad
             ]);
 
             return ApiResponse::success(
@@ -67,17 +70,42 @@ class TicketController extends Controller
         }
     }
 
-    public function show(Ticket $ticket)
+    public function show($ticket)
+    {
+        try {
+            // Relación anidada entre las tablas usuarios y departamentos
+            $showTicket = Ticket::with(["usuarios.departamentos"])
+            // Relación anidada entre las tablas usuarios, departamentos y areas
+                ->with(["usuarios.departamentos.areas"])
+                ->with("categoria_tickets","estado_tickets", "prioridad_tickets")
+                    ->findOrFail($ticket);
+
+            return ApiResponse::success(
+                "Ticket encontrado con exito",
+                200,
+                $showTicket
+            );
+
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error(
+                "Ticket no encontrado",
+                404
+            );
+
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
+    }
+
+    public function update(Request $request, $ticket)
     {
         //
     }
 
-    public function update(Request $request, Ticket $ticket)
-    {
-        //
-    }
-
-    public function destroy(Ticket $ticket)
+    public function destroy($ticket)
     {
         //
     }

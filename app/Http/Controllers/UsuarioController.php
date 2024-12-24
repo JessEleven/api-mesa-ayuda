@@ -26,6 +26,16 @@ class UsuarioController extends Controller
                     $allUsers,
                 );
             }
+
+            // Para ocultar el FK de la tabla
+            $allUsers->getCollection()->transform(function ($user) {
+                $user->makeHidden(["id_departamento"]);
+                // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+                $user->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+                $user->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                return $user;
+            });
+
             return ApiResponse::success(
                 "Listado de usuarios",
                 200,
@@ -71,7 +81,14 @@ class UsuarioController extends Controller
     public function show($usuario)
     {
         try {
+            // Relación anidada entre las tablas departamentos y areas
             $showUser = Usuario::with(["departamentos.areas"])->findOrFail($usuario);
+
+            // Para ocultar el FK de la tabla
+            $showUser->makeHidden(["id_departamento"]);
+            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+            $showUser->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showUser->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Usuario encontrado con exito",

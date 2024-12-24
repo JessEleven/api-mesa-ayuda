@@ -14,6 +14,7 @@ class CalificacionTicketController extends Controller
     public function index()
     {
         try {
+            // Relaciones anidadas para con la tabla tickets
             $allQualifications = CalificacionTicket::with("tickets")
                 ->with(["tickets.categoria_tickets"])
                 ->with(["tickets.usuarios"])
@@ -31,6 +32,21 @@ class CalificacionTicketController extends Controller
                     $allQualifications
                 );
             }
+
+            // Para ocultar el FK de la tabla
+            $allQualifications->getCollection()->transform(function ($qualification) {
+                $qualification->makeHidden(["id_ticket"]);
+                // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+                $qualification->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+                $qualification->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+                $qualification->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+                $qualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+                $qualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                $qualification->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                $qualification->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                return $qualification;
+            });
+
             return ApiResponse::success(
                 "Listado de calificaciones de ticket",
                 200,
@@ -67,6 +83,7 @@ class CalificacionTicketController extends Controller
     public function show($calificacionTicket)
     {
         try {
+            // Relaciones anidadas para con la tabla tickets
             $showQualification = CalificacionTicket::with("tickets")
                 ->with(["tickets.categoria_tickets"])
                 ->with(["tickets.usuarios"])
@@ -75,6 +92,17 @@ class CalificacionTicketController extends Controller
                 ->with(["tickets.estado_tickets"])
                 ->with(["tickets.prioridad_tickets"])
                     ->findOrFail($calificacionTicket);
+
+            // Para ocultar el FK de la tabla
+            $showQualification->makeHidden(["id_ticket"]);
+            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+            $showQualification->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+            $showQualification->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+            $showQualification->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+            $showQualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showQualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            $showQualification->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+            $showQualification->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Calificación ticket encontrada con exito",

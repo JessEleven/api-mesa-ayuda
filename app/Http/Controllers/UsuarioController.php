@@ -59,13 +59,10 @@ class UsuarioController extends Controller
                 "Usuario creado con exito",
                 201,
                 $newUser->only([
-                    "id",
                     "nombre",
                     "apellido",
                     "telefono",
                     "email",
-                    "id_departamento",
-                    "updated_at",
                     "created_at"
                 ])
             );
@@ -130,7 +127,12 @@ class UsuarioController extends Controller
                 return ApiResponse::success(
                     "No hay cambios para actualizar usuario",
                     200,
-                    $newData
+                    array_intersect_key($newData, array_flip([
+                        "nombre",
+                        "apellido",
+                        "telefono",
+                        "email"
+                    ]))
                 );
             }
             $updateUser->update($newData);
@@ -139,14 +141,12 @@ class UsuarioController extends Controller
                 "Usuario actualizado con exito",
                 200,
                 $updateUser->refresh()->only([
-                    "id",
                     "nombre",
                     "apellido",
                     "telefono",
                     "email",
-                    "id_departamento",
-                    "updated_at",
-                    "created_at"
+                    "created_at",
+                    "updated_at"
                 ])
             );
 

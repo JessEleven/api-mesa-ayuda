@@ -14,7 +14,15 @@ class CalificacionTicketController extends Controller
     public function index()
     {
         try {
-            $allQualifications = CalificacionTicket::orderBy("id", "asc")->paginate(20);
+            $allQualifications = CalificacionTicket::with("tickets")
+                ->with(["tickets.categoria_tickets"])
+                ->with(["tickets.usuarios"])
+                ->with(["tickets.usuarios.departamentos"])
+                ->with(["tickets.usuarios.departamentos.areas"])
+                ->with(["tickets.estado_tickets"])
+                ->with(["tickets.prioridad_tickets"])
+                    ->orderBy("id", "asc")
+                    ->paginate(20);
 
             if ($allQualifications->isEmpty()) {
                 return ApiResponse::success(
@@ -59,7 +67,14 @@ class CalificacionTicketController extends Controller
     public function show($calificacionTicket)
     {
         try {
-            $showQualification = CalificacionTicket::findOrFail($calificacionTicket);
+            $showQualification = CalificacionTicket::with("tickets")
+                ->with(["tickets.categoria_tickets"])
+                ->with(["tickets.usuarios"])
+                ->with(["tickets.usuarios.departamentos"])
+                ->with(["tickets.usuarios.departamentos.areas"])
+                ->with(["tickets.estado_tickets"])
+                ->with(["tickets.prioridad_tickets"])
+                    ->findOrFail($calificacionTicket);
 
             return ApiResponse::success(
                 "Calificación ticket encontrada con exito",

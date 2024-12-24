@@ -7,6 +7,7 @@ use App\Models\CalificacionTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class UpdateCalificacionTicketRequest extends FormRequest
@@ -56,7 +57,8 @@ class UpdateCalificacionTicketRequest extends FormRequest
             ],
             "id_ticket"=> [
                 "required",
-                "exists:tickets,id"
+                "exists:tickets,id",
+                Rule::unique("calificacion_tickets")->ignore($id)
             ]
         ];
     }
@@ -71,7 +73,8 @@ class UpdateCalificacionTicketRequest extends FormRequest
             "observacion.regex"=> "Debe ser una cadena de texto",
 
             "id_ticket.required"=> "El ID ticket es requerido",
-            "id_ticket.exists"=> "El ID ticket ingresado no existe"
+            "id_ticket.exists"=> "El ID ticket ingresado no existe",
+            "id_ticket.unique"=> "El ID ticket para la calificación ya existe"
         ];
     }
 

@@ -38,7 +38,8 @@ class StoreCalificacionTicketRequest extends FormRequest
             ],
             "id_ticket"=> [
                 "required",
-                "exists:tickets,id"
+                "exists:tickets,id",
+                "unique:calificacion_tickets,id_ticket"
             ]
         ];
     }
@@ -53,7 +54,8 @@ class StoreCalificacionTicketRequest extends FormRequest
             "observacion.regex"=> "Debe ser una cadena de texto",
 
             "id_ticket.required"=> "El ID ticket es requerido",
-            "id_ticket.exists"=> "El ID ticket ingresado no existe"
+            "id_ticket.exists"=> "El ID ticket ingresado no existe",
+            "id_ticket.unique"=> "El ID ticket para la calificación debe ser único"
         ];
     }
 

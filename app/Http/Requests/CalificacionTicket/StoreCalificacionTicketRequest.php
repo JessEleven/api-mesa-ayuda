@@ -36,6 +36,10 @@ class StoreCalificacionTicketRequest extends FormRequest
                 // Puede contener letras, espacios, puntos, comas, punto y coma, y la letra ñ
                 "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
             ],
+            "id_ticket"=> [
+                "required",
+                "exists:tickets,id"
+            ]
         ];
     }
 
@@ -46,7 +50,10 @@ class StoreCalificacionTicketRequest extends FormRequest
             "calificacion.integer"=> "Solo se aceptan números enteros",
             "calificacion.in"=> "La calificación debe ser 2, 4, 6, 8 o 10",
 
-            "observacion.regex"=> "Debe ser una cadena de texto"
+            "observacion.regex"=> "Debe ser una cadena de texto",
+
+            "id_ticket.required"=> "El ID ticket es requerido",
+            "id_ticket.exists"=> "El ID ticket ingresado no existe"
         ];
     }
 

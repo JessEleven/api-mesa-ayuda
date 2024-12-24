@@ -69,7 +69,11 @@ class CalificacionTicketController extends Controller
             return ApiResponse::success(
                 "Calificación de ticket creada con exito",
                 201,
-                $newQualification
+                $newQualification->only([
+                    "calificacion",
+                    "observacion",
+                    "created_at"
+                ])
             );
 
         } catch (Exception $e) {
@@ -141,7 +145,10 @@ class CalificacionTicketController extends Controller
                 return ApiResponse::success(
                     "No hay cambios para actualizar calificación ticket",
                     200,
-                    $newData
+                    array_intersect_key($newData, array_flip([
+                        "calificacion",
+                        "observacion"
+                    ]))
                 );
             }
             $updateQualification->update($newData);
@@ -149,7 +156,12 @@ class CalificacionTicketController extends Controller
             return ApiResponse::success(
                 "Calificación ticket actualizada con exito",
                 200,
-                $updateQualification->refresh()
+                $updateQualification->refresh()->only([
+                    "calificacion",
+                    "observacion",
+                    "created_at",
+                    "updated_at"
+                ])
             );
 
         } catch (Exception $e) {

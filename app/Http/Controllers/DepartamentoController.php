@@ -82,14 +82,11 @@ class DepartamentoController extends Controller
                 "Departamento creado con exito",
                 201,
                 $newDepartment->only([
-                    "id",
                     "nombre_departamento",
                     "sigla_departamento",
                     "secuencia_departamento",
                     "peso_prioridad",
-                    "id_area",
                     "created_at",
-                    "updated_at",
                 ])
             );
 
@@ -149,7 +146,10 @@ class DepartamentoController extends Controller
                 return ApiResponse::success(
                     "No hay cambios para actualizar departamento",
                     200,
-                    $newData
+                    array_intersect_key($newData, array_flip([
+                        "nombre_departamento",
+                        "sigla_departamento"
+                    ]))
                 );
             }
 
@@ -171,11 +171,9 @@ class DepartamentoController extends Controller
                 "Departamento actualizado con exito",
                 200,
                 $updateDepartment->refresh()->only([
-                    "id",
                     "nombre_departamento",
                     "sigla_departamento",
                     "secuencia_departamento",
-                    "id_area",
                     "created_at",
                     "updated_at",
                 ])

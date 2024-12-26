@@ -25,6 +25,15 @@ class DepartamentoController extends Controller
                     $allDepartments
                 );
             }
+
+            // Para ocultar el FK de la tabla
+            $allDepartments->getCollection()->transform(function ($department) {
+                $department->makeHidden(["id_area"]);
+                // Para ocultar el PK y timestamps de la tabla areas
+                $department->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                return $department;
+            });
+
             return ApiResponse::success(
                 "Listado de departamentos",
                 200,
@@ -95,7 +104,13 @@ class DepartamentoController extends Controller
     public function show($departamento)
     {
         try {
-            $showDepartment = Departamento::findOrFail($departamento);
+            $showDepartment = Departamento::with("areas")
+                ->findOrFail($departamento);
+
+            // Para ocultar el FK de la tabla
+            $showDepartment->makeHidden(["id_area"]);
+            // Para ocultar el PK y timestamps de la tabla areas
+            $showDepartment->areas?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Departamento encontrado con exito",

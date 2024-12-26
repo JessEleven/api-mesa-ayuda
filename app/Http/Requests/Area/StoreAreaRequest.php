@@ -59,7 +59,7 @@ class StoreAreaRequest extends FormRequest
             "peso_prioridad.required"=> "La prioridad de área es requerida",
             "peso_prioridad.integer"=> "Solo se aceptan números enteros",
             "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-            "peso_prioridad.unique"=> "La prioridad del área es única"
+            "peso_prioridad.unique"=> "La prioridad del área debe ser única"
         ];
     }
 

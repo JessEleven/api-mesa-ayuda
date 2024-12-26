@@ -66,13 +66,11 @@ class AreaController extends Controller
                 "Area creada con exito",
                 201,
                 $newArea->only([
-                    "id",
                     "nombre_area",
                     "sigla_area",
                     "secuencia_area",
                     "peso_prioridad",
                     "created_at",
-                    "updated_at",
                 ])
             );
 
@@ -148,11 +146,9 @@ class AreaController extends Controller
                 "Área actualizada con exito",
                 200,
                 $updateArea->refresh()->only([
-                    "id",
                     "nombre_area",
                     "sigla_area",
                     "secuencia_area",
-                    "peso_prioridad",
                     "created_at",
                     "updated_at",
                 ])

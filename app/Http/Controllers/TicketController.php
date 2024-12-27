@@ -72,7 +72,12 @@ class TicketController extends Controller
             return ApiResponse::success(
                 "Ticket creado con exito",
                 201,
-                $newTicket
+                $newTicket->only([
+                    "codigo_ticket",
+                    "descripcion",
+                    "fecha_inicio",
+                    "fecha_fin",
+                ])
             );
 
         } catch (Exception $e) {
@@ -125,11 +130,63 @@ class TicketController extends Controller
 
     public function update(Request $request, $ticket)
     {
-        //
+        try {
+            $updateTicket = Ticket::findOrFail($ticket);
+
+            $updateTicket->update([
+                "codigo_ticket"=> $request->codigo_ticket,
+                "descripcion"=> $request->descripcion,
+                "fecha_inicio"=> $request->fecha_inicio,
+                "fecha_fin"=> $request->fecha_fin,
+                "id_categoria"=> $request->id_categoria,
+                "id_usuario"=> $request->id_usuario,
+                "id_estado"=> $request->id_estado,
+                "id_prioridad"=> $request->id_prioridad
+            ]);
+
+            return ApiResponse::success(
+                "Calificación ticket actualizada con exito",
+                200,
+                $updateTicket->refresh()->only([
+                    "codigo_ticket",
+                    "descripcion",
+                    "fecha_inicio",
+                    "fecha_fin",
+                    "updated_at"
+                ])
+            );
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
     }
 
     public function destroy($ticket)
     {
-        //
+        try {
+            Ticket::findOrFail($ticket)->delete();
+
+            $baseRoute = $this->getBaseRoute();
+
+            return ApiResponse::deleted(
+                "Ticket eliminado con exito",
+                200,
+                ["related"=> $baseRoute]
+            );
+
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error(
+                "Ticket no encontrado",
+                404
+            );
+
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
     }
 }

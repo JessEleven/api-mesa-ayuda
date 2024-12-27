@@ -16,10 +16,23 @@ class TicketController extends Controller
             // Relación anidada entre las tablas usuarios y departamentos
             $allTickets = Ticket::with(["usuarios.departamentos"])
             // Relación anidada entre las tablas usuarios, departamentos y areas
-            ->with(["usuarios.departamentos.areas"])
-            ->with("categoria_tickets", "estado_tickets", "prioridad_tickets")
-                ->orderBy("id", "asc")
-                ->paginate(20);
+                ->with(["usuarios.departamentos.areas"])
+                ->with("categoria_tickets", "estado_tickets", "prioridad_tickets")
+                    ->orderBy("id", "asc")
+                    ->paginate(20);
+
+            // Para ocultar el FKs de la tabla
+            $allTickets->getCollection()->transform(function ($ticket) {
+                $ticket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
+                // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+                $ticket->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+                $ticket->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+                $ticket->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                $ticket->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+                $ticket->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                $ticket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                return $ticket;
+            });
 
             if ($allTickets->isEmpty()) {
                 return ApiResponse::success(
@@ -79,6 +92,16 @@ class TicketController extends Controller
                 ->with(["usuarios.departamentos.areas"])
                 ->with("categoria_tickets","estado_tickets", "prioridad_tickets")
                     ->findOrFail($ticket);
+
+            // Para ocultar el FKs de la tabla
+            $showTicket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
+            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+            $showTicket->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+            $showTicket->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showTicket->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            $showTicket->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+            $showTicket->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+            $showTicket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Ticket encontrado con exito",

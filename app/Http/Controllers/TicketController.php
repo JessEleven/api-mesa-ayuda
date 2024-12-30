@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Ticket\StoreTicketRequest;
+use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
@@ -55,19 +56,10 @@ class TicketController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StoreTicketRequest $request)
     {
         try {
-            $newTicket = Ticket::create([
-                "codigo_ticket"=> $request->codigo_ticket,
-                "descripcion"=> $request->descripcion,
-                "fecha_inicio"=> $request->fecha_inicio,
-                "fecha_fin"=> $request->fecha_fin,
-                "id_categoria"=> $request->id_categoria,
-                "id_usuario"=> $request->id_usuario,
-                "id_estado"=> $request->id_estado,
-                "id_prioridad"=> $request->id_prioridad
-            ]);
+            $newTicket = Ticket::create($request->validated());
 
             return ApiResponse::success(
                 "Ticket creado con exito",
@@ -128,33 +120,40 @@ class TicketController extends Controller
         }
     }
 
-    public function update(Request $request, $ticket)
+    public function update(UpdateTicketRequest $request, $ticket)
     {
         try {
             $updateTicket = Ticket::findOrFail($ticket);
 
-            $updateTicket->update([
-                "codigo_ticket"=> $request->codigo_ticket,
-                "descripcion"=> $request->descripcion,
-                "fecha_inicio"=> $request->fecha_inicio,
-                "fecha_fin"=> $request->fecha_fin,
-                "id_categoria"=> $request->id_categoria,
-                "id_usuario"=> $request->id_usuario,
-                "id_estado"=> $request->id_estado,
-                "id_prioridad"=> $request->id_prioridad
-            ]);
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            $existingData = collect($updateTicket->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            if ($newData == $existingData) {
+                return ApiResponse::success(
+                    "No hay cambios para actualizar ticket",
+                    200,
+                    array_intersect_key($newData, array_flip([
+                        "descripcion"
+                    ]))
+                );
+            }
+            $updateTicket->update($newData);
 
             return ApiResponse::success(
-                "Calificación ticket actualizada con exito",
+                "Ticket actualizado con exito",
                 200,
                 $updateTicket->refresh()->only([
-                    "codigo_ticket",
                     "descripcion",
-                    "fecha_inicio",
-                    "fecha_fin",
+                    "created_at",
                     "updated_at"
                 ])
             );
+
         } catch (Exception $e) {
             return ApiResponse::error(
                 "Ha ocurrido un error inesperado",

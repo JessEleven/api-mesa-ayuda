@@ -13,9 +13,19 @@ class TecnicoAsignadoController extends Controller
     public function index()
     {
         try {
+            // Relaciones anidadas para con la tabla usuarios
             $allTechnicians = TecnicoAsignado::with("usuarios")
-                ->with("tickets")
-                    ->get();
+                ->with(["usuarios.departamentos"])
+                ->with(["usuarios.departamentos.areas"])
+            // Relaciones anidadas para con la tabla tickets
+                    ->with(["tickets.categoria_tickets"])
+                    ->with(["tickets.usuarios"])
+                    ->with(["tickets.usuarios.departamentos"])
+                    ->with(["tickets.usuarios.departamentos.areas"])
+                    ->with(["tickets.estado_tickets"])
+                    ->with(["tickets.prioridad_tickets"])
+                        ->orderBy("id", "asc")
+                        ->paginate("20");
 
             if ($allTechnicians->isEmpty()) {
                 return ApiResponse::success(
@@ -63,13 +73,23 @@ class TecnicoAsignadoController extends Controller
     public function show($tecnicoAsignado)
     {
         try {
+            // Relaciones anidadas para con la tabla usuarios
             $showTechnician = TecnicoAsignado::with("usuarios")
-                ->with("tickets")
-                    ->findOrFail($tecnicoAsignado);
+                ->with(["usuarios.departamentos"])
+                ->with(["usuarios.departamentos.areas"])
+            // Relaciones anidadas para con la tabla tickets
+                    ->with(["tickets.categoria_tickets"])
+                    ->with(["tickets.usuarios"])
+                    ->with(["tickets.usuarios.departamentos"])
+                    ->with(["tickets.usuarios.departamentos.areas"])
+                    ->with(["tickets.estado_tickets"])
+                    ->with(["tickets.prioridad_tickets"])
+                        ->orderBy("id", "asc")
+                        ->findOrFail($tecnicoAsignado);
 
             return ApiResponse::success(
                 "Técnico asignado encontrado con éxito",
-                201,
+                200,
                 $showTechnician
             );
 

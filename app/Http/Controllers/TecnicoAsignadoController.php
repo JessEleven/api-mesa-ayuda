@@ -27,6 +27,24 @@ class TecnicoAsignadoController extends Controller
                         ->orderBy("id", "asc")
                         ->paginate("20");
 
+            // Para ocultar el FKs de la tabla
+            $allTechnicians->getCollection()->transform( function($technician) {
+                $technician->makeHidden(["id_usuario", "id_ticket"]);
+                // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
+                $technician->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+                $technician->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+                $technician->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con tickets
+                $technician->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+                $technician->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+                $technician->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+                $technician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                $technician->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+                $technician->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                $technician->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                return $technician;
+            });
+
             if ($allTechnicians->isEmpty()) {
                 return ApiResponse::success(
                     "Lista de técnicos asignado vacía",
@@ -86,6 +104,21 @@ class TecnicoAsignadoController extends Controller
                     ->with(["tickets.prioridad_tickets"])
                         ->orderBy("id", "asc")
                         ->findOrFail($tecnicoAsignado);
+
+            // Para ocultar el FKs de la tabla
+            $showTechnician->makeHidden(["id_usuario", "id_ticket"]);
+            // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
+            $showTechnician->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+            $showTechnician->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showTechnician->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con tickets
+            $showTechnician->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+            $showTechnician->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+            $showTechnician->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showTechnician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            $showTechnician->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+            $showTechnician->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+            $showTechnician->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Técnico asignado encontrado con éxito",

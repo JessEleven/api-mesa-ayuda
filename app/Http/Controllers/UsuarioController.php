@@ -16,8 +16,9 @@ class UsuarioController extends Controller
         try {
             // Relación anidada entre las tablas departamentos y areas
             $allUsers = Usuario::with(["departamentos.areas"])
-                ->orderBy("id", "asc")
-                ->paginate(20);
+                ->whereDoesntHave("tecnico_asignados")
+                    ->orderBy("id", "asc")
+                    ->paginate(20);
 
             if ($allUsers->isEmpty()) {
                 return ApiResponse::success(
@@ -79,13 +80,9 @@ class UsuarioController extends Controller
     {
         try {
             // Relación anidada entre las tablas departamentos y areas
-            $showUser = Usuario::with(["departamentos.areas"])->findOrFail($usuario);
-
-            // Para ocultar el FK de la tabla
-            $showUser->makeHidden(["id_departamento"]);
-            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
-            $showUser->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-            $showUser->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            $showUser = Usuario::with(["departamentos.areas"])
+                ->whereDoesntHave("tecnico_asignados")
+                    ->findOrFail($usuario);
 
             return ApiResponse::success(
                 "Usuario encontrado con exito",

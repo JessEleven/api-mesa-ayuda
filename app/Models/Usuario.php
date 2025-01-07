@@ -27,8 +27,7 @@ class Usuario extends Model
         return $this->hasOne(UsuarioRol::class, 'id_usuario');
     }
 
-    // Queda revision para despejar la duda...
-    public function tecnico_asignado()
+    public function tecnico_asignados()
     {
         return $this->hasMany(TecnicoAsignado::class, 'id_usuario');
     }

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TecnicoAsignado\StoreTecnicoAsignadoRequest;
+use App\Http\Requests\TecnicoAsignado\UpdateTecnicoAsignadoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\TecnicoAsignado;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 
 class TecnicoAsignadoController extends Controller
 {
@@ -66,18 +67,17 @@ class TecnicoAsignadoController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StoreTecnicoAsignadoRequest $request)
     {
         try {
-            $newTechnician = TecnicoAsignado::create([
-                "id_usuario"=> $request->id_usuario,
-                "id_ticket"=> $request->id_ticket
-            ]);
+            $newTechnician = TecnicoAsignado::create($request->validated());
 
             return ApiResponse::success(
                 "Técnico asignado creado con éxito",
                 201,
-                $newTechnician
+                $newTechnician->only([
+                    "created_at"
+                ])
             );
 
         } catch (Exception $e) {
@@ -140,20 +140,38 @@ class TecnicoAsignadoController extends Controller
         }
     }
 
-    public function update(Request $request, $tecnicoAsignado)
+    public function update(UpdateTecnicoAsignadoRequest $request, $tecnicoAsignado)
     {
         try {
             $updateTechnician = TecnicoAsignado::findOrFail($tecnicoAsignado);
 
-            $updateTechnician->update([
-                "id_usuario"=> $request->id_usuario,
-                "id_ticket"=> $request->id_ticket
-            ]);
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            $existingData = collect($updateTechnician->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            if ($newData == $existingData) {
+                return ApiResponse::success(
+                    "No hay cambios para actualizar técnico asignado",
+                    200,
+                    array_intersect_key($newData, array_flip([
+                        "id_usuario",
+                        "id_ticket"
+                    ]))
+                );
+            }
+            $updateTechnician->update($newData);
 
             return ApiResponse::success(
                 "Técnico asignado actualizado con éxito",
                 200,
-                $updateTechnician
+                $updateTechnician->refresh()->only([
+                    "created_at",
+                    "updated_at"
+                ])
             );
 
         } catch (Exception $e) {

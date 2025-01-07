@@ -6,6 +6,7 @@ use App\Http\Responses\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class StoreTicketRequest extends FormRequest
@@ -26,26 +27,41 @@ class StoreTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
+            "codigo_ticket"=> [
+                "required",
+                "unique:tickets,codigo_ticket"
+            ],
             "descripcion"=> [
                 "required",
-                // Puede contener letras, espacios, puntos, comas, punto y coma, y la letra ñ
+                // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
                 "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
+            ],
+            "fecha_inicio"=> [
+                "required"
+            ],
+            "fecha_fin"=> [
+                "required"
             ],
             "id_categoria"=> [
                 "required",
-                "exists:categoria_tickets,id",
+                "exists:categoria_tickets,id"
             ],
              "id_usuario"=> [
                 "required",
                 "exists:usuarios,id",
+                Rule::prohibitedIf(function () {
+                    return \DB::table("tecnico_asignados")
+                        ->where("id_usuario", $this->input("id_usuario"))
+                            ->exists();
+                })
              ],
             "id_estado"=> [
                 "required",
-                "exists:estado_tickets,id",
+                "exists:estado_tickets,id"
             ],
             "id_prioridad"=> [
                 "required",
-                "exists:prioridad_tickets,id",
+                "exists:prioridad_tickets,id"
             ]
         ];
     }
@@ -53,6 +69,9 @@ class StoreTicketRequest extends FormRequest
     public function messages(): array
     {
         return [
+            "codigo_ticket.required"=> "El código del ticket es requerido",
+            "codigo_ticket.unique"=> "El código del ticket debe ser único",
+
             "descripcion.required"=> "La descripción del ticket es requerida",
             "descripcion.regex"=> "Debe ser una cadena de texto",
 
@@ -61,6 +80,7 @@ class StoreTicketRequest extends FormRequest
 
             "id_usuario.required"=> "El ID usuario es requerido",
             "id_usuario.exists"=> "El ID usuario ingresado no existe",
+            "id_usuario.prohibited"=> "Este usuario ha sido asignado a técnico",
 
             "id_estado.required"=> "El ID estado ticket es requerido",
             "id_estado.exists"=> "El ID estado ticket ingresado no existe",

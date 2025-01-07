@@ -26,8 +26,8 @@ class UpdateTicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        $id = $this->route()?->parameterNames[0] ?? null;
-        $id = $id ? $this->route($id) : null;
+        $routeName = $this->route()?->parameterNames[0] ?? null;
+        $id = $routeName ? $this->route($routeName) : null;
 
         if (!is_numeric($id)) {
             throw new HttpResponseException(ApiResponse::error(
@@ -46,17 +46,18 @@ class UpdateTicketRequest extends FormRequest
         return [
             "descripcion"=> [
                 "required",
-                // Puede contener letras, espacios, puntos, comas, punto y coma, y la letra ñ
+                // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
                 "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
             ],
             "id_categoria"=> [
                 "required",
                 "exists:categoria_tickets,id",
             ],
-             "id_usuario"=> [
-                "required",
-                "exists:usuarios,id",
-             ],
+            // Un ticket no se le puede ediar el usuario
+            // "id_usuario"=> [
+            //     "required",
+            //     "exists:usuarios,id",
+            // ],
             "id_estado"=> [
                 "required",
                 "exists:estado_tickets,id",
@@ -77,8 +78,8 @@ class UpdateTicketRequest extends FormRequest
             "id_categoria.required"=> "El ID categoria ticket es requerido",
             "id_categoria.exists"=> "El ID categoria ticket ingresado no existe",
 
-            "id_usuario.required"=> "El ID usuario es requerido",
-            "id_usuario.exists"=> "El ID usuario ingresado no existe",
+            // "id_usuario.required"=> "El ID usuario es requerido",
+            // "id_usuario.exists"=> "El ID usuario ingresado no existe",
 
             "id_estado.required"=> "El ID estado ticket es requerido",
             "id_estado.exists"=> "El ID estado ticket ingresado no existe",

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Responses\ApiResponse;
 use App\Models\BitacoraTicket;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 
 class BitacoraTicketController extends Controller
@@ -12,22 +13,22 @@ class BitacoraTicketController extends Controller
     public function index()
     {
         try {
-            $allBinnacles = BitacoraTicket::with("tecnico_asigados")
+            $allLogs = BitacoraTicket::with("tecnico_asigados")
                 ->orderBy("id", "asc")
                 ->paginate(20);
 
-            if ($allBinnacles->isEmpty()) {
+            if ($allLogs->isEmpty()) {
                 return ApiResponse::success(
                     "Listado de bitácoras vacía",
                     200,
-                    $allBinnacles
+                    $allLogs
                 );
             }
 
             return ApiResponse::success(
                 "Listado de bitácoras",
                 200,
-                $allBinnacles
+                $allLogs
             );
 
         } catch (Exception $e) {
@@ -40,12 +41,52 @@ class BitacoraTicketController extends Controller
 
     public function store(Request $request)
     {
-        //
+        try {
+            $newLog = BitacoraTicket::create([
+                "descripcion"=> $request->descripcion,
+                "id_tecnico_asignado"=> $request->id_tecnico_asignado
+            ]);
+
+            return ApiResponse::success(
+                "Bitácora creada con éxito",
+                201,
+                $newLog->only([
+                    "descripcion",
+                    "created_at"
+                ])
+            );
+
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
     }
 
-    public function show(BitacoraTicket $bitacoraTicket)
+    public function show($bitacoraTicket)
     {
-        //
+        try {
+            $showLog = BitacoraTicket::with("tecnico_asigados")->findOrFail($bitacoraTicket);
+
+            return ApiResponse::success(
+                "Bitácora encontrada con éxito",
+                200,
+                $showLog
+            );
+
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error(
+                "Bitácora no encontrada",
+                404
+            );
+
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
     }
 
     public function update(Request $request, BitacoraTicket $bitacoraTicket)

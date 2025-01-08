@@ -2,62 +2,57 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Responses\ApiResponse;
 use App\Models\BitacoraTicket;
+use Exception;
 use Illuminate\Http\Request;
 
 class BitacoraTicketController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        return response()->json([
-            "mensaje" => "API mesa de ayuda",
-            "datos" => [
-                [
-                    "id" => 1,
-                    "nombre" => "Bitacora 1",
-                    "descripcion" => "Descripcion 1",
-                ],
-                [
-                    "id" => 2,
-                    "nombre" => "Bitacora 2",
-                    "descripcion" => "Descripcion 2",
-                ]
-            ],
-            "total" => 2,
-            "status" => "success"
-        ]);
+        try {
+            $allBinnacles = BitacoraTicket::with("tecnico_asigados")
+                ->orderBy("id", "asc")
+                ->paginate(20);
+
+            if ($allBinnacles->isEmpty()) {
+                return ApiResponse::success(
+                    "Listado de bitácoras vacía",
+                    200,
+                    $allBinnacles
+                );
+            }
+
+            return ApiResponse::success(
+                "Listado de bitácoras",
+                200,
+                $allBinnacles
+            );
+
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(BitacoraTicket $bitacoraTicket)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, BitacoraTicket $bitacoraTicket)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(BitacoraTicket $bitacoraTicket)
     {
         //

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BitacoraTicket\StoreBitacoraTicketRequest;
+use App\Http\Requests\BitacoraTicket\UpdateBitacoraTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\BitacoraTicket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
 
 class BitacoraTicketController extends Controller
 {
@@ -39,7 +40,7 @@ class BitacoraTicketController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(StoreBitacoraTicketRequest $request)
     {
         try {
             $newLog = BitacoraTicket::create([
@@ -89,15 +90,29 @@ class BitacoraTicketController extends Controller
         }
     }
 
-    public function update(Request $request, $bitacoraTicket)
+    public function update(UpdateBitacoraTicketRequest $request, $bitacoraTicket)
     {
         try {
             $updateLog = BitacoraTicket::findOrFail($bitacoraTicket);
 
-            $updateLog->update([
-                "descripcion"=> $request->descripcion,
-                "id_tecnico_asignado"=> $request->id_tecnico_asignado
-            ]);
+            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            $existingData = collect($updateLog->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
+                $key => is_string($value) ? trim($value) : $value,
+            ])->toArray();
+
+            if ($newData == $existingData) {
+                return ApiResponse::success(
+                    "No hay cambios para actualizar bitácora",
+                    200,
+                    array_intersect_key($newData, array_flip([
+                        "descripcion"
+                    ]))
+                );
+            }
+            $updateLog->update($newData);
 
             return ApiResponse::success(
                 "Bitácora actualizada con éxito",

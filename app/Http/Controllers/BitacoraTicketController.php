@@ -89,13 +89,58 @@ class BitacoraTicketController extends Controller
         }
     }
 
-    public function update(Request $request, BitacoraTicket $bitacoraTicket)
+    public function update(Request $request, $bitacoraTicket)
     {
-        //
+        try {
+            $updateLog = BitacoraTicket::findOrFail($bitacoraTicket);
+
+            $updateLog->update([
+                "descripcion"=> $request->descripcion,
+                "id_tecnico_asignado"=> $request->id_tecnico_asignado
+            ]);
+
+            return ApiResponse::success(
+                "Bitácora actualizada con éxito",
+                200,
+                $updateLog->refresh()->only([
+                    "descripcion",
+                    "created_at",
+                    "updated_at"
+                ])
+            );
+
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
     }
 
-    public function destroy(BitacoraTicket $bitacoraTicket)
+    public function destroy($bitacoraTicket)
     {
-        //
+        try {
+            BitacoraTicket::findOrFail($bitacoraTicket)->delete();
+
+            $baseRoute = $this->getBaseRoute();
+
+            return ApiResponse::deleted(
+                "Bitácora eliminada con éxito",
+                200,
+                ["related"=> $baseRoute]
+            );
+
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error(
+                "Bitácora no encontrada",
+                404
+            );
+
+        } catch (Exception $e) {
+            return ApiResponse::error(
+                "Ha ocurrido un error inesperado",
+                500
+            );
+        }
     }
 }

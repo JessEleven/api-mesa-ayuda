@@ -14,9 +14,18 @@ class BitacoraTicketController extends Controller
     public function index()
     {
         try {
-            $allLogs = BitacoraTicket::with("tecnico_asigados")
-                ->orderBy("id", "asc")
-                ->paginate(20);
+            // Relaciones anidadas para con la tabla tecnico_asignados
+            $allLogs = BitacoraTicket::with(["tecnico_asigados.usuarios.departamentos"])
+                ->with(["tecnico_asigados.usuarios.departamentos.areas"])
+            // Relaciones anidadas para con la tabla tickets
+                    ->with(["tecnico_asigados.tickets.categoria_tickets"])
+                    ->with(["tecnico_asigados.tickets.usuarios"])
+                    ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
+                    ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
+                    ->with(["tecnico_asigados.tickets.estado_tickets"])
+                    ->with(["tecnico_asigados.tickets.prioridad_tickets"])
+                        ->orderBy("id", "asc")
+                        ->paginate(20);
 
             if ($allLogs->isEmpty()) {
                 return ApiResponse::success(
@@ -68,7 +77,17 @@ class BitacoraTicketController extends Controller
     public function show($bitacoraTicket)
     {
         try {
-            $showLog = BitacoraTicket::with("tecnico_asigados")->findOrFail($bitacoraTicket);
+            // Relaciones anidadas para con la tabla tecnico_asignados
+            $showLog = BitacoraTicket::with(["tecnico_asigados.usuarios.departamentos"])
+                ->with(["tecnico_asigados.usuarios.departamentos.areas"])
+            // Relaciones anidadas para con la tabla tickets
+                    ->with(["tecnico_asigados.tickets.categoria_tickets"])
+                    ->with(["tecnico_asigados.tickets.usuarios"])
+                    ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
+                    ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
+                    ->with(["tecnico_asigados.tickets.estado_tickets"])
+                    ->with(["tecnico_asigados.tickets.prioridad_tickets"])
+                        ->findOrFail($bitacoraTicket);
 
             return ApiResponse::success(
                 "Bitácora encontrada con éxito",

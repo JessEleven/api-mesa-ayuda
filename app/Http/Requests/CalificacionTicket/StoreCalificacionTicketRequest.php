@@ -33,13 +33,13 @@ class StoreCalificacionTicketRequest extends FormRequest
             ],
             "observacion"=> [
                 "nullable",
-                // Puede contener letras, espacios, puntos, comas, punto y coma, y la letra ñ
+                // Puede contener letras, espacios, puntos, punto y coma, comas y la letra ñ
                 "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
             ],
             "id_ticket"=> [
                 "required",
                 "exists:tickets,id",
-                "unique:calificacion_tickets,id_ticket"
+                "unique:tickets,id"
             ]
         ];
     }
@@ -53,9 +53,9 @@ class StoreCalificacionTicketRequest extends FormRequest
 
             "observacion.regex"=> "Debe ser una cadena de texto",
 
-            "id_ticket.required"=> "El ID ticket es requerido",
-            "id_ticket.exists"=> "El ID ticket ingresado no existe",
-            "id_ticket.unique"=> "El ID ticket para la calificación debe ser único"
+            "id_ticket.required"=> "El ticket es requerido",
+            "id_ticket.exists"=> "El ticket ingresado no existe",
+            "id_ticket.unique"=> "La calificación por ticket debe ser única"
         ];
     }
 

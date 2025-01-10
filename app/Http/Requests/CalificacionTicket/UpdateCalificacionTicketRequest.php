@@ -52,13 +52,8 @@ class UpdateCalificacionTicketRequest extends FormRequest
             ],
             "observacion"=> [
                 "nullable",
-                // Puede contener letras, espacios, puntos, comas, punto y coma, y la letra ñ
+                // Puede contener letras, espacios, puntos, punto y coma, comas y la letra ñ
                 "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
-            ],
-            "id_ticket"=> [
-                "required",
-                "exists:tickets,id",
-                Rule::unique("calificacion_tickets")->ignore($id)
             ]
         ];
     }
@@ -70,11 +65,7 @@ class UpdateCalificacionTicketRequest extends FormRequest
             "calificacion.integer"=> "Solo se aceptan números enteros",
             "calificacion.in"=> "La calificación debe ser 2, 4, 6, 8 o 10",
 
-            "observacion.regex"=> "Debe ser una cadena de texto",
-
-            "id_ticket.required"=> "El ID ticket es requerido",
-            "id_ticket.exists"=> "El ID ticket ingresado no existe",
-            "id_ticket.unique"=> "El ID ticket para la calificación ya existe"
+            "observacion.regex"=> "Debe ser una cadena de texto"
         ];
     }
 

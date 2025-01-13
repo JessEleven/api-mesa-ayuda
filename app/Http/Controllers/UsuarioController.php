@@ -84,6 +84,12 @@ class UsuarioController extends Controller
                 ->whereDoesntHave("tecnico_asignados")
                     ->findOrFail($usuario);
 
+            // Para ocultar el FK de la tabla
+            $showUser->makeHidden(["id_departamento"]);
+            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+            $showUser->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showUser->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+
             return ApiResponse::success(
                 "Usuario encontrado con exito",
                 200,

@@ -28,7 +28,15 @@ class TecnicoAsignadoController extends Controller
                         ->orderBy("id", "asc")
                         ->paginate("20");
 
-            // Para ocultar el FKs de la tabla
+            if ($allTechnicians->isEmpty()) {
+                return ApiResponse::success(
+                    "Lista de técnicos asignado vacía",
+                    200,
+                    $allTechnicians
+                );
+            }
+
+            // Para ocultar los FKs de la tabla
             $allTechnicians->getCollection()->transform( function($technician) {
                 $technician->makeHidden(["id_usuario", "id_ticket"]);
                 // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
@@ -46,13 +54,6 @@ class TecnicoAsignadoController extends Controller
                 return $technician;
             });
 
-            if ($allTechnicians->isEmpty()) {
-                return ApiResponse::success(
-                    "Lista de técnicos asignado vacía",
-                    200,
-                    $allTechnicians
-                );
-            }
             return ApiResponse::success(
                 "Listado de técnicos asignado",
                 200,
@@ -105,7 +106,7 @@ class TecnicoAsignadoController extends Controller
                         ->orderBy("id", "asc")
                         ->findOrFail($tecnicoAsignado);
 
-            // Para ocultar el FKs de la tabla
+            // Para ocultar los FKs de la tabla
             $showTechnician->makeHidden(["id_usuario", "id_ticket"]);
             // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
             $showTechnician->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);

@@ -22,7 +22,15 @@ class TicketController extends Controller
                     ->orderBy("id", "asc")
                     ->paginate(20);
 
-            // Para ocultar el FKs de la tabla
+            if ($allTickets->isEmpty()) {
+                return ApiResponse::success(
+                    "Lista de tickets vacia",
+                    200,
+                    $allTickets
+                );
+            }
+
+            // Para ocultar los FKs de la tabla
             $allTickets->getCollection()->transform(function ($ticket) {
                 $ticket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
                 // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
@@ -35,13 +43,6 @@ class TicketController extends Controller
                 return $ticket;
             });
 
-            if ($allTickets->isEmpty()) {
-                return ApiResponse::success(
-                    "Lista de tickets vacia",
-                    200,
-                    $allTickets
-                );
-            }
             return ApiResponse::success(
                 "Listado de tickets",
                 200,
@@ -90,7 +91,7 @@ class TicketController extends Controller
                 ->with("categoria_tickets","estado_tickets", "prioridad_tickets")
                     ->findOrFail($ticket);
 
-            // Para ocultar el FKs de la tabla
+            // Para ocultar los FKs de la tabla
             $showTicket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
             // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
             $showTicket->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);

@@ -38,7 +38,7 @@ class DepartamentoController extends Controller
                 "Listado de departamentos",
                 200,
                 $allDepartments
-                );
+            );
 
         } catch (Exception $e) {
             return ApiResponse::error(

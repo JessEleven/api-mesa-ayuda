@@ -24,7 +24,7 @@ class UsuarioController extends Controller
                 return ApiResponse::success(
                     "Lista de usuarios vacia",
                     200,
-                    $allUsers,
+                    $allUsers
                 );
             }
 

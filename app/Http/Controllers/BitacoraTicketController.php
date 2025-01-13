@@ -35,6 +35,25 @@ class BitacoraTicketController extends Controller
                 );
             }
 
+            // Para ocultar el FKs de la tabla
+            $allLogs->getCollection()->transform( function($log) {
+                $log->makeHidden(["id_tecnico_asignado"]);
+                // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
+                $log->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->usuarios?->makeHidden(["id", "id_departamento","created_at", "updated_at"]);
+                $log->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con tickets
+                $log->tecnico_asigados?->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+                $log->tecnico_asigados?->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                return $log;
+            });
+
             return ApiResponse::success(
                 "Listado de bitácoras",
                 200,
@@ -88,6 +107,22 @@ class BitacoraTicketController extends Controller
                     ->with(["tecnico_asigados.tickets.estado_tickets"])
                     ->with(["tecnico_asigados.tickets.prioridad_tickets"])
                         ->findOrFail($bitacoraTicket);
+
+            // Para ocultar el FKs de la tabla
+            $showLog->makeHidden(["id_tecnico_asignado"]);
+            // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
+            $showLog->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->usuarios?->makeHidden(["id", "id_departamento","created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con tickets
+            $showLog->tecnico_asigados?->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Bitácora encontrada con éxito",

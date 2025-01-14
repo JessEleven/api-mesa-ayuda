@@ -39,18 +39,18 @@ class TecnicoAsignadoController extends Controller
             // Para ocultar los FKs de la tabla
             $allTechnicians->getCollection()->transform( function($technician) {
                 $technician->makeHidden(["id_usuario", "id_ticket"]);
-                // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
-                $technician->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-                $technician->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-                $technician->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
-                // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con tickets
+                // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
+                $technician->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+                $technician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+                $technician->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
+                // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con tickets
                 $technician->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-                $technician->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-                $technician->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-                $technician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                $technician->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+                $technician->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+                $technician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
                 $technician->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-                $technician->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-                $technician->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                $technician->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
+                $technician->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
                 return $technician;
             });
 
@@ -108,18 +108,18 @@ class TecnicoAsignadoController extends Controller
 
             // Para ocultar los FKs de la tabla
             $showTechnician->makeHidden(["id_usuario", "id_ticket"]);
-            // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con usuarios
-            $showTechnician->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-            $showTechnician->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-            $showTechnician->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
-            // Para ocultar los PKs, FKs y timestamps de la tabla relacionada con tickets
+            // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
+            $showTechnician->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+            $showTechnician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+            $showTechnician->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
+            // Para ocultar los PKs, FKs, algunos ccmpos y timestamps de la tabla relacionada con tickets
             $showTechnician->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-            $showTechnician->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-            $showTechnician->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-            $showTechnician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            $showTechnician->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+            $showTechnician->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+            $showTechnician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
             $showTechnician->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-            $showTechnician->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-            $showTechnician->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+            $showTechnician->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
+            $showTechnician->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Técnico asignado encontrado con éxito",

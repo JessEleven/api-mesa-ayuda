@@ -33,10 +33,10 @@ class TicketController extends Controller
             // Para ocultar los FKs de la tabla
             $allTickets->getCollection()->transform(function ($ticket) {
                 $ticket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
-                // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
-                $ticket->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-                $ticket->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-                $ticket->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+                // Para ocultar los PKs, FKs algunos campos y timestamps de las tablas relaciones
+                $ticket->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+                $ticket->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+                $ticket->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
                 $ticket->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
                 $ticket->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
                 $ticket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
@@ -93,10 +93,10 @@ class TicketController extends Controller
 
             // Para ocultar los FKs de la tabla
             $showTicket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
-            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
-            $showTicket->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-            $showTicket->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-            $showTicket->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
+            $showTicket->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+            $showTicket->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+            $showTicket->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
             $showTicket->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
             $showTicket->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
             $showTicket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);

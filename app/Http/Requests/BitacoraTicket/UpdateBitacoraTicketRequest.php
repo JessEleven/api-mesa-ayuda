@@ -26,9 +26,12 @@ class UpdateBitacoraTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Se obtiene el nombre del parámetro dinámico de la ruta
         $routeName = $this->route()?->parameterNames[0] ?? null;
-        $id = $routeName ? $this->route(param: $routeName) : null;
+        // Se obtiene el ID desde la ruta
+        $id = $routeName ? $this->route($routeName) : null;
 
+        // Se valida que el ID sea númerico
         if (!is_numeric($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "El ID proporcionado no es válido",
@@ -36,6 +39,7 @@ class UpdateBitacoraTicketRequest extends FormRequest
             ));
         }
 
+        // Se verifica si la bitácora existe
         if (!BitacoraTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "Bitácora no encontrada",

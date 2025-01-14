@@ -41,8 +41,8 @@ class StoreDepartamentoRequest extends FormRequest
                 "required",
                 "integer",
                 "min:1",
-                Rule::unique('departamentos', 'peso_prioridad')
-                    ->where('id_area', $this->input('id_area'))
+                Rule::unique("departamentos", "peso_prioridad")
+                    ->where("id_area", $this->input("id_area"))
             ],
             "id_area"=> [
                 "required",

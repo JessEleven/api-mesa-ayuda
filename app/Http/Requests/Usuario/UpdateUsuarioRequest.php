@@ -27,17 +27,17 @@ class UpdateUsuarioRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Obtener el nombre del parámetro dinámico de la ruta
-        $id = $this->route()?->parameterNames[0] ?? null;
-        // Obtener el ID desde la ruta
-        $id = $id ? $this->route($id) : null;
+        // Se obtene el nombre del parámetro dinámico de la ruta
+        $routeName = $this->route()?->parameterNames[0] ?? null;
+        // Se obtene el ID desde la ruta
+        $id = $routeName ? $this->route($routeName) : null;
 
         // Validar que el ID sea válido
         /* if ($id) {
             $id = Usuario::findOrFail($id)->id;
         } */
 
-        // Validar que el ID sea númerico
+        // Se valida que el ID sea númerico
         if (!is_numeric($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "El ID proporcionado no es válido",
@@ -45,7 +45,7 @@ class UpdateUsuarioRequest extends FormRequest
             ));
         }
 
-        // Verificar si el usuario existe
+        // Se verifica si el usuario existe
         if (!Usuario::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "Usuario no encontrado",
@@ -72,7 +72,7 @@ class UpdateUsuarioRequest extends FormRequest
             "email"=> [
                 "required",
                 "email",
-                 Rule::unique('usuarios')->ignore($id)
+                 Rule::unique("usuarios")->ignore($id)
             ],
             "password"=> [
                 "required",

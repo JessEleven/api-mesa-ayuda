@@ -36,14 +36,14 @@ class CalificacionTicketController extends Controller
             // Para ocultar el FK de la tabla
             $allQualifications->getCollection()->transform(function ($qualification) {
                 $qualification->makeHidden(["id_ticket"]);
-                // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+                // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
                 $qualification->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-                $qualification->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-                $qualification->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-                $qualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-                $qualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
-                $qualification->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-                $qualification->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                $qualification->tickets?->categoria_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+                $qualification->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+                $qualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+                $qualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
+                $qualification->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
+                $qualification->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
                 return $qualification;
             });
 
@@ -99,14 +99,14 @@ class CalificacionTicketController extends Controller
 
             // Para ocultar el FK de la tabla
             $showQualification->makeHidden(["id_ticket"]);
-            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
+            // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
             $showQualification->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
             $showQualification->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-            $showQualification->tickets?->usuarios?->makeHidden(["id", "id_departamento", "created_at", "updated_at"]);
-            $showQualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-            $showQualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
-            $showQualification->tickets?->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-            $showQualification->tickets?->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+            $showQualification->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
+            $showQualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
+            $showQualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
+            $showQualification->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
+            $showQualification->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
 
             return ApiResponse::success(
                 "Calificación ticket encontrada con exito",

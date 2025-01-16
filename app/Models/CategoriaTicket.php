@@ -7,7 +7,7 @@ use Illuminate\Support\Carbon;
 
 class CategoriaTicket extends Model
 {
-    protected $table = 'categoria_tickets';
+    protected $table = 'categorias_tickets';
 
     protected $fillable = [
         'nombre_categoria'

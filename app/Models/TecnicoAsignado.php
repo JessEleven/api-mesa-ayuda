@@ -10,7 +10,7 @@ class TecnicoAsignado extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'tecnico_asignados';
+    protected $table = 'tecnicos_asignados';
 
     protected $fillable = [
         'id_usuario',

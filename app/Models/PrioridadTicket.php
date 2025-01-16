@@ -7,7 +7,7 @@ use Illuminate\Support\Carbon;
 
 class PrioridadTicket extends Model
 {
-    protected $table = 'prioridad_tickets';
+    protected $table = 'prioridades_tickets';
 
     protected $fillable = [
         'nombre_prioridad',

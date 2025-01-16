@@ -7,7 +7,7 @@ use Illuminate\Support\Carbon;
 
 class CalificacionTicket extends Model
 {
-    protected $table = 'calificacion_tickets';
+    protected $table = 'calificaciones_tickets';
 
     protected $fillable = [
         'calificacion',

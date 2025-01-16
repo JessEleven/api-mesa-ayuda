@@ -10,7 +10,7 @@ class BitacoraTicket extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'bitacora_tickets';
+    protected $table = 'bitacoras_tickets';
 
     protected $fillable = [
         'descripcion',

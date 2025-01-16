@@ -7,7 +7,7 @@ use Illuminate\Support\Carbon;
 
 class EstadoTicket extends Model
 {
-    protected $table = 'estado_tickets';
+    protected $table = 'estados_tickets';
 
     protected $fillable = [
         'nombre_estado',

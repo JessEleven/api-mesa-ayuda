@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('bitacora_tickets', function (Blueprint $table) {
             $table->id();
-            $table->text('descripcion');
-            $table->softDeletes();
+            $table->text('descripcion')->nullable();
+            $table->timestamp('recurso_eliminado')->nullable();
             $table->timestamps();
 
             $table->foreignId('id_tecnico_asignado')

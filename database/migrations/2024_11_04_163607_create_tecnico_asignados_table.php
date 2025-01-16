@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tecnico_asignados', function (Blueprint $table) {
             $table->id();
-            $table->softDeletes();
+            $table->timestamp('recurso_eliminado')->nullable();
             $table->timestamps();
 
             $table->foreignId('id_usuario')

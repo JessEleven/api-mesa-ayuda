@@ -11,18 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('usuario_roles', function (Blueprint $table) {
+        Schema::create('prioridades_tickets', function (Blueprint $table) {
             $table->id();
+            $table->string('nombre_prioridad')->unique();
+            $table->string('color_prioridad')->unique();
+            $table->integer('orden_prioridad')->unique();
             $table->timestamps();
-
-            $table->foreignId('id_rol')
-            ->constrained('roles')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
-            $table->foreignId('id_usuario')
-            ->constrained('usuarios')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
         });
     }
 
@@ -31,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('usuario_roles');
+        Schema::dropIfExists('prioridades_tickets');
     }
 };

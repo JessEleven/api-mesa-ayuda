@@ -11,12 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('estado_tickets', function (Blueprint $table) {
+        Schema::create('bitacoras_tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_estado')->unique();
-            $table->string('color_estado')->unique();
-            $table->integer('orden_prioridad')->unique();
+            $table->text('descripcion')->nullable();
+            $table->timestamp('recurso_eliminado')->nullable();
             $table->timestamps();
+
+            $table->foreignId('id_tecnico_asignado')
+            ->constrained('tecnicos_asignados')
+            ->cascadeOnDelete()
+            ->cascadeOnUpdate();
         });
     }
 
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('estado_tickets');
+        Schema::dropIfExists('bitacoras_tickets');
     }
 };

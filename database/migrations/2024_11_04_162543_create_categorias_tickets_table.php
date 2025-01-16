@@ -11,16 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bitacora_tickets', function (Blueprint $table) {
+        Schema::create('categorias_tickets', function (Blueprint $table) {
             $table->id();
-            $table->text('descripcion')->nullable();
-            $table->timestamp('recurso_eliminado')->nullable();
+            $table->string('nombre_categoria')->unique();
             $table->timestamps();
-
-            $table->foreignId('id_tecnico_asignado')
-            ->constrained('tecnico_asignados')
-            ->cascadeOnDelete()
-            ->cascadeOnUpdate();
         });
     }
 
@@ -29,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bitacora_tickets');
+        Schema::dropIfExists('categorias_tickets');
     }
 };

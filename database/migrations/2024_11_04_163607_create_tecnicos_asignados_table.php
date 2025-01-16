@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tecnico_asignados', function (Blueprint $table) {
+        Schema::create('tecnicos_asignados', function (Blueprint $table) {
             $table->id();
             $table->timestamp('recurso_eliminado')->nullable();
             $table->timestamps();
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tecnico_asignados');
+        Schema::dropIfExists('tecnicos_asignados');
     }
 };

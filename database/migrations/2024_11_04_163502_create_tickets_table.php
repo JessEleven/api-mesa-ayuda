@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreignId('id_categoria')
-            ->constrained('categoria_tickets')
+            ->constrained('categorias_tickets')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
             $table->foreignId('id_usuario')
@@ -28,11 +28,11 @@ return new class extends Migration
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
             $table->foreignId('id_estado')
-            ->constrained('estado_tickets')
+            ->constrained('estados_tickets')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
             $table->foreignId('id_prioridad')
-            ->constrained('prioridad_tickets')
+            ->constrained('prioridades_tickets')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
         });

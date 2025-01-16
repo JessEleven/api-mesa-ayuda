@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('permisos', function (Blueprint $table) {
             $table->id();
             $table->string('nombre_permiso');
-            $table->softDeletes();
+            $table->timestamp('recurso_eliminado')->nullable();
             $table->timestamps();
         });
     }

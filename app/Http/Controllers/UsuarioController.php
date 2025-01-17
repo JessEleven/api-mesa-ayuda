@@ -22,7 +22,7 @@ class UsuarioController extends Controller
 
             if ($allUsers->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de usuarios vacia",
+                    "Lista de usuarios vacía",
                     200,
                     $allUsers
                 );
@@ -38,7 +38,7 @@ class UsuarioController extends Controller
             });
 
             return ApiResponse::success(
-                "Listado de usuarios",
+                "Lista de usuarios",
                 200,
                 $allUsers
             );
@@ -57,7 +57,7 @@ class UsuarioController extends Controller
             $newUser = Usuario::create($request->validated());
 
             return ApiResponse::success(
-                "Usuario creado con exito",
+                "Usuario creado con éxito",
                 201,
                 $newUser->only([
                     "nombre",
@@ -91,7 +91,7 @@ class UsuarioController extends Controller
             $showUser->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
-                "Usuario encontrado con exito",
+                "Usuario encontrado con éxito",
                 200,
                 $showUser
             );
@@ -141,7 +141,7 @@ class UsuarioController extends Controller
             $updateUser->update($newData);
 
             return ApiResponse::success(
-                "Usuario actualizado con exito",
+                "Usuario actualizado con éxito",
                 200,
                 $updateUser->refresh()->only([
                     "nombre",
@@ -169,7 +169,7 @@ class UsuarioController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Usuario eliminado con exito",
+                "Usuario eliminado con éxito",
                 200,
                 ["related"=> $baseRoute]
             );

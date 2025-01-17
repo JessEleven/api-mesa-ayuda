@@ -20,7 +20,7 @@ class DepartamentoController extends Controller
 
             if ($allDepartments->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de departamentos vacia",
+                    "Lista de departamentos vacía",
                     200,
                     $allDepartments
                 );
@@ -35,7 +35,7 @@ class DepartamentoController extends Controller
             });
 
             return ApiResponse::success(
-                "Listado de departamentos",
+                "Lista de departamentos",
                 200,
                 $allDepartments
             );
@@ -79,14 +79,14 @@ class DepartamentoController extends Controller
 
 
             return ApiResponse::success(
-                "Departamento creado con exito",
+                "Departamento creado con éxito",
                 201,
                 $newDepartment->only([
                     "nombre_departamento",
                     "sigla_departamento",
                     "secuencia_departamento",
                     "peso_prioridad",
-                    "created_at",
+                    "created_at"
                 ])
             );
 
@@ -110,7 +110,7 @@ class DepartamentoController extends Controller
             $showDepartment->areas?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
-                "Departamento encontrado con exito",
+                "Departamento encontrado con éxito",
                 200,
                 $showDepartment
             );
@@ -168,14 +168,14 @@ class DepartamentoController extends Controller
             $updateDepartment->update($newData);
 
             return ApiResponse::success(
-                "Departamento actualizado con exito",
+                "Departamento actualizado con éxito",
                 200,
                 $updateDepartment->refresh()->only([
                     "nombre_departamento",
                     "sigla_departamento",
                     "secuencia_departamento",
                     "created_at",
-                    "updated_at",
+                    "updated_at"
                 ])
             );
 
@@ -195,7 +195,7 @@ class DepartamentoController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Departamento eliminado con exito",
+                "Departamento eliminado con éxito",
                 200,
                 ["related"=> $baseRoute]
             );

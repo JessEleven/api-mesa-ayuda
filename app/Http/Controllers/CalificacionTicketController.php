@@ -27,7 +27,7 @@ class CalificacionTicketController extends Controller
 
             if ($allQualifications->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de calificaciones de ticket vacia",
+                    "Lista de calificaciones de ticket vacía",
                     200,
                     $allQualifications
                 );
@@ -48,7 +48,7 @@ class CalificacionTicketController extends Controller
             });
 
             return ApiResponse::success(
-                "Listado de calificaciones de ticket",
+                "Lista de calificaciones de ticket",
                 200,
                 $allQualifications
             );
@@ -67,7 +67,7 @@ class CalificacionTicketController extends Controller
             $newQualification = CalificacionTicket::create($request->validated());
 
             return ApiResponse::success(
-                "Calificación de ticket creada con exito",
+                "Calificación de ticket creada con éxito",
                 201,
                 $newQualification->only([
                     "calificacion",
@@ -109,14 +109,14 @@ class CalificacionTicketController extends Controller
             $showQualification->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
 
             return ApiResponse::success(
-                "Calificación ticket encontrada con exito",
+                "Calificación de ticket encontrada con éxito",
                 200,
                 $showQualification
             );
 
         } catch(ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Calificación ticket no encontrada",
+                "Calificación de ticket no encontrada",
                 404
             );
 
@@ -143,7 +143,7 @@ class CalificacionTicketController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::success(
-                    "No hay cambios para actualizar calificación ticket",
+                    "No hay cambios para actualizar calificación de ticket",
                     200,
                     array_intersect_key($newData, array_flip([
                         "calificacion",
@@ -154,7 +154,7 @@ class CalificacionTicketController extends Controller
             $updateQualification->update($newData);
 
             return ApiResponse::success(
-                "Calificación ticket actualizada con exito",
+                "Calificación de ticket actualizada con éxito",
                 200,
                 $updateQualification->refresh()->only([
                     "calificacion",
@@ -180,14 +180,14 @@ class CalificacionTicketController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Calificación ticket eliminada con exito",
+                "Calificación de ticket eliminada con éxito",
                 200,
                 ["related"=> $baseRoute]
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Calificación ticket no encontrada",
+                "Calificación de ticket no encontrada",
                 404
             );
 

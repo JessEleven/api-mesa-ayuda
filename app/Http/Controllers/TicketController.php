@@ -24,7 +24,7 @@ class TicketController extends Controller
 
             if ($allTickets->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de tickets vacia",
+                    "Lista de tickets vacía",
                     200,
                     $allTickets
                 );
@@ -44,7 +44,7 @@ class TicketController extends Controller
             });
 
             return ApiResponse::success(
-                "Listado de tickets",
+                "Lista de tickets",
                 200,
                 $allTickets
             );
@@ -63,13 +63,12 @@ class TicketController extends Controller
             $newTicket = Ticket::create($request->validated());
 
             return ApiResponse::success(
-                "Ticket creado con exito",
+                "Ticket creado con éxito",
                 201,
                 $newTicket->only([
                     "codigo_ticket",
                     "descripcion",
-                    "fecha_inicio",
-                    "fecha_fin",
+                    "fecha_inicio"
                 ])
             );
 
@@ -102,7 +101,7 @@ class TicketController extends Controller
             $showTicket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
 
             return ApiResponse::success(
-                "Ticket encontrado con exito",
+                "Ticket encontrado con éxito",
                 200,
                 $showTicket
             );
@@ -146,7 +145,7 @@ class TicketController extends Controller
             $updateTicket->update($newData);
 
             return ApiResponse::success(
-                "Ticket actualizado con exito",
+                "Ticket actualizado con éxito",
                 200,
                 $updateTicket->refresh()->only([
                     "descripcion",
@@ -171,7 +170,7 @@ class TicketController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Ticket eliminado con exito",
+                "Ticket eliminado con éxito",
                 200,
                 ["related"=> $baseRoute]
             );

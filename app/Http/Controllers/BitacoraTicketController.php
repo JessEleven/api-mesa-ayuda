@@ -29,7 +29,7 @@ class BitacoraTicketController extends Controller
 
             if ($allLogs->isEmpty()) {
                 return ApiResponse::success(
-                    "Listado de bitácoras vacía",
+                    "Lista de bitácoras vacía",
                     200,
                     $allLogs
                 );
@@ -55,7 +55,7 @@ class BitacoraTicketController extends Controller
             });
 
             return ApiResponse::success(
-                "Listado de bitácoras",
+                "Lista de bitácoras",
                 200,
                 $allLogs
             );

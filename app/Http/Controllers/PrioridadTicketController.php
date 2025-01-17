@@ -18,13 +18,13 @@ class PrioridadTicketController extends Controller
 
             if ($allPriorities->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de prioridades de ticket vacia",
+                    "Lista de prioridades de ticket vacía",
                     200,
                     $allPriorities
                 );
             }
             return ApiResponse::success(
-                "Listado de prioridad de ticket",
+                "Lista de prioridades de ticket",
                 200,
                 $allPriorities
             );
@@ -43,7 +43,7 @@ class PrioridadTicketController extends Controller
             $newPriority = PrioridadTicket::create($request->validated());
 
             return ApiResponse::success(
-                "Prioridad de ticket creada con exito",
+                "Prioridad de ticket creada con éxito",
                 201,
                 $newPriority
             );
@@ -62,14 +62,14 @@ class PrioridadTicketController extends Controller
             $showPriority = PrioridadTicket::findOrFail($prioridadTicket);
 
             return ApiResponse::success(
-                "Prioridad ticket encontrada con exito",
+                "Prioridad de ticket encontrada con éxito",
                 200,
                 $showPriority
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Prioridad ticket no encontrada",
+                "Prioridad de ticket no encontrada",
                 404
             );
 
@@ -96,7 +96,7 @@ class PrioridadTicketController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::success(
-                    "No hay cambios para actualizar prioridad ticket",
+                    "No hay cambios para actualizar prioridad de ticket",
                     200,
                     $newData
                 );
@@ -104,7 +104,7 @@ class PrioridadTicketController extends Controller
             $updatePriority->update($newData);
 
             return ApiResponse::success(
-                "Prioridad ticket actualizada con exito",
+                "Prioridad de ticket actualizada con éxito",
                 200,
                 $updatePriority->refresh()
             );
@@ -125,14 +125,14 @@ class PrioridadTicketController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Prioridad ticket eliminada con exito",
+                "Prioridad de ticket eliminada con éxito",
                 200,
                 ["related"=> $baseRoute]
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Prioridad ticket no encontrada",
+                "Prioridad de ticket no encontrada",
                 404
             );
 

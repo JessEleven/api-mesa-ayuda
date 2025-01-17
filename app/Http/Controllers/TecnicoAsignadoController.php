@@ -30,7 +30,7 @@ class TecnicoAsignadoController extends Controller
 
             if ($allTechnicians->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de técnicos asignado vacía",
+                    "Lista de técnicos asignados vacía",
                     200,
                     $allTechnicians
                 );
@@ -55,7 +55,7 @@ class TecnicoAsignadoController extends Controller
             });
 
             return ApiResponse::success(
-                "Listado de técnicos asignado",
+                "Lista de técnicos asignados",
                 200,
                 $allTechnicians
             );

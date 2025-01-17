@@ -18,13 +18,13 @@ class CategoriaTicketController extends Controller
 
             if ($allCategories->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de categorias de ticket vacia",
+                    "Lista de categorias de ticket vacía",
                     200,
                     $allCategories
                 );
             }
             return ApiResponse::success(
-                "Listado de categorias de ticket",
+                "Lista de categorias de ticket",
                 200,
                 $allCategories
             );
@@ -43,7 +43,7 @@ class CategoriaTicketController extends Controller
             $newCategory = CategoriaTicket::create($request->validated());
 
             return ApiResponse::success(
-                "Categoria de ticket creada con exito",
+                "Categoria de ticket creada con éxito",
                 201,
                 $newCategory
             );
@@ -62,14 +62,14 @@ class CategoriaTicketController extends Controller
             $showCategory = CategoriaTicket::findOrFail($categoriaTicket);
 
             return ApiResponse::success(
-                "Categoria ticket encontrada con exito",
+                "Categoria de ticket encontrada con éxito",
                 200,
                 $showCategory
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Categoria ticket no encontrada",
+                "Categoria de ticket no encontrada",
                 404
             );
 
@@ -96,7 +96,7 @@ class CategoriaTicketController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::success(
-                    "No hay cambios para actualizar categoria ticket",
+                    "No hay cambios para actualizar categoria de ticket",
                     200,
                     $newData
                 );
@@ -104,7 +104,7 @@ class CategoriaTicketController extends Controller
             $updateCategory->update($newData);
 
             return ApiResponse::success(
-                "Categoria ticket actualizada con exito",
+                "Categoria de ticket actualizada con éxito",
                 200,
                 $updateCategory->refresh()
             );
@@ -125,14 +125,14 @@ class CategoriaTicketController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Categoria ticket eliminada con exito",
+                "Categoria de ticket eliminada con éxito",
                 200,
                 ["related"=> $baseRoute]
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Categoria ticket no encontrada",
+                "Categoria de ticket no encontrada",
                 404
             );
 

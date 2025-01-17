@@ -18,13 +18,13 @@ class AreaController extends Controller
 
             if ($allAreas->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de áreas vacia",
+                    "Lista de áreas vacía",
                     200,
                     $allAreas
                 );
             }
             return ApiResponse::success(
-                "Listado de áreas",
+                "Lista de áreas",
                 200,
                 $allAreas
             );
@@ -63,14 +63,14 @@ class AreaController extends Controller
             $newArea = Area::create($validatedData);
 
             return ApiResponse::success(
-                "Area creada con exito",
+                "Área creada con éxito",
                 201,
                 $newArea->only([
                     "nombre_area",
                     "sigla_area",
                     "secuencia_area",
                     "peso_prioridad",
-                    "created_at",
+                    "created_at"
                 ])
             );
 
@@ -88,7 +88,7 @@ class AreaController extends Controller
             $showArea = Area::findOrFail($area);
 
             return ApiResponse::success(
-                "Área encontrada con exito",
+                "Área encontrada con éxito",
                 200,
                 $showArea
             );
@@ -122,7 +122,7 @@ class AreaController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::success(
-                    "No hay cambios para actualizar área",
+                    "No hay cambios para actualizar el área",
                     200,
                     $newData
                 );
@@ -143,14 +143,14 @@ class AreaController extends Controller
             $updateArea->update($newData);
 
             return ApiResponse::success(
-                "Área actualizada con exito",
+                "Área actualizada con éxito",
                 200,
                 $updateArea->refresh()->only([
                     "nombre_area",
                     "sigla_area",
                     "secuencia_area",
                     "created_at",
-                    "updated_at",
+                    "updated_at"
                 ])
             );
 
@@ -170,7 +170,7 @@ class AreaController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Área eliminada con exito",
+                "Área eliminada con éxito",
                 200,
                 ["related"=> $baseRoute]
             );

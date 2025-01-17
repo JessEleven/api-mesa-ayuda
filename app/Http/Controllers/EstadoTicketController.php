@@ -18,13 +18,13 @@ class EstadoTicketController extends Controller
 
             if ($allStatuses->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de estados de ticket vacia",
+                    "Lista de estados de ticket vacía",
                     200,
                     $allStatuses
                 );
             }
             return ApiResponse::success(
-                "Listado de estados de ticket",
+                "Lista de estados de ticket",
                 200,
                 $allStatuses
             );
@@ -43,7 +43,7 @@ class EstadoTicketController extends Controller
             $newStatus = EstadoTicket::create($request->validated());
 
             return ApiResponse::success(
-                "Estado de ticket creado con exito",
+                "Estado de ticket creado con éxito",
                 201,
                 $newStatus
             );
@@ -62,14 +62,14 @@ class EstadoTicketController extends Controller
             $showStatus = EstadoTicket::findOrFail($estadoTicket);
 
             return ApiResponse::success(
-                "Estado ticket encontrado con exito",
+                "Estado de ticket encontrado con éxito",
                 200,
                 $showStatus
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Estado ticket no encontrado",
+                "Estado de ticket no encontrado",
                 404
             );
 
@@ -96,7 +96,7 @@ class EstadoTicketController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::success(
-                    "No hay cambios para actualizar estado ticket",
+                    "No hay cambios para actualizar el estado de ticket",
                     200,
                     $newData
                 );
@@ -104,7 +104,7 @@ class EstadoTicketController extends Controller
             $updateStatus->update($newData);
 
             return ApiResponse::success(
-                "Estado ticket actualizado con exito",
+                "Estado de ticket actualizado con éxito",
                 200,
                 $updateStatus->refresh()
             );
@@ -125,14 +125,14 @@ class EstadoTicketController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Estado ticket eliminado con exito",
+                "Estado de ticket eliminado con éxito",
                 200,
                 ["related"=> $baseRoute]
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Estado ticket no encontrado",
+                "Estado de ticket no encontrado",
                 404
             );
 

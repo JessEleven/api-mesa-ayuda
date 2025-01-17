@@ -41,7 +41,7 @@ class UpdateAreaRequest extends FormRequest
             ));
         }
 
-        // Se verifica si el área existe
+        // Se verifica si el area existe
         if (!Area::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "Área no encontrada",
@@ -49,17 +49,20 @@ class UpdateAreaRequest extends FormRequest
             ));
         }
 
+        // Usando el modelo dinámicamente para obtener el nombre de la tabla
+        $tableName = (new Area())->getTable();
+
         return [
             "nombre_area"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                Rule::unique("areas")->ignore($id),
+                Rule::unique($tableName)->ignore($id),
             ],
             "sigla_area"=> [
                 "required",
                 "regex:/^[A-Z][a-zA-Z]*$/",
-                Rule::unique("areas")->ignore($id)
-            ],
+                Rule::unique($tableName)->ignore($id)
+            ]
         ];
     }
 

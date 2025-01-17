@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Area;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\Area;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -29,19 +30,19 @@ class StoreAreaRequest extends FormRequest
             "nombre_area"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                "unique:areas,nombre_area"
+                "unique:" . (new Area())->getTable() . ",nombre_area"
             ],
             "sigla_area"=> [
                 "required",
                 "regex:/^[A-Z][a-zA-Z]*$/",
-                "unique:areas,sigla_area"
+                "unique:" . (new Area())->getTable() . ",sigla_area"
             ],
             "peso_prioridad"=> [
                 "required",
                 "integer",
                 "min:1",
-                "unique:areas,peso_prioridad"
-            ],
+                "unique:" . (new Area())->getTable() . ",peso_prioridad"
+            ]
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\CalificacionTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\Ticket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -25,6 +26,9 @@ class StoreCalificacionTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Usando el modelo dinámicamente para obtener el nombre de la tabla
+        $tableName = (new Ticket())->getTable();
+
         return [
             "calificacion"=> [
                 "required",
@@ -38,8 +42,8 @@ class StoreCalificacionTicketRequest extends FormRequest
             ],
             "id_ticket"=> [
                 "required",
-                "exists:tickets,id",
-                "unique:tickets,id"
+                "exists:" . $tableName . ",id",
+                "unique:" . $tableName . ",id"
             ]
         ];
     }

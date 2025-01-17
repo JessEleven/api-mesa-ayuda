@@ -3,6 +3,8 @@
 namespace App\Http\Requests\BitacoraTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\BitacoraTicket;
+use App\Models\TecnicoAsignado;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -26,6 +28,9 @@ class StoreBitacoraTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        $tableTeTechnical = (new TecnicoAsignado())->getTable();
+        $tableBinnacle = (new BitacoraTicket())->getTable();
+
         return [
             "descripcion"=> [
                 "nullable",
@@ -34,11 +39,11 @@ class StoreBitacoraTicketRequest extends FormRequest
             ],
             "id_tecnico_asignado"=> [
                 "required",
-                "exists:tecnico_asignados,id",
-                Rule::prohibitedIf(function () {
-                    return \DB::table("bitacora_tickets")
+                "exists:" . $tableTeTechnical . ",id",
+                Rule::prohibitedIf(function () use($tableBinnacle) {
+                    return \DB::table($tableBinnacle)
                         ->where("id_tecnico_asignado", $this->input("id_tecnico_asignado"))
-                            ->exists();
+                        ->exists();
                 })
             ]
         ];

@@ -26,22 +26,25 @@ class StoreAreaRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Usando el modelo dinámicamente para obtener el nombre de la tabla
+        $tableName = (new Area())->getTable();
+
         return [
             "nombre_area"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                "unique:" . (new Area())->getTable() . ",nombre_area"
+                "unique:" . $tableName . ",nombre_area"
             ],
             "sigla_area"=> [
                 "required",
                 "regex:/^[A-Z][a-zA-Z]*$/",
-                "unique:" . (new Area())->getTable() . ",sigla_area"
+                "unique:" . $tableName . ",sigla_area"
             ],
             "peso_prioridad"=> [
                 "required",
                 "integer",
                 "min:1",
-                "unique:" . (new Area())->getTable() . ",peso_prioridad"
+                "unique:" . $tableName . ",peso_prioridad"
             ]
         ];
     }

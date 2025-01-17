@@ -6,8 +6,6 @@ use App\Http\Responses\ApiResponse;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class StoreTecnicoAsignadoRequest extends FormRequest
@@ -75,9 +73,9 @@ class StoreTecnicoAsignadoRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            // Verificar si hay errores en id_usuario
+            // Se verifica si hay errores en el id_usuario
             if ($validator->errors()->has('id_usuario')) {
-                // Si id_usuario no es válido, eliminar cualquier error relacionado con id_ticket
+                // Si id_usuario no es válido, se elimina cualquier error relacionado con id_ticket
                 $validator->errors()->forget('id_ticket');
             }
         });
@@ -86,11 +84,11 @@ class StoreTecnicoAsignadoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            "id_usuario.required"=> "El ID usuario es requerido",
-            "id_usuario.exists"=> "El ID usuario ingresado no existe",
+            "id_usuario.required"=> "El usuario es requerido",
+            "id_usuario.exists"=> "El usuario ingresado no existe",
 
-            "id_ticket.required"=> "El ID ticket es requerido",
-            "id_ticket.exists"=> "El ID ticket ingresado no existe"
+            "id_ticket.required"=> "El ticket es requerido",
+            "id_ticket.exists"=> "El ticket ingresado no existe"
         ];
     }
 

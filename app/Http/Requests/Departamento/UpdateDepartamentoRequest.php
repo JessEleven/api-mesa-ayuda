@@ -77,8 +77,8 @@ class UpdateDepartamentoRequest extends FormRequest
             "sigla_departamento.regex"=> "Empieza con mayúscula y puede contener minúsculas",
             "sigla_departamento.unique"=> "La sigla del departamento ya existe",
 
-            "id_area.required"=> "El ID área es requerido",
-            "id_area.exists"=> "El ID área ingresado no existe"
+            "id_area.required"=> "El área es requerido",
+            "id_area.exists"=> "El área ingresada no existe"
         ];
     }
 

@@ -80,8 +80,8 @@ class StoreUsuarioRequest extends FormRequest
             "password.min"=> "Debe tener al menos 8 caracteres",
             "password.regex"=> "Solo puede contener letras y números",
 
-            "id_departamento.required"=> "El ID departamento es requerido",
-            "id_departamento.exists"=> "El ID departamento ingresado no existe"
+            "id_departamento.required"=> "El departamento es requerido",
+            "id_departamento.exists"=> "El departamento ingresado no existe"
         ];
     }
 

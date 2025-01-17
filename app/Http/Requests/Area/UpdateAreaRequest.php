@@ -72,7 +72,7 @@ class UpdateAreaRequest extends FormRequest
 
             "sigla_area.required"=> "La sigla del área es requerida",
             "sigla_area.regex"=> "Empieza con mayúscula y puede contener minúsculas",
-            "sigla_area.unique"=> "La sigla del área ya exite"
+            "sigla_area.unique"=> "La sigla del área ya existe"
         ];
     }
 

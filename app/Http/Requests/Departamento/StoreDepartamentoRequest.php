@@ -67,8 +67,8 @@ class StoreDepartamentoRequest extends FormRequest
             "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
             "peso_prioridad.unique"=> "La prioridad del departamento debe ser única por área",
 
-            "id_area.required"=> "El ID área es requerido",
-            "id_area.exists"=> "El ID área ingresado no existe"
+            "id_area.required"=> "El área es requerida",
+            "id_area.exists"=> "El área ingresada no existe"
         ];
     }
 

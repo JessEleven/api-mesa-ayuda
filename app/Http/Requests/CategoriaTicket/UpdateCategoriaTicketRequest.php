@@ -43,16 +43,19 @@ class UpdateCategoriaTicketRequest extends FormRequest
         // Se verifica si la categoria del ticket existe
         if (!CategoriaTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
-                "Categoria ticket no encontrada",
+                "Categoria de ticket no encontrada",
                 404
             ));
         }
+
+        // Usando el modelo dinámicamente para obtener el nombre de la tabla
+        $tableName = (new CategoriaTicket())->getTable();
 
         return [
             "nombre_categoria"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                Rule::unique("categoria_tickets")->ignore($id)
+                Rule::unique($tableName)->ignore($id)
             ]
         ];
     }

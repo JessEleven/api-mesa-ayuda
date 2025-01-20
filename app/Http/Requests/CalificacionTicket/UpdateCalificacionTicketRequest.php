@@ -43,7 +43,7 @@ class UpdateCalificacionTicketRequest extends FormRequest
         // Se verifica si la calificación del ticket existe
         if (!CalificacionTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
-                "Calificación ticket no encontrada",
+                "Calificación de ticket no encontrada",
                 404
             ));
         }

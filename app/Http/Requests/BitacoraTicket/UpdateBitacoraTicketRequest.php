@@ -42,7 +42,7 @@ class UpdateBitacoraTicketRequest extends FormRequest
         // Se verifica si la bitácora existe
         if (!BitacoraTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
-                "Bitácora no encontrada",
+                "Bitácora de ticket no encontrada",
                 404
             ));
         }

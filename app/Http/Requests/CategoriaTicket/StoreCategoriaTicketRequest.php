@@ -3,6 +3,7 @@
 namespace App\Http\Requests\CategoriaTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\CategoriaTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -29,7 +30,7 @@ class StoreCategoriaTicketRequest extends FormRequest
             "nombre_categoria"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                "unique:categoria_tickets,nombre_categoria",
+                "unique:" . (new CategoriaTicket())->getTable() . ",nombre_categoria"
             ]
         ];
     }

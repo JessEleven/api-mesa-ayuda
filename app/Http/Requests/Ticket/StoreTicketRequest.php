@@ -3,6 +3,11 @@
 namespace App\Http\Requests\Ticket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\CategoriaTicket;
+use App\Models\EstadoTicket;
+use App\Models\PrioridadTicket;
+use App\Models\TecnicoAsignado;
+use App\Models\Usuario;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -26,6 +31,13 @@ class StoreTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Usando los modelos dinámicamente para obtener los nombres de las tablas
+        $tableCategory = (new CategoriaTicket())->getTable();
+        $tableUser = (new Usuario())->getTable();
+        $tableTechnical = (new TecnicoAsignado())->getTable();
+        $tableStatus = (new EstadoTicket())->getTable();
+        $tablePriority = (new PrioridadTicket())->getTable();
+
         return [
             "codigo_ticket"=> [
                 "required",
@@ -44,24 +56,24 @@ class StoreTicketRequest extends FormRequest
             ],
             "id_categoria"=> [
                 "required",
-                "exists:categoria_tickets,id"
+                "exists:" . $tableCategory . ",id"
             ],
              "id_usuario"=> [
                 "required",
-                "exists:usuarios,id",
-                Rule::prohibitedIf(function () {
-                    return \DB::table("tecnico_asignados")
+                "exists:" . $tableUser . ",id",
+                Rule::prohibitedIf(function () use($tableTechnical) {
+                    return \DB::table($tableTechnical)
                         ->where("id_usuario", $this->input("id_usuario"))
-                            ->exists();
+                        ->exists();
                 })
              ],
             "id_estado"=> [
                 "required",
-                "exists:estado_tickets,id"
+                "exists:" . $tableStatus . ",id"
             ],
             "id_prioridad"=> [
                 "required",
-                "exists:prioridad_tickets,id"
+                "exists:" . $tablePriority . ",id"
             ]
         ];
     }
@@ -75,18 +87,18 @@ class StoreTicketRequest extends FormRequest
             "descripcion.required"=> "La descripción del ticket es requerida",
             "descripcion.regex"=> "Debe ser una cadena de texto",
 
-            "id_categoria.required"=> "El ID categoria ticket es requerido",
-            "id_categoria.exists"=> "El ID categoria ticket ingresado no existe",
+            "id_categoria.required"=> "La categoria del ticket es requerido",
+            "id_categoria.exists"=> "La categoria del ticket ingresado no existe",
 
-            "id_usuario.required"=> "El ID usuario es requerido",
-            "id_usuario.exists"=> "El ID usuario ingresado no existe",
+            "id_usuario.required"=> "El usuario es requerido",
+            "id_usuario.exists"=> "El usuario ingresado no existe",
             "id_usuario.prohibited"=> "Este usuario ha sido asignado a técnico",
 
-            "id_estado.required"=> "El ID estado ticket es requerido",
-            "id_estado.exists"=> "El ID estado ticket ingresado no existe",
+            "id_estado.required"=> "El estado del ticket es requerido",
+            "id_estado.exists"=> "El estado del ticket ingresado no existe",
 
-            "id_prioridad.required"=> "El ID prioridad ticket es requerido",
-            "id_prioridad.exists"=> "El ID prioridad ticket ingresado no existe"
+            "id_prioridad.required"=> "La prioridad del ticket es requerido",
+            "id_prioridad.exists"=> "La prioridad del ticket ingresado no existe"
         ];
     }
 

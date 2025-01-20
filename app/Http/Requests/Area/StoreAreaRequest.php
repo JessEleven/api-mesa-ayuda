@@ -26,7 +26,6 @@ class StoreAreaRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Usando el modelo dinámicamente para obtener el nombre de la tabla
         $tableName = (new Area())->getTable();
 
         return [

@@ -3,6 +3,9 @@
 namespace App\Http\Requests\Ticket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\CategoriaTicket;
+use App\Models\EstadoTicket;
+use App\Models\PrioridadTicket;
 use App\Models\Ticket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -39,13 +42,18 @@ class UpdateTicketRequest extends FormRequest
             ));
         }
 
-        // Se verifica si el ticket existe
+        // Se verifica si el ID ingresado existe
         if (!Ticket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "Ticket no encontrado",
                 404
             ));
         }
+
+        // Usando los modelos dinámicamente para obtener los nombres de las tablas
+        $tableCategory = (new CategoriaTicket())->getTable();
+        $tableStatus = (new EstadoTicket())->getTable();
+        $tablePriority = (new PrioridadTicket())->getTable();
 
         return [
             "descripcion"=> [
@@ -55,20 +63,15 @@ class UpdateTicketRequest extends FormRequest
             ],
             "id_categoria"=> [
                 "required",
-                "exists:categoria_tickets,id",
+                "exists:" . $tableCategory . ",id"
             ],
-            // Un ticket no se le puede ediar el usuario
-            // "id_usuario"=> [
-            //     "required",
-            //     "exists:usuarios,id",
-            // ],
             "id_estado"=> [
                 "required",
-                "exists:estado_tickets,id",
+                "exists:" . $tableStatus . ",id"
             ],
             "id_prioridad"=> [
                 "required",
-                "exists:prioridad_tickets,id",
+                "exists:" . $tablePriority . ",id"
             ]
         ];
     }
@@ -79,17 +82,14 @@ class UpdateTicketRequest extends FormRequest
             "descripcion.required"=> "La descripción del ticket es requerida",
             "descripcion.regex"=> "Debe ser una cadena de texto",
 
-            "id_categoria.required"=> "El ID categoria ticket es requerido",
-            "id_categoria.exists"=> "El ID categoria ticket ingresado no existe",
+            "id_categoria.required"=> "La categoria del ticket es requerido",
+            "id_categoria.exists"=> "La categoria del ticket ingresado no existe",
 
-            // "id_usuario.required"=> "El ID usuario es requerido",
-            // "id_usuario.exists"=> "El ID usuario ingresado no existe",
+            "id_estado.required"=> "El estado del ticket es requerido",
+            "id_estado.exists"=> "El estado del ticket ingresado no existe",
 
-            "id_estado.required"=> "El ID estado ticket es requerido",
-            "id_estado.exists"=> "El ID estado ticket ingresado no existe",
-
-            "id_prioridad.required"=> "El ID prioridad ticket es requerido",
-            "id_prioridad.exists"=> "El ID prioridad ticket ingresado no existe"
+            "id_prioridad.required"=> "La prioridad del ticket es requerido",
+            "id_prioridad.exists"=> "La prioridad del ticket ingresado no existe"
         ];
     }
 

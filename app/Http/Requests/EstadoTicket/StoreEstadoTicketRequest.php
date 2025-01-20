@@ -3,6 +3,7 @@
 namespace App\Http\Requests\EstadoTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\EstadoTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -25,22 +26,25 @@ class StoreEstadoTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Usando el modelo dinámicamente para obtener el nombre de la tabla
+        $tableName = (new EstadoTicket())->getTable();
+
         return [
             "nombre_estado"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                "unique:estado_tickets,nombre_estado"
+                "unique:" . $tableName . ",nombre_estado"
             ],
             "color_estado"=> [
                 "required",
-                "unique:estado_tickets,color_estado"
+                "unique:" . $tableName . ",color_estado"
             ],
             "orden_prioridad"=> [
                 "required",
                 "integer",
                 "min:1",
-                "unique:estado_tickets,orden_prioridad"
-            ],
+                "unique:" . $tableName . ",orden_prioridad"
+            ]
         ];
     }
 

@@ -48,15 +48,18 @@ class UpdateEstadoTicketRequest extends FormRequest
             ));
         }
 
+        // Usando el modelo dinámicamente para obtener el nombre de la tabla
+        $tableName = (new EstadoTicket())->getTable();
+
         return [
             "nombre_estado"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                Rule::unique("estado_tickets")->ignore($id)
+                Rule::unique($tableName)->ignore($id)
             ],
             "color_estado"=> [
                 "required",
-                Rule::unique("estado_tickets")->ignore($id)
+                Rule::unique($tableName)->ignore($id)
             ]
         ];
     }

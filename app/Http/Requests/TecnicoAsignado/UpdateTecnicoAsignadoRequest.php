@@ -4,6 +4,8 @@ namespace App\Http\Requests\TecnicoAsignado;
 
 use App\Http\Responses\ApiResponse;
 use App\Models\TecnicoAsignado;
+use App\Models\Ticket;
+use App\Models\Usuario;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -26,12 +28,9 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Se obtiene el nombre del parámetro dinámico de la ruta
         $routeName = $this->route()?->parameterNames[0] ?? null;
-        // Se obtiene el ID desde la ruta
         $id = $routeName ? $this->route($routeName) : null;
 
-        // Validar que el ID sea númerico
         if (!is_numeric($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "El ID proporcionado no es válido",
@@ -39,7 +38,6 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
             ));
         }
 
-        // Verificar si el técnico existe
         if (!TecnicoAsignado::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "Técnico asignado no encontrado",
@@ -47,15 +45,19 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
             ));
         }
 
+        $tableUser = (new Usuario())->getTable();
+        $tableTicket = (new Ticket())->getTable();
+        $tableTechnical = (new TecnicoAsignado())->getTable();
+
         return [
             "id_usuario"=> [
                 "required",
-                "exists:usuarios,id",
-                function ($attribute, $value, $fail) {
+                "exists:" . $tableUser . ",id",
+                function ($attribute, $value, $fail) use($tableTicket) {
                     // Un usuario que ha creado un ticket no puede ser técnico
-                    $creatorUser = \DB::table("tickets")
+                    $creatorUser = \DB::table($tableTicket)
                         ->where("id_usuario", $value)
-                            ->exists();
+                        ->exists();
 
                     if ($creatorUser) {
                         $fail("No puede ser técnico porque ha creado ticket(s)");
@@ -64,26 +66,26 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
             ],
             "id_ticket"=> [
                 "required",
-                "exists:tickets,id",
-                function ($attribute, $value, $fail) use($id) {
+                "exists:" . $tableTicket . ",id",
+                function ($attribute, $value, $fail) use($id, $tableTechnical) {
                     $idUsuario = $this->input("id_usuario");
 
                     // El técnico no puede reasignarse el mismo ticket (mismo ID de asignación se permite)
-                    $existingAssignment = \DB::table("tecnico_asignados")
+                    $existingAssignment = \DB::table($tableTechnical)
                         ->where("id_usuario", $idUsuario)
                         ->where("id_ticket", $value)
                         ->where("id", "!=", $id)
-                            ->exists();
+                        ->exists();
 
                     if ($existingAssignment) {
                         $fail("El técnico ya tiene asignado este ticket");
                     }
 
                     // No se puede asignar el ticket de otro técnico
-                    $ticketAssigned = \DB::table("tecnico_asignados")
+                    $ticketAssigned = \DB::table($tableTechnical)
                         ->where("id_ticket", $value)
                         ->where("id_usuario", "!=", $idUsuario)
-                            ->exists();
+                        ->exists();
 
                     if ($ticketAssigned) {
                         $fail("El ticket ya existe y pertenece a otro técnico");

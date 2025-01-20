@@ -26,11 +26,14 @@ class StoreCategoriaTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Usando el modelo dinámicamente para obtener el nombre de la tabla
+        $tableName = (new CategoriaTicket())->getTable();
+
         return [
             "nombre_categoria"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                "unique:" . (new CategoriaTicket())->getTable() . ",nombre_categoria"
+                "unique:" . $tableName . ",nombre_categoria"
             ]
         ];
     }

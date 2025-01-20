@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Departamento;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\Area;
 use App\Models\Departamento;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -48,20 +49,24 @@ class UpdateDepartamentoRequest extends FormRequest
             ));
         }
 
+        // Usando el modelo dinámicamente para obtener el nombre de las tablas
+        $tableDepartment = (new Departamento())->getTable();
+        $tableArea = (new Area())->getTable();
+
         return [
             "nombre_departamento"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                Rule::unique("departamentos")->ignore($id)
+                Rule::unique($tableDepartment)->ignore($id)
             ],
             "sigla_departamento"=> [
                 "required",
                 "regex:/^[A-Z][a-zA-Z]*$/",
-                Rule::unique("departamentos")->ignore($id)
+                Rule::unique($tableDepartment)->ignore($id)
             ],
             "id_area"=> [
                 "required",
-                "exists:areas,id"
+                "exists:" . $tableArea . ",id"
             ]
         ];
     }

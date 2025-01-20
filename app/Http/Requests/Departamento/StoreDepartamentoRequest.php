@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Departamento;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\Area;
+use App\Models\Departamento;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -26,27 +28,31 @@ class StoreDepartamentoRequest extends FormRequest
      */
     public function rules(): array
     {
+        // Usando el modelo dinámicamente para obtener el nombre de las tablas
+        $tableDepartment = (new Departamento())->getTable();
+        $tableArea = (new Area())->getTable();
+
         return [
             "nombre_departamento"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                "unique:departamentos,nombre_departamento"
+                "unique:" . $tableDepartment . ",nombre_departamento"
             ],
             "sigla_departamento"=> [
                 "required",
                 "regex:/^[A-Z][a-zA-Z]*$/",
-                "unique:departamentos,sigla_departamento"
+                "unique:" . $tableDepartment . ",sigla_departamento"
             ],
             "peso_prioridad"=> [
                 "required",
                 "integer",
                 "min:1",
-                Rule::unique("departamentos", "peso_prioridad")
+                Rule::unique($tableDepartment, "peso_prioridad")
                     ->where("id_area", $this->input("id_area"))
             ],
             "id_area"=> [
                 "required",
-                "exists:areas,id"
+                "exists:" . $tableArea . ",id"
             ]
         ];
     }

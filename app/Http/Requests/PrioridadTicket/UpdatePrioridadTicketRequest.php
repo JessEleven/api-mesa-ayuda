@@ -27,12 +27,9 @@ class UpdatePrioridadTicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Se obtiene el nombre del parámetro dinámico de la ruta
         $routeName = $this->route()?->parameterNames[0] ?? null;
-        // Se obtiene el ID desde la ruta
         $id = $routeName ? $this->route($routeName) : null;
 
-        // Se valida que el ID sea númerico
         if (!is_numeric($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "El ID proporcionado no es válido",
@@ -40,23 +37,24 @@ class UpdatePrioridadTicketRequest extends FormRequest
             ));
         }
 
-        // Se verifica si la prioridad del ticket existe
         if (!PrioridadTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
-                "Prioridad ticket no encontrada",
+                "Prioridad de ticket no encontrada",
                 404
             ));
         }
+
+        $tableName = (new PrioridadTicket())->getTable();
 
         return [
             "nombre_prioridad"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                Rule::unique("prioridad_tickets")->ignore($id)
+                Rule::unique($tableName)->ignore($id)
             ],
             "color_prioridad"=> [
                 "required",
-                Rule::unique("prioridad_tickets")->ignore($id)
+                Rule::unique($tableName)->ignore($id)
             ]
         ];
     }

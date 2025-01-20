@@ -26,7 +26,6 @@ class StoreEstadoTicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Usando el modelo dinámicamente para obtener el nombre de la tabla
         $tableName = (new EstadoTicket())->getTable();
 
         return [

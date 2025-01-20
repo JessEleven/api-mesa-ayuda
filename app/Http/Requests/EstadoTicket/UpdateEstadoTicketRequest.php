@@ -27,12 +27,9 @@ class UpdateEstadoTicketRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Se obtiene el nombre del parámetro dinámico de la ruta
         $routeName = $this->route()?->parameterNames[0] ?? null;
-        // Se obtiene el ID desde la ruta
         $id = $routeName ? $this->route($routeName) : null;
 
-        // Se valida que el ID sea númerico
         if (!is_numeric($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "El ID proporcionado no es válido",
@@ -40,15 +37,13 @@ class UpdateEstadoTicketRequest extends FormRequest
             ));
         }
 
-        // Se verifica si el estado del ticket existe
         if (!EstadoTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
-                "Estado ticket no encontrado",
+                "Estado de ticket no encontrado",
                 404
             ));
         }
 
-        // Usando el modelo dinámicamente para obtener el nombre de la tabla
         $tableName = (new EstadoTicket())->getTable();
 
         return [

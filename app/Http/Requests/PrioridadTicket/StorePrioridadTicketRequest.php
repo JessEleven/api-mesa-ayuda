@@ -3,6 +3,7 @@
 namespace App\Http\Requests\PrioridadTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\PrioridadTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -25,21 +26,23 @@ class StorePrioridadTicketRequest extends FormRequest
      */
     public function rules(): array
     {
+        $tableName = (new PrioridadTicket())->getTable();
+
         return [
             "nombre_prioridad"=> [
                 "required",
                 "regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/u",
-                "unique:prioridad_tickets,nombre_prioridad"
+                "unique:" . $tableName . ",nombre_prioridad"
             ],
             "color_prioridad"=> [
                 "required",
-                "unique:prioridad_tickets,color_prioridad"
+                "unique:" . $tableName . ",color_prioridad"
             ],
             "orden_prioridad"=> [
                 "required",
                 "integer",
                 "min:1",
-                "unique:prioridad_tickets,orden_prioridad"
+                "unique:" . $tableName . ",orden_prioridad"
             ],
         ];
     }

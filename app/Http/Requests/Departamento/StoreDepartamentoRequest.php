@@ -28,7 +28,6 @@ class StoreDepartamentoRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Usando el modelo dinámicamente para obtener el nombre de las tablas
         $tableDepartment = (new Departamento())->getTable();
         $tableArea = (new Area())->getTable();
 

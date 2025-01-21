@@ -39,7 +39,7 @@ class UpdatePrioridadTicketRequest extends FormRequest
 
         if (!PrioridadTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
-                "Prioridad de ticket no encontrada",
+                "Prioridad de ticket no encontrado",
                 404
             ));
         }

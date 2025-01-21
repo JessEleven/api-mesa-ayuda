@@ -39,7 +39,7 @@ class UpdateCategoriaTicketRequest extends FormRequest
 
         if (!CategoriaTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
-                "Categoria de ticket no encontrada",
+                "Categoria de ticket no encontrado",
                 404
             ));
         }

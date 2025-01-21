@@ -42,7 +42,7 @@ class StoreCategoriaTicketRequest extends FormRequest
         return [
             "nombre_categoria.required"=> "El nombre de la categoria es requerida",
             "nombre_categoria.regex"=> "Debe ser una cadena de texto",
-            "nombre_categoria.unique"=> "El nombre de la categoria debe ser única"
+            "nombre_categoria.unique"=> "El nombre de la categoria debe ser único"
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Usuario;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\Departamento;
 use App\Models\Usuario;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\Rule;
@@ -27,17 +28,9 @@ class UpdateUsuarioRequest extends FormRequest
      */
     public function rules(): array
     {
-        // Se obtene el nombre del parámetro dinámico de la ruta
         $routeName = $this->route()?->parameterNames[0] ?? null;
-        // Se obtene el ID desde la ruta
         $id = $routeName ? $this->route($routeName) : null;
 
-        // Validar que el ID sea válido
-        /* if ($id) {
-            $id = Usuario::findOrFail($id)->id;
-        } */
-
-        // Se valida que el ID sea númerico
         if (!is_numeric($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "El ID proporcionado no es válido",
@@ -45,13 +38,15 @@ class UpdateUsuarioRequest extends FormRequest
             ));
         }
 
-        // Se verifica si el usuario existe
         if (!Usuario::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
                 "Usuario no encontrado",
                 404
             ));
         }
+
+        $tableUser = (new Usuario())->getTable();
+        $tableDepartment = (new Departamento())->getTable();
 
         return [
             "nombre"=> [
@@ -72,7 +67,7 @@ class UpdateUsuarioRequest extends FormRequest
             "email"=> [
                 "required",
                 "email",
-                 Rule::unique("usuarios")->ignore($id)
+                 Rule::unique($tableUser)->ignore($id)
             ],
             "password"=> [
                 "required",
@@ -81,7 +76,7 @@ class UpdateUsuarioRequest extends FormRequest
             ],
             "id_departamento"=> [
                 "required",
-                "exists:departamentos,id"
+                "exists:" . $tableDepartment . ",id"
             ]
         ];
     }

@@ -3,6 +3,8 @@
 namespace App\Http\Requests\Usuario;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\Departamento;
+use App\Models\Usuario;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -25,6 +27,9 @@ class StoreUsuarioRequest extends FormRequest
      */
     public function rules(): array
     {
+        $tableUser = (new Usuario())->getTable();
+        $tableDepartment = (new Departamento())->getTable();
+
         return [
             "nombre"=> [
                 "required",
@@ -44,7 +49,7 @@ class StoreUsuarioRequest extends FormRequest
             "email"=> [
                 "required",
                 "email",
-                "unique:usuarios,email"
+                "unique:" . $tableUser . ",email"
             ],
             "password"=> [
                 "required",
@@ -53,7 +58,7 @@ class StoreUsuarioRequest extends FormRequest
             ],
             "id_departamento"=> [
                 "required",
-                "exists:departamentos,id"
+                "exists:" . $tableDepartment . ",id"
             ]
         ];
     }

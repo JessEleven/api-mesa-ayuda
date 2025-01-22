@@ -19,14 +19,15 @@ class TecnicoAsignadoController extends Controller
                 ->with(["usuarios.departamentos"])
                 ->with(["usuarios.departamentos.areas"])
             // Relaciones anidadas para con la tabla tickets
-                    ->with(["tickets.categoria_tickets"])
-                    ->with(["tickets.usuarios"])
-                    ->with(["tickets.usuarios.departamentos"])
-                    ->with(["tickets.usuarios.departamentos.areas"])
-                    ->with(["tickets.estado_tickets"])
-                    ->with(["tickets.prioridad_tickets"])
-                        ->orderBy("id", "asc")
-                        ->paginate("20");
+                ->with(["tickets.categoria_tickets"])
+                ->with(["tickets.usuarios"])
+                ->with(["tickets.usuarios.departamentos"])
+                ->with(["tickets.usuarios.departamentos.areas"])
+                ->with(["tickets.estado_tickets"])
+                ->with(["tickets.prioridad_tickets"])
+                    ->whereNull("recurso_eliminado")
+                    ->orderBy("id", "asc")
+                    ->paginate("20");
 
             if ($allTechnicians->isEmpty()) {
                 return ApiResponse::success(
@@ -38,7 +39,7 @@ class TecnicoAsignadoController extends Controller
 
             // Para ocultar los FKs de la tabla
             $allTechnicians->getCollection()->transform( function($technician) {
-                $technician->makeHidden(["id_usuario", "id_ticket"]);
+                $technician->makeHidden(["id_usuario", "id_ticket", "recurso_eliminado"]);
                 // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
                 $technician->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
                 $technician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);

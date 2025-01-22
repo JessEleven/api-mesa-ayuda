@@ -38,11 +38,12 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
             ));
         }
 
-        if (!TecnicoAsignado::find($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Técnico asignado no encontrado",
-                404
-            ));
+        if (!TecnicoAsignado::find($id) || TecnicoAsignado::where("id", $id)
+            ->whereNotNull("recurso_eliminado")->exists()) {
+                throw new HttpResponseException(ApiResponse::error(
+                    "Técnico asignado no encontrado",
+                    404
+                ));
         }
 
         $tableUser = (new Usuario())->getTable();

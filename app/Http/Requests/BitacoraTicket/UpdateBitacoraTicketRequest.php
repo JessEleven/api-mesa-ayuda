@@ -36,11 +36,12 @@ class UpdateBitacoraTicketRequest extends FormRequest
             ));
         }
 
-        if (!BitacoraTicket::find($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Bitácora de ticket no encontrada",
-                404
-            ));
+        if (!BitacoraTicket::find($id) || BitacoraTicket::where("id", $id)
+            ->whereNotNull("recurso_eliminado")->exists()) {
+                throw new HttpResponseException(ApiResponse::error(
+                    "Bitácora de ticket no encontrada",
+                    404
+                ));
         }
 
         return [

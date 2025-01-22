@@ -40,6 +40,17 @@ class StoreBitacoraTicketRequest extends FormRequest
             "id_tecnico_asignado"=> [
                 "required",
                 "exists:" . $tableTeTechnical . ",id",
+                function ($attribute, $value, $fail) use($tableTeTechnical) {
+                    // Se verifica si el técnico asignado está eliminado
+                    $isDeleted = \DB::table($tableTeTechnical)
+                        ->where("id", $value)
+                        ->whereNotNull("recurso_eliminado")
+                        ->exists();
+
+                    if ($isDeleted) {
+                        $fail("Técnico asignado no encontrado");
+                    }
+                },
                 Rule::prohibitedIf(function () use($tableBinnacle) {
                     return \DB::table($tableBinnacle)
                         ->where("id_tecnico_asignado", $this->input("id_tecnico_asignado"))

@@ -18,18 +18,19 @@ class BitacoraTicketController extends Controller
             $allLogs = BitacoraTicket::with(["tecnico_asigados.usuarios.departamentos"])
                 ->with(["tecnico_asigados.usuarios.departamentos.areas"])
             // Relaciones anidadas para con la tabla tickets
-                    ->with(["tecnico_asigados.tickets.categoria_tickets"])
-                    ->with(["tecnico_asigados.tickets.usuarios"])
-                    ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
-                    ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
-                    ->with(["tecnico_asigados.tickets.estado_tickets"])
-                    ->with(["tecnico_asigados.tickets.prioridad_tickets"])
-                        ->orderBy("id", "asc")
-                        ->paginate(20);
+                ->with(["tecnico_asigados.tickets.categoria_tickets"])
+                ->with(["tecnico_asigados.tickets.usuarios"])
+                ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
+                ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
+                ->with(["tecnico_asigados.tickets.estado_tickets"])
+                ->with(["tecnico_asigados.tickets.prioridad_tickets"])
+                    ->whereNull("recurso_eliminado")
+                    ->orderBy("id", "asc")
+                    ->paginate(20);
 
             if ($allLogs->isEmpty()) {
                 return ApiResponse::success(
-                    "Lista de bitácoras vacía",
+                    "Lista de bitácoras de tickets vacía",
                     200,
                     $allLogs
                 );
@@ -37,9 +38,9 @@ class BitacoraTicketController extends Controller
 
             // Para ocultar el FKs de la tabla
             $allLogs->getCollection()->transform( function($log) {
-                $log->makeHidden(["id_tecnico_asignado"]);
+                $log->makeHidden(["id_tecnico_asignado", "recurso_eliminado"]);
                 // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
-                $log->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "recurso_eliminado", "created_at", "updated_at"]);
                 $log->tecnico_asigados?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento","created_at", "updated_at"]);
                 $log->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
                 $log->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
@@ -55,7 +56,7 @@ class BitacoraTicketController extends Controller
             });
 
             return ApiResponse::success(
-                "Lista de bitácoras",
+                "Lista de bitácoras de tickets",
                 200,
                 $allLogs
             );
@@ -74,7 +75,7 @@ class BitacoraTicketController extends Controller
             $newLog = BitacoraTicket::create($request->validated());
 
             return ApiResponse::success(
-                "Bitácora creada con éxito",
+                "Bitácora de ticket creada con éxito",
                 201,
                 $newLog->only([
                     "descripcion",
@@ -97,18 +98,19 @@ class BitacoraTicketController extends Controller
             $showLog = BitacoraTicket::with(["tecnico_asigados.usuarios.departamentos"])
                 ->with(["tecnico_asigados.usuarios.departamentos.areas"])
             // Relaciones anidadas para con la tabla tickets
-                    ->with(["tecnico_asigados.tickets.categoria_tickets"])
-                    ->with(["tecnico_asigados.tickets.usuarios"])
-                    ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
-                    ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
-                    ->with(["tecnico_asigados.tickets.estado_tickets"])
-                    ->with(["tecnico_asigados.tickets.prioridad_tickets"])
-                        ->findOrFail($bitacoraTicket);
+                ->with(["tecnico_asigados.tickets.categoria_tickets"])
+                ->with(["tecnico_asigados.tickets.usuarios"])
+                ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
+                ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
+                ->with(["tecnico_asigados.tickets.estado_tickets"])
+                ->with(["tecnico_asigados.tickets.prioridad_tickets"])
+                    ->whereNull("recurso_eliminado")
+                    ->findOrFail($bitacoraTicket);
 
             // Para ocultar el FKs de la tabla
-            $showLog->makeHidden(["id_tecnico_asignado"]);
+            $showLog->makeHidden(["id_tecnico_asignado", "recurso_eliminado"]);
             // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
-            $showLog->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "recurso_eliminado", "created_at", "updated_at"]);
             $showLog->tecnico_asigados?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento","created_at", "updated_at"]);
             $showLog->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
             $showLog->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
@@ -122,14 +124,14 @@ class BitacoraTicketController extends Controller
             $showLog->tecnico_asigados?->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
 
             return ApiResponse::success(
-                "Bitácora encontrada con éxito",
+                "Bitácora de ticket encontrada con éxito",
                 200,
                 $showLog
             );
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
-                "Bitácora no encontrada",
+                "Bitácora de ticket no encontrada",
                 404
             );
 
@@ -156,7 +158,7 @@ class BitacoraTicketController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::success(
-                    "No hay cambios para actualizar bitácora",
+                    "No hay cambios para actualizar la bitácora de ticket",
                     200,
                     array_intersect_key($newData, array_flip([
                         "descripcion"
@@ -166,7 +168,7 @@ class BitacoraTicketController extends Controller
             $updateLog->update($newData);
 
             return ApiResponse::success(
-                "Bitácora actualizada con éxito",
+                "Bitácora de ticket actualizada con éxito",
                 200,
                 $updateLog->refresh()->only([
                     "descripcion",
@@ -191,7 +193,7 @@ class BitacoraTicketController extends Controller
             $baseRoute = $this->getBaseRoute();
 
             return ApiResponse::deleted(
-                "Bitácora eliminada con éxito",
+                "Bitácora de ticket eliminada con éxito",
                 200,
                 ["related"=> $baseRoute]
             );

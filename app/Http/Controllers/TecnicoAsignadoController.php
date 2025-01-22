@@ -98,17 +98,17 @@ class TecnicoAsignadoController extends Controller
                 ->with(["usuarios.departamentos"])
                 ->with(["usuarios.departamentos.areas"])
             // Relaciones anidadas para con la tabla tickets
-                    ->with(["tickets.categoria_tickets"])
-                    ->with(["tickets.usuarios"])
-                    ->with(["tickets.usuarios.departamentos"])
-                    ->with(["tickets.usuarios.departamentos.areas"])
-                    ->with(["tickets.estado_tickets"])
-                    ->with(["tickets.prioridad_tickets"])
-                        ->orderBy("id", "asc")
-                        ->findOrFail($tecnicoAsignado);
+                ->with(["tickets.categoria_tickets"])
+                ->with(["tickets.usuarios"])
+                ->with(["tickets.usuarios.departamentos"])
+                ->with(["tickets.usuarios.departamentos.areas"])
+                ->with(["tickets.estado_tickets"])
+                ->with(["tickets.prioridad_tickets"])
+                    ->whereNull("recurso_eliminado")
+                    ->findOrFail($tecnicoAsignado);
 
             // Para ocultar los FKs de la tabla
-            $showTechnician->makeHidden(["id_usuario", "id_ticket"]);
+            $showTechnician->makeHidden(["id_usuario", "id_ticket", "recurso_eliminado"]);
             // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
             $showTechnician->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
             $showTechnician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);

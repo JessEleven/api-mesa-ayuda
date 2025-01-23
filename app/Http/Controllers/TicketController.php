@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Models\EstadoTicket;
 use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -60,7 +61,21 @@ class TicketController extends Controller
     public function store(StoreTicketRequest $request)
     {
         try {
-            $newTicket = Ticket::create($request->validated());
+            // Buscar el estado inicial para el ticket
+            $defaultState = EstadoTicket::where("orden_prioridad", 1)->first();
+
+            if (!$defaultState) {
+                return ApiResponse::error(
+                    "Estado inicial para el ticket no encontrado",
+                    500
+                );
+            }
+
+            $newTicket = Ticket::create(array_merge(
+                $request->validated(), [
+                    "id_estado"=> $defaultState->id
+                ]
+            ));
 
             return ApiResponse::success(
                 "Ticket creado con éxito",

@@ -4,7 +4,6 @@ namespace App\Http\Requests\Ticket;
 
 use App\Http\Responses\ApiResponse;
 use App\Models\CategoriaTicket;
-use App\Models\EstadoTicket;
 use App\Models\PrioridadTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Usuario;
@@ -35,7 +34,6 @@ class StoreTicketRequest extends FormRequest
         $tableCategory = (new CategoriaTicket())->getTable();
         $tableUser = (new Usuario())->getTable();
         $tableTechnical = (new TecnicoAsignado())->getTable();
-        $tableStatus = (new EstadoTicket())->getTable();
         $tablePriority = (new PrioridadTicket())->getTable();
 
         return [
@@ -67,10 +65,6 @@ class StoreTicketRequest extends FormRequest
                         ->exists();
                 })
              ],
-            "id_estado"=> [
-                "required",
-                "exists:" . $tableStatus . ",id"
-            ],
             "id_prioridad"=> [
                 "required",
                 "exists:" . $tablePriority . ",id"
@@ -93,9 +87,6 @@ class StoreTicketRequest extends FormRequest
             "id_usuario.required"=> "El usuario es requerido",
             "id_usuario.exists"=> "El usuario ingresado no existe",
             "id_usuario.prohibited"=> "Este usuario ha sido asignado a técnico",
-
-            "id_estado.required"=> "El estado del ticket es requerido",
-            "id_estado.exists"=> "El estado del ticket ingresado no existe",
 
             "id_prioridad.required"=> "La prioridad del ticket es requerido",
             "id_prioridad.exists"=> "La prioridad del ticket ingresado no existe"

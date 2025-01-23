@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo_ticket', 20)->unique();
+            $table->string('codigo_ticket', 50)->unique();
             $table->text('descripcion');
             $table->dateTime('fecha_inicio');
-            $table->dateTime('fecha_fin');
+            $table->dateTime('fecha_fin')->nullable();
             $table->timestamps();
 
             $table->foreignId('id_categoria')

@@ -73,6 +73,7 @@ class TicketController extends Controller
 
             $newTicket = Ticket::create(array_merge(
                 $request->validated(), [
+                    "fecha_inicio"=> now(),
                     "id_estado"=> $defaultState->id
                 ]
             ));

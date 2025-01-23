@@ -46,12 +46,6 @@ class StoreTicketRequest extends FormRequest
                 // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
                 "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
             ],
-            "fecha_inicio"=> [
-                "required"
-            ],
-            "fecha_fin"=> [
-                "required"
-            ],
             "id_categoria"=> [
                 "required",
                 "exists:" . $tableCategory . ",id"

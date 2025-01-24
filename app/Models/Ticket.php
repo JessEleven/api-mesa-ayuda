@@ -70,6 +70,17 @@ class Ticket extends Model
         return $this->hasOne(CalificacionTicket::class, 'id_calificacion');
     }
 
+    // Accessor para fecha_inicio y fecha_fin
+    public function getFechaInicioAttribute($value)
+    {
+        return Carbon::parse($value)->timezone(config('app.timezone'))->format('d/m/Y H:i:s');
+    }
+
+    public function getFechaFinAttribute($value)
+    {
+        return $value ? Carbon::parse($value)->timezone(config('app.timezone'))->format('d/m/Y H:i:s') : null;
+    }
+
     // Accesor para created_at y updated_at
     public function getCreatedAtAttribute($value)
     {

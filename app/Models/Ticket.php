@@ -20,6 +20,26 @@ class Ticket extends Model
         'id_prioridad'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::updating(function ($ticket) {
+            // Se verifica si el estado ha cambiado
+            if ($ticket->isDirty('id_estado')) {
+                $nuevoEstado = EstadoTicket::find($ticket->id_estado);
+
+                // Se obtiene el estado con la mayor orden de prioridad
+                $mayorPrioridad = EstadoTicket::max('orden_prioridad');
+
+                // Si el nuevo estado tiene la orden de prioridad más alta, se asigna la fecha fin
+                if ($nuevoEstado && $nuevoEstado->orden_prioridad === $mayorPrioridad) {
+                    $ticket->fecha_fin = Carbon::now();
+                }
+            }
+        });
+    }
+
     public function tecnico_asignados()
     {
         return $this->hasOne(TecnicoAsignado::class, 'id_tecnico_asignado');

@@ -43,10 +43,23 @@ class UpdateTicketRequest extends FormRequest
         }
 
         // Se verifica si el ID ingresado existe
-        if (!Ticket::find($id)) {
+        $ticket = Ticket::find($id);
+
+        if (!$ticket) {
             throw new HttpResponseException(ApiResponse::error(
                 "Ticket no encontrado",
                 404
+            ));
+        }
+
+        // Se obtiene el estado con el orden de prioridad más alto
+        $maxPriority = EstadoTicket::max("orden_prioridad");
+
+        // Si el ticket ya está en el estado con la mayor prioridad no se podra editar
+        if ($ticket->id_estado && EstadoTicket::find($ticket->id_estado)->orden_prioridad == $maxPriority) {
+            throw new HttpResponseException(ApiResponse::error(
+                "El ticket ha sido finalizado",
+                400
             ));
         }
 

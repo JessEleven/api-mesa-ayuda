@@ -22,11 +22,6 @@ class Usuario extends Model
         'password'
     ];
 
-    public function usuario_roles()
-    {
-        return $this->hasOne(UsuarioRol::class, 'id_usuario');
-    }
-
     public function tecnico_asignados()
     {
         return $this->hasMany(TecnicoAsignado::class, 'id_usuario');

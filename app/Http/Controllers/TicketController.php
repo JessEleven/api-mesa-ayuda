@@ -20,6 +20,7 @@ class TicketController extends Controller
             // Relación anidada entre las tablas usuarios, departamentos y areas
                 ->with(["usuarios.departamentos.areas"])
                 ->with("categoria_tickets", "estado_tickets", "prioridad_tickets")
+                    ->whereNull("recurso_eliminado")
                     ->orderBy("id", "asc")
                     ->paginate(20);
 
@@ -33,7 +34,7 @@ class TicketController extends Controller
 
             // Para ocultar los FKs de la tabla
             $allTickets->getCollection()->transform(function ($ticket) {
-                $ticket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
+                $ticket->makeHidden(["recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
                 // Para ocultar los PKs, FKs algunos campos y timestamps de las tablas relaciones
                 $ticket->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
                 $ticket->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
@@ -104,10 +105,11 @@ class TicketController extends Controller
             // Relación anidada entre las tablas usuarios, departamentos y areas
                 ->with(["usuarios.departamentos.areas"])
                 ->with("categoria_tickets","estado_tickets", "prioridad_tickets")
+                    ->whereNull("recurso_eliminado")
                     ->findOrFail($ticket);
 
             // Para ocultar los FKs de la tabla
-            $showTicket->makeHidden(["id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
+            $showTicket->makeHidden(["recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
             // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
             $showTicket->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
             $showTicket->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);

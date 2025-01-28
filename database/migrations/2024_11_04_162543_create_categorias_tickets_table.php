@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('categorias_tickets', function (Blueprint $table) {
             $table->id();
             $table->string('nombre_categoria')->unique();
+            $table->string('sigla_categoria')->unique();
             $table->timestamps();
         });
     }

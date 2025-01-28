@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo_ticket', 50)->unique();
             $table->text('descripcion');
+            $table->timestamp('recurso_eliminado')->nullable();
             $table->dateTime('fecha_inicio');
             $table->dateTime('fecha_fin')->nullable();
             $table->timestamps();

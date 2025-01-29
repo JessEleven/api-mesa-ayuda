@@ -14,10 +14,12 @@ class CategoriaTicketSeeder extends Seeder
     {
         $categoriaTickets = [
             [
-                'nombre_categoria'=> 'Hardware'
+                'nombre_categoria'=> 'Hardware',
+                'sigla_categoria'=> 'HW'
             ],
             [
-                'nombre_categoria'=> 'Software'
+                'nombre_categoria'=> 'Software',
+                'sigla_categoria'=> 'SW'
             ]
         ];
 

@@ -10,7 +10,8 @@ class CategoriaTicket extends Model
     protected $table = 'categorias_tickets';
 
     protected $fillable = [
-        'nombre_categoria'
+        'nombre_categoria',
+        'sigla_categoria'
     ];
 
     public function tickets()

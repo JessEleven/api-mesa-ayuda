@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PrioridadTicket\StorePrioridadTicketRequest;
 use App\Http\Requests\PrioridadTicket\UpdatePrioridadTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\ValidatesPrioridadTicket;
 use App\Models\PrioridadTicket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PrioridadTicketController extends Controller
 {
+    // Reutilizamos el trait
+    use ValidatesPrioridadTicket;
+
     public function index()
     {
         try {
@@ -120,6 +125,9 @@ class PrioridadTicketController extends Controller
     public function destroy($prioridadTicket)
     {
         try {
+            // Se valida si está en uso la prioridad de ticket antes de eliminar
+            $this->PriorityTicketInUse($prioridadTicket);
+
             PrioridadTicket::findOrFail($prioridadTicket)->delete();
 
             $baseRoute = $this->getBaseRoute();
@@ -129,6 +137,9 @@ class PrioridadTicketController extends Controller
                 200,
                 ["related"=> $baseRoute]
             );
+
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(

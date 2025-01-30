@@ -3,6 +3,7 @@
 namespace App\Http\Requests\PrioridadTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\ValidatesPrioridadTicket;
 use App\Models\PrioridadTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,11 +12,13 @@ use Illuminate\Validation\ValidationException;
 
 class StorePrioridadTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    use ValidatesPrioridadTicket;
+
     public function authorize(): bool
     {
+        // 0 porque no se pasa un ID, solo se verifica
+        $this->PriorityTicketInUse(0);
+
         return true;
     }
 

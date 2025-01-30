@@ -125,7 +125,7 @@ class CategoriaTicketController extends Controller
     public function destroy($categoriaTicket)
     {
         try {
-            // Se valida si está en uso la categoría de tciket antes de eliminar
+            // Se valida si está en uso la categoría de ticket antes de eliminar
             $this->CategoryTicketInUse($categoriaTicket);
 
             CategoriaTicket::findOrFail($categoriaTicket)->delete();
@@ -149,7 +149,7 @@ class CategoriaTicketController extends Controller
 
         } catch (Exception $e) {
             return ApiResponse::error(
-                "Ha ocurrido un error inesperado AAA" . $e,
+                "Ha ocurrido un error inesperado",
                 500
             );
         }

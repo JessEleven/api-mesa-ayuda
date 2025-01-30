@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CategoriaTicket\StoreCategoriaTicketRequest;
 use App\Http\Requests\CategoriaTicket\UpdateCategoriaTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\ValidatesCategoriaTicket;
 use App\Models\CategoriaTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CategoriaTicketController extends Controller
 {
+    // Reutilizamos el trait
+    use ValidatesCategoriaTicket;
+
     public function index()
     {
         try {
@@ -120,6 +125,9 @@ class CategoriaTicketController extends Controller
     public function destroy($categoriaTicket)
     {
         try {
+            // Se valida si está en uso la categoría de tciket antes de eliminar
+            $this->CategoryTicketInUse($categoriaTicket);
+
             CategoriaTicket::findOrFail($categoriaTicket)->delete();
 
             $baseRoute = $this->getBaseRoute();
@@ -130,6 +138,9 @@ class CategoriaTicketController extends Controller
                 ["related"=> $baseRoute]
             );
 
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
+
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(
                 "Categoria de ticket no encontrada",
@@ -138,7 +149,7 @@ class CategoriaTicketController extends Controller
 
         } catch (Exception $e) {
             return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
+                "Ha ocurrido un error inesperado AAA" . $e,
                 500
             );
         }

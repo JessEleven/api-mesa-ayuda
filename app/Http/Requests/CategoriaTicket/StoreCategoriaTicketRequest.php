@@ -3,6 +3,7 @@
 namespace App\Http\Requests\CategoriaTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\ValidatesCategoriaTicket;
 use App\Models\CategoriaTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,11 +12,14 @@ use Illuminate\Validation\ValidationException;
 
 class StoreCategoriaTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    // Reutilizamos el trait
+    use ValidatesCategoriaTicket;
+
     public function authorize(): bool
     {
+        // 0 porque no se pasa un ID, solo se verifica
+        $this->CategoryTicketInUse(0);
+
         return true;
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\EstadoTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\ValidatesEstadoTicket;
 use App\Models\EstadoTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,11 +12,13 @@ use Illuminate\Validation\ValidationException;
 
 class StoreEstadoTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    use ValidatesEstadoTicket;
+
     public function authorize(): bool
     {
+        // 0 porque no se pasa un ID, solo se verifica
+        $this->EstadoTicketInUse(0);
+
         return true;
     }
 

@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EstadoTicket\StoreEstadoTicketRequest;
 use App\Http\Requests\EstadoTicket\UpdateEstadoTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\ValidatesEstadoTicket;
 use App\Models\EstadoTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class EstadoTicketController extends Controller
 {
+    // Reutilizamos el Trait
+    use ValidatesEstadoTicket;
+
     public function index()
     {
         try {
@@ -120,6 +125,9 @@ class EstadoTicketController extends Controller
     public function destroy($estadoTicket)
     {
         try {
+            // Se valida si está en uso el estado de ticket antes de eliminar
+            $this->EstadoTicketInUse($estadoTicket);
+
             EstadoTicket::findOrFail($estadoTicket)->delete();
 
             $baseRoute = $this->getBaseRoute();
@@ -129,6 +137,9 @@ class EstadoTicketController extends Controller
                 200,
                 ["related"=> $baseRoute]
             );
+
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(

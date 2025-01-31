@@ -3,30 +3,28 @@
 namespace App\Http\Requests\CalificacionTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Models\CalificacionTicket;
+use App\Models\EstadoTicket;
 use App\Models\Ticket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class StoreCalificacionTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        $tableName = (new Ticket())->getTable();
+        $tableName = (new CalificacionTicket)->getTable();
+
+        // Se obtiene el estado con el orden de prioridad más alto
+        $maxPriority = EstadoTicket::max("orden_prioridad");
 
         return [
             "calificacion"=> [
@@ -41,8 +39,22 @@ class StoreCalificacionTicketRequest extends FormRequest
             ],
             "id_ticket"=> [
                 "required",
-                "exists:" . $tableName . ",id",
-                "unique:" . $tableName . ",id"
+                Rule::unique($tableName, "id_ticket"),
+                function ($attribute, $value, $fail) use ($maxPriority) {
+                    $ticket = Ticket::find($value);
+
+                    if (!$ticket) {
+                        return $fail("El ticket ingresado no existe");
+                    }
+
+                    // Se busca el estado del ticket
+                    $status = EstadoTicket::find($ticket->id_estado);
+
+                    // Si no se encuentra el estado o su orden de prioridad no es la máxima, se rechaza
+                    if (!$status || $status->orden_prioridad !== $maxPriority) {
+                        return $fail("EL ticket actualmente está en desarrollo");
+                    }
+                }
             ]
         ];
     }
@@ -57,7 +69,6 @@ class StoreCalificacionTicketRequest extends FormRequest
             "observacion.regex"=> "Debe ser una cadena de texto",
 
             "id_ticket.required"=> "El ticket es requerido",
-            "id_ticket.exists"=> "El ticket ingresado no existe",
             "id_ticket.unique"=> "La calificación por ticket debe ser única"
         ];
     }

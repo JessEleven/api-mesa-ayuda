@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo_ticket', 50)->unique();
+            $table->string('codigo_ticket');
             $table->text('descripcion');
             $table->timestamp('recurso_eliminado')->nullable();
             $table->dateTime('fecha_inicio');
@@ -36,6 +36,10 @@ return new class extends Migration
             ->constrained('prioridades_tickets')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
+
+            // Índice único compuesto agregado para que solo se repita
+            // codigo_ticket en usuarios diferentes y no dentro del mismo usuario
+            $table->unique(['codigo_ticket', 'id_usuario']);
         });
     }
 

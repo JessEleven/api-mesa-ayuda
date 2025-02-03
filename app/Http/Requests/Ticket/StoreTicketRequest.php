@@ -37,10 +37,6 @@ class StoreTicketRequest extends FormRequest
         $tablePriority = (new PrioridadTicket())->getTable();
 
         return [
-            "codigo_ticket"=> [
-                "required",
-                "unique:tickets,codigo_ticket"
-            ],
             "descripcion"=> [
                 "required",
                 // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
@@ -69,9 +65,6 @@ class StoreTicketRequest extends FormRequest
     public function messages(): array
     {
         return [
-            "codigo_ticket.required"=> "El código del ticket es requerido",
-            "codigo_ticket.unique"=> "El código del ticket debe ser único",
-
             "descripcion.required"=> "La descripción del ticket es requerida",
             "descripcion.regex"=> "Debe ser una cadena de texto",
 

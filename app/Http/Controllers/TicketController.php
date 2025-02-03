@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\CodigoTicketHelper;
 use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
@@ -72,8 +73,14 @@ class TicketController extends Controller
                 );
             }
 
+            // Uso del helper (app/Helpers/CodigoTicketHelper.php) para crear codido_ticket
+            $codigoTicket = CodigoTicketHelper::generateCodigoTicket(
+                $request->id_usuario, $request->id_categoria
+            );
+
             $newTicket = Ticket::create(array_merge(
                 $request->validated(), [
+                    "codigo_ticket"=> $codigoTicket,
                     "fecha_inicio"=> now(),
                     "id_estado"=> $defaultState->id
                 ]

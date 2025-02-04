@@ -3,39 +3,22 @@
 namespace App\Http\Requests\CalificacionTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\CalificacionTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class UpdateCalificacionTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    // Reutilizando el trait
+    use HandlesRequestId;
+
     public function authorize(): bool
     {
-        return true;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
-    {
-        $routeName = $this->route()?->parameterNames[0] ?? null;
-        $id = $routeName ? $this->route($routeName) : null;
-
-        if (!is_numeric($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "El ID proporcionado no es válido",
-                400
-            ));
-        }
+        // Uso del trait
+        $id = $this->validateRequestId();
 
         if (!CalificacionTicket::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
@@ -43,7 +26,11 @@ class UpdateCalificacionTicketRequest extends FormRequest
                 404
             ));
         }
+        return true;
+    }
 
+    public function rules(): array
+    {
         return [
             "calificacion"=> [
                 "required",
@@ -80,9 +67,10 @@ class UpdateCalificacionTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Ticket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\CategoriaTicket;
 use App\Models\EstadoTicket;
 use App\Models\PrioridadTicket;
@@ -14,33 +15,13 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    // Reutilizando el trait
+    use HandlesRequestId;
+
     public function authorize(): bool
     {
-        return true;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
-    {
-        // Se obtiene el nombre del parámetro dinámico de la ruta
-        $routeName = $this->route()?->parameterNames[0] ?? null;
-        // Se obtiene el ID desde la ruta
-        $id = $routeName ? $this->route($routeName) : null;
-
-        // Se valida que el ID sea númerico
-        if (!is_numeric($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "El ID proporcionado no es válido",
-                400
-            ));
-        }
+        // Uso del trait
+        $id = $this->validateRequestId();
 
         // Se verifica si el ID ingresado existe
         $ticket = Ticket::find($id);
@@ -52,7 +33,7 @@ class UpdateTicketRequest extends FormRequest
             ));
         }
 
-        // Se obtiene el estado con el orden de prioridad más alto
+        // Se obtiene el estado con el orden de prioridad más alto que existe
         $maxPriority = EstadoTicket::max("orden_prioridad");
 
         // Si el ticket ya está en el estado con la mayor prioridad no se podra editar
@@ -62,7 +43,11 @@ class UpdateTicketRequest extends FormRequest
                 400
             ));
         }
+        return true;
+    }
 
+    public function rules(): array
+    {
         // Usando los modelos dinámicamente para obtener los nombres de las tablas
         $tableCategory = (new CategoriaTicket())->getTable();
         $tableStatus = (new EstadoTicket())->getTable();
@@ -117,9 +102,10 @@ class UpdateTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

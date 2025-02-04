@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Departamento;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\Area;
 use App\Models\Departamento;
 use Illuminate\Contracts\Validation\Validator;
@@ -13,30 +14,13 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateDepartamentoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    // Reutilizando el trait
+    use HandlesRequestId;
+
     public function authorize(): bool
     {
-        return true;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
-    {
-        $routeName = $this->route()?->parameterNames[0] ?? null;
-        $id = $routeName ? $this->route($routeName) : null;
-
-        if (!is_numeric($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "El ID proporcionado no es válido",
-                400
-            ));
-        }
+        // Uso del trait
+        $id = $this->validateRequestId();
 
         if (!Departamento::find($id)) {
             throw new HttpResponseException(ApiResponse::error(
@@ -44,6 +28,13 @@ class UpdateDepartamentoRequest extends FormRequest
                 404
             ));
         }
+        return true;
+    }
+
+    public function rules(): array
+    {
+        // Uso del trait
+        $id = $this->validateRequestId();
 
         $tableDepartment = (new Departamento())->getTable();
         $tableArea = (new Area())->getTable();
@@ -93,9 +84,10 @@ class UpdateDepartamentoRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

@@ -36,11 +36,19 @@ class UpdateTicketRequest extends FormRequest
         // Se obtiene el estado con el orden de prioridad más alto que existe
         $maxPriority = EstadoTicket::max("orden_prioridad");
 
+        // Se busca el estado que tiene el ticket actualmente
+        $searchStatus = EstadoTicket::find($ticket->id_estado);
+        // Se busca la orden de prioridad maxima (estado) que tiene el ticket a trevés del ID
+        $searchMaxPriority = $searchStatus->orden_prioridad;
+        // Se busca el valor en texto que tiene el estado (nombre_estado) para mostrar
+        $currentStatus = $searchStatus->nombre_estado;
+
         // Si el ticket ya está en el estado con la mayor prioridad no se podra editar
-        if ($ticket->id_estado && EstadoTicket::find($ticket->id_estado)->orden_prioridad == $maxPriority) {
+        if ($ticket->id_estado && $searchMaxPriority == $maxPriority) {
             throw new HttpResponseException(ApiResponse::error(
                 "El ticket ha sido finalizado",
-                400
+                400,
+                ["current_status"=> $currentStatus]
             ));
         }
         return true;

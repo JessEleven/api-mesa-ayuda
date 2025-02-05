@@ -13,19 +13,11 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateTecnicoAsignadoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $routeName = $this->route()?->parameterNames[0] ?? null;
@@ -38,12 +30,17 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
             ));
         }
 
-        if (!TecnicoAsignado::find($id) || TecnicoAsignado::where("id", $id)
-            ->whereNotNull("recurso_eliminado")->exists()) {
-                throw new HttpResponseException(ApiResponse::error(
-                    "Técnico asignado no encontrado",
-                    404
-                ));
+        $technical = TecnicoAsignado::find($id);
+        // Se busca también los técnicos que ha sido eliminados
+        $technicianEliminated = TecnicoAsignado::where("id", $id)
+            ->whereNotNull("recurso_eliminado")
+            ->exists();
+
+        if (!$technical || $technicianEliminated) {
+            throw new HttpResponseException(ApiResponse::error(
+                "Técnico asignado no encontrado",
+                404
+            ));
         }
 
         $tableUser = (new Usuario())->getTable();
@@ -129,9 +126,10 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

@@ -11,19 +11,11 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateBitacoraTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $routeName = $this->route()?->parameterNames[0] ?? null;
@@ -36,12 +28,17 @@ class UpdateBitacoraTicketRequest extends FormRequest
             ));
         }
 
-        if (!BitacoraTicket::find($id) || BitacoraTicket::where("id", $id)
-            ->whereNotNull("recurso_eliminado")->exists()) {
-                throw new HttpResponseException(ApiResponse::error(
-                    "Bitácora de ticket no encontrada",
-                    404
-                ));
+        $log = BitacoraTicket::find($id);
+        // Se busca también las bitácoras que ha sido eliminadas
+        $deletedLog = BitacoraTicket::where("id", $id)
+            ->whereNotNull("recurso_eliminado")
+            ->exists();
+
+        if (!$log || $deletedLog) {
+            throw new HttpResponseException(ApiResponse::error(
+                "Bitácora de ticket no encontrada",
+                404
+            ));
         }
 
         return [
@@ -71,9 +68,10 @@ class UpdateBitacoraTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

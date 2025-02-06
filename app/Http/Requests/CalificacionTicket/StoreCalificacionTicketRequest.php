@@ -23,7 +23,7 @@ class StoreCalificacionTicketRequest extends FormRequest
     {
         $tableName = (new CalificacionTicket)->getTable();
 
-        // Se obtiene el estado con el orden de prioridad más alto
+        // Se obtiene el estado con el orden de prioridad más alto que existe
         $maxPriority = EstadoTicket::max("orden_prioridad");
 
         return [
@@ -41,18 +41,25 @@ class StoreCalificacionTicketRequest extends FormRequest
                 "required",
                 Rule::unique($tableName, "id_ticket"),
                 function ($attribute, $value, $fail) use ($maxPriority) {
+                    // Se verifica si el ticket ingresado existe o esta eliminado
                     $ticket = Ticket::find($value);
+                    $ticketDeleted = Ticket::where("id", $value)
+                        ->whereNotNull("recurso_eliminado")
+                        ->exists();
 
-                    if (!$ticket) {
+                    if (!$ticket || $ticketDeleted) {
                         return $fail("El ticket ingresado no existe");
                     }
 
-                    // Se busca el estado del ticket
-                    $status = EstadoTicket::find($ticket->id_estado);
+                    // Se busca en que estado se encuentra el ticket actualmente
+                    $currentStatus = EstadoTicket::find($ticket->id_estado);
+                    // Se trae el valor en texto del estado (nombre_estado) y se convierte a mayúscula
+                    $nameStade = strtolower($currentStatus->nombre_estado);
 
-                    // Si no se encuentra el estado o su orden de prioridad no es la máxima, se rechaza
-                    if (!$status || $status->orden_prioridad !== $maxPriority) {
-                        return $fail("EL ticket actualmente está en desarrollo");
+                    // Si no se encuentra el estado en su orden de prioridad máxima
+                    // el ticket no ha sido finalizado, por lo tanto no se puede calificar
+                    if (!$currentStatus || $currentStatus->orden_prioridad !== $maxPriority) {
+                        return $fail("EL ticket actualmente tiene estado $nameStade");
                     }
                 }
             ]
@@ -84,9 +91,10 @@ class StoreCalificacionTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

@@ -11,10 +11,13 @@ trait HandlesTicketStatus
 {
     public function ticketIsFinalized($ticket)
     {
-        // Se verifica si el ID ingresado existe
+        // Se verifica si el ticket ingresado existe o esta eliminado
         $ticketId = Ticket::find($ticket);
+        $ticketDeleted = Ticket::where("id", $ticket)
+            ->whereNotNull("recurso_eliminado")
+            ->exists();
 
-        if (!$ticketId) {
+        if (!$ticketId || $ticketDeleted) {
             throw new HttpResponseException(ApiResponse::error(
                 "Ticket no encontrado",
                 404

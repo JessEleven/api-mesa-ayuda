@@ -6,13 +6,18 @@ use App\Helpers\CodigoTicketHelper;
 use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesTicketStatus;
 use App\Models\EstadoTicket;
 use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class TicketController extends Controller
 {
+    // Reutilizando el trait
+    use HandlesTicketStatus;
+
     public function index()
     {
         try {
@@ -190,7 +195,11 @@ class TicketController extends Controller
     public function destroy($ticket)
     {
         try {
-            Ticket::findOrFail($ticket)->delete();
+            // Se verifica si el ticket ya está finalizado antes de eliminarlo
+            $this->ticketIsFinalized($ticket);
+
+            $ticketId = Ticket::findOrFail($ticket);
+            $ticketId->delete();
 
             $baseRoute = $this->getBaseRoute();
 
@@ -200,11 +209,8 @@ class TicketController extends Controller
                 ["related"=> $baseRoute]
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Ticket no encontrado",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(

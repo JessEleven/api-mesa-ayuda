@@ -4,10 +4,10 @@ namespace App\Http\Requests\Ticket;
 
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesRequestId;
+use App\Http\Traits\HandlesTicketStatus;
 use App\Models\CategoriaTicket;
 use App\Models\EstadoTicket;
 use App\Models\PrioridadTicket;
-use App\Models\Ticket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -15,42 +15,17 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateTicketRequest extends FormRequest
 {
-    // Reutilizando el trait
+    // Reutilizando de los traits
     use HandlesRequestId;
+    use HandlesTicketStatus;
 
     public function authorize(): bool
     {
-        // Uso del trait
+        // Uso de los traits
         $id = $this->validateRequestId();
 
-        // Se verifica si el ID ingresado existe
-        $ticket = Ticket::find($id);
+        $this->ticketIsFinalized($id);
 
-        if (!$ticket) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Ticket no encontrado",
-                404
-            ));
-        }
-
-        // Se obtiene el estado con el orden de prioridad más alto que existe
-        $maxPriority = EstadoTicket::max("orden_prioridad");
-
-        // Se busca el estado que tiene el ticket actualmente
-        $searchStatus = EstadoTicket::find($ticket->id_estado);
-        // Se busca la orden de prioridad maxima (estado) que tiene el ticket a trevés del ID
-        $searchMaxPriority = $searchStatus->orden_prioridad;
-        // Se busca el valor en texto que tiene el estado (nombre_estado) para mostrar
-        $currentStatus = $searchStatus->nombre_estado;
-
-        // Si el ticket ya está en el estado con la mayor prioridad no se podra editar
-        if ($ticket->id_estado && $searchMaxPriority == $maxPriority) {
-            throw new HttpResponseException(ApiResponse::error(
-                "El ticket ha sido finalizado",
-                400,
-                ["current_status"=> $currentStatus]
-            ));
-        }
         return true;
     }
 

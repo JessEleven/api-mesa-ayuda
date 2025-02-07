@@ -27,7 +27,8 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Helpers/CodigoTicketHelper.php"
+            "app/Helpers/CodigoTicketHelper.php",
+            "app/Helpers/SecuenciaAreaHelper.php"
         ]
     },
     "autoload-dev": {

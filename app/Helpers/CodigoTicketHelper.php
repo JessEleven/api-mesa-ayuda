@@ -6,6 +6,10 @@ use App\Models\Ticket;
 use App\Models\Usuario;
 use App\Models\CategoriaTicket;
 
+// NOTA: Cada vez que se crea un helper se debe registrar el archivo manualmente al composer.json
+// en la sección de "autoload", para que se carge automáticamente se ejecuta composer dump-autoload
+// Cada vez que crea, modifica o elimina (código o archivo) se debe ejecutar el comando
+
 class CodigoTicketHelper
 {
     public static function generateCodigoTicket($idUsuario, $idCategoria)
@@ -26,6 +30,6 @@ class CodigoTicketHelper
         $lastNumber = $lastTicket ? (int) substr($lastTicket, -6) : 0;
         $nextNumber = str_pad($lastNumber + 1, 6, "0", STR_PAD_LEFT);
 
-        return $siglaD . '-' . $siglaC . '-' . $nextNumber;
+        return $siglaD . "-" . $siglaC . "-" . $nextNumber;
     }
 }

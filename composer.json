@@ -28,7 +28,8 @@
         },
         "files": [
             "app/Helpers/CodigoTicketHelper.php",
-            "app/Helpers/SecuenciaAreaHelper.php"
+            "app/Helpers/SecuenciaAreaHelper.php",
+            "app/Helpers/SecuenciaDepartamentoHelper.php"
         ]
     },
     "autoload-dev": {

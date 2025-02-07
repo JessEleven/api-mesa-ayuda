@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SecuenciaDepartamentoHelper;
 use App\Http\Requests\Departamento\StoreDepartamentoRequest;
 use App\Http\Requests\Departamento\UpdateDepartamentoRequest;
 use App\Http\Responses\ApiResponse;
@@ -51,32 +52,17 @@ class DepartamentoController extends Controller
     public function store(StoreDepartamentoRequest $request)
     {
         try {
-            $validatedData = $request->validated();
+            // Se obtiene la secuencia generada usando el helper
+            $secuenciaDepartamento = SecuenciaDepartamentoHelper::generateSequenceDepartment(
+                $request->id_area,
+                $request->sigla_departamento
+            );
 
-            $areaId = $validatedData["id_area"];
-
-            // Se obtiene primero la última secuencia dentro del área
-            $lastSequence = Departamento::where("id_area", $areaId)
-                ->orderBy("id", "desc")
-                ->value("secuencia_departamento");
-
-            if ($lastSequence) {
-                // Se extrae el número secuencial global
-                $sequenceNumber = (int) substr($lastSequence, 0, 3);
-                $sequenceNumber++;
-            } else {
-                // Si no existe, se inicializa la secuencia en 1
-                $sequenceNumber = 1;
-            }
-
-            // Se formatea la secuencia a 3 dígitos y se concatena con la sigla
-            $secuencia = sprintf("%03d-%s", $sequenceNumber, $validatedData["sigla_departamento"]);
-
-            // Se agrega la secuencia generada a los datos validados
-            $validatedData["secuencia_departamento"] = $secuencia;
-
-            $newDepartment = Departamento::create($validatedData);
-
+            $newDepartment = Departamento::create(array_merge(
+                $request->validated(), [
+                    "secuencia_departamento"=> $secuenciaDepartamento
+                ]
+            ));
 
             return ApiResponse::success(
                 "Departamento creado con éxito",
@@ -155,15 +141,11 @@ class DepartamentoController extends Controller
 
             // Se verifica si la sigla ha cambiado
             if (isset($newData["sigla_departamento"]) && $newData["sigla_departamento"] !== $updateDepartment->sigla_departamento) {
-
-                // Si ha cambiado, se conserva la secuencia y se actualiza solo la sigla
-                $currentSequence = $updateDepartment->secuencia_departamento;
-
-                // Se extrae la parte numérica de la secuencia actual
-                $sequenceNumber = substr($currentSequence, 0, 3);
-
-                // Se crea la nueva secuencia concatenando el número de la secuencia con la nueva sigla
-                $newData["secuencia_departamento"] = sprintf("%s-%s", $sequenceNumber, $newData["sigla_departamento"]);
+                // Si ha cambiado, se actualiza la secuencia usando el helper
+                $newData["secuencia_departamento"] = SecuenciaDepartamentoHelper::updateSequenceDepartment(
+                    $updateDepartment,
+                    $newData["sigla_departamento"]
+                );
             }
             $updateDepartment->update($newData);
 

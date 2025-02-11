@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('bitacoras_tickets', function (Blueprint $table) {
             $table->id();
+            $table->string('codigo_bitacora');
+            $table->string('estado_bitacora');
+            $table->string('color_bitacora');
             $table->text('descripcion')->nullable();
             $table->timestamp('recurso_eliminado')->nullable();
             $table->timestamps();

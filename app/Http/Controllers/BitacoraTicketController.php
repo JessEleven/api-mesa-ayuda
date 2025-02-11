@@ -6,6 +6,8 @@ use App\Http\Requests\BitacoraTicket\StoreBitacoraTicketRequest;
 use App\Http\Requests\BitacoraTicket\UpdateBitacoraTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\BitacoraTicket;
+use App\Models\TecnicoAsignado;
+use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -45,7 +47,7 @@ class BitacoraTicketController extends Controller
                 $log->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
                 $log->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
                 // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con tickets
-                $log->tecnico_asigados?->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+                $log->tecnico_asigados?->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
                 $log->tecnico_asigados?->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
                 $log->tecnico_asigados?->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
                 $log->tecnico_asigados?->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
@@ -72,12 +74,30 @@ class BitacoraTicketController extends Controller
     public function store(StoreBitacoraTicketRequest $request)
     {
         try {
-            $newLog = BitacoraTicket::create($request->validated());
+            // Se busca el técnico asiganado
+            $tecnico = TecnicoAsignado::find($request->id_tecnico_asignado);
+
+            // Se busca el ticket del técnico asignado
+            $ticket = Ticket::find($tecnico->id_ticket);
+
+            // Se extrae el código del ticket para crear el código de la bitácora
+            $codigoTicket = $ticket->codigo_ticket;
+
+            $newLog = BitacoraTicket::create(array_merge(
+                $request->validated(), [
+                    "codigo_bitacora"=> $codigoTicket,
+                    "estado_bitacora"=> "Rechazado",
+                    "color_bitacora"=> "#ef4444"
+                ]
+            ));
 
             return ApiResponse::success(
                 "Bitácora de ticket creada con éxito",
                 201,
                 $newLog->only([
+                    "codigo_bitacora",
+                    "estado_bitacora",
+                    "color_bitacora",
                     "descripcion",
                     "created_at"
                 ])
@@ -115,7 +135,7 @@ class BitacoraTicketController extends Controller
             $showLog->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
             $showLog->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
             // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con tickets
-            $showLog->tecnico_asigados?->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+            $showLog->tecnico_asigados?->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
             $showLog->tecnico_asigados?->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
             $showLog->tecnico_asigados?->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
             $showLog->tecnico_asigados?->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);

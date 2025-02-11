@@ -10,6 +10,9 @@ class BitacoraTicket extends Model
     protected $table = 'bitacoras_tickets';
 
     protected $fillable = [
+        'codigo_bitacora',
+        'estado_bitacora',
+        'color_bitacora',
         'descripcion',
         'id_tecnico_asignado'
     ];

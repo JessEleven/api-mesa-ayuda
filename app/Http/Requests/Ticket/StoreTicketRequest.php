@@ -15,19 +15,11 @@ use Illuminate\Validation\ValidationException;
 
 class StoreTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         // Usando los modelos dinámicamente para obtener los nombres de las tablas
@@ -37,6 +29,20 @@ class StoreTicketRequest extends FormRequest
         $tablePriority = (new PrioridadTicket())->getTable();
 
         return [
+            "asunto"=> [
+                "required",
+                "regex:/^[a-zA-ZÀ-ÿ,ñÑ]+(?:\s[a-zA-ZÀ-ÿ,ñÑ]+)*$/u",
+                function ($attribute, $value, $fail) {
+                    // Se eliminan los espacios y se cuenta la longitud real
+                    $lengthWithoutSpaces = mb_strlen(str_replace(
+                        " ", "", $value
+                    ));
+
+                    if ($lengthWithoutSpaces > 25) {
+                        $fail("No debe exceder los 25 caracteres");
+                    }
+                }
+            ],
             "descripcion"=> [
                 "required",
                 // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
@@ -65,6 +71,9 @@ class StoreTicketRequest extends FormRequest
     public function messages(): array
     {
         return [
+            "asunto.required"=> "El asunto del ticket es requerido",
+            "asunto.regex"=> "Debe ser una cadena de texto",
+
             "descripcion.required"=> "La descripción del ticket es requerida",
             "descripcion.regex"=> "Debe ser una cadena de texto",
 
@@ -92,9 +101,10 @@ class StoreTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

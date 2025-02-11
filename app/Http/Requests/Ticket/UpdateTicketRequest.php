@@ -37,6 +37,20 @@ class UpdateTicketRequest extends FormRequest
         $tablePriority = (new PrioridadTicket())->getTable();
 
         return [
+            "asunto"=> [
+                "required",
+                "regex:/^[a-zA-ZÀ-ÿ,ñÑ]+(?:\s[a-zA-ZÀ-ÿ,ñÑ]+)*$/u",
+                function ($attribute, $value, $fail) {
+                    // Se eliminan los espacios y se cuenta la longitud real
+                    $lengthWithoutSpaces = mb_strlen(str_replace(
+                        " ", "", $value
+                    ));
+
+                    if ($lengthWithoutSpaces > 25) {
+                        $fail("No debe exceder los 25 caracteres");
+                    }
+                }
+            ],
             "descripcion"=> [
                 "required",
                 // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
@@ -60,6 +74,9 @@ class UpdateTicketRequest extends FormRequest
     public function messages(): array
     {
         return [
+            "asunto.required"=> "El asunto del ticket es requerido",
+            "asunto.regex"=> "Debe ser una cadena de texto",
+
             "descripcion.required"=> "La descripción del ticket es requerida",
             "descripcion.regex"=> "Debe ser una cadena de texto",
 

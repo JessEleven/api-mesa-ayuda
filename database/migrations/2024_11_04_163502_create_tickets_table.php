@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
             $table->string('codigo_ticket');
+            $table->string('asunto');
             $table->text('descripcion');
             $table->timestamp('recurso_eliminado')->nullable();
             $table->dateTime('fecha_inicio');

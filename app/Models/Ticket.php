@@ -63,7 +63,7 @@ class Ticket extends Model
 
     public function tecnico_asignados()
     {
-        return $this->hasOne(TecnicoAsignado::class, 'id_tecnico_asignado');
+        return $this->hasOne(TecnicoAsignado::class, 'id_ticket');
     }
 
     public function categoria_tickets()

@@ -36,7 +36,7 @@ class TecnicoAsignado extends Model
 
     public function bitacoras()
     {
-        return $this->hasOne(BitacoraTicket::class, 'id_tecnico_asignado');
+        return $this->hasMany(BitacoraTicket::class, 'id_tecnico_asignado');
     }
 
     public function usuarios()

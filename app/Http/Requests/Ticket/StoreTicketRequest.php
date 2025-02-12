@@ -38,8 +38,8 @@ class StoreTicketRequest extends FormRequest
                         " ", "", $value
                     ));
 
-                    if ($lengthWithoutSpaces > 25) {
-                        $fail("No debe exceder los 25 caracteres");
+                    if ($lengthWithoutSpaces > 100) {
+                        $fail("No debe exceder los 100 caracteres");
                     }
                 }
             ],

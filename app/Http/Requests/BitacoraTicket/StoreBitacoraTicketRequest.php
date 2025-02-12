@@ -13,23 +13,15 @@ use Illuminate\Validation\ValidationException;
 
 class StoreBitacoraTicketRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $tableTeTechnical = (new TecnicoAsignado())->getTable();
-        $tableBinnacle = (new BitacoraTicket())->getTable();
+        // $tableBinnacle = (new BitacoraTicket())->getTable();
 
         return [
             "descripcion"=> [
@@ -51,11 +43,11 @@ class StoreBitacoraTicketRequest extends FormRequest
                         $fail("Técnico asignado no encontrado");
                     }
                 },
-                Rule::prohibitedIf(function () use($tableBinnacle) {
+            /*  Rule::prohibitedIf(function () use($tableBinnacle) {
                     return \DB::table($tableBinnacle)
                         ->where("id_tecnico_asignado", $this->input("id_tecnico_asignado"))
                         ->exists();
-                })
+                }) */
             ]
         ];
     }
@@ -67,7 +59,7 @@ class StoreBitacoraTicketRequest extends FormRequest
 
             "id_tecnico_asignado.required"=> "El técnico es requerido",
             "id_tecnico_asignado.exists"=> "El técnico ingresado no existe",
-            "id_tecnico_asignado.prohibited"=> "Ya existe una bitácora para este ticket"
+            //"id_tecnico_asignado.prohibited"=> "Ya existe una bitácora para este ticket"
         ];
     }
 
@@ -82,9 +74,10 @@ class StoreBitacoraTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

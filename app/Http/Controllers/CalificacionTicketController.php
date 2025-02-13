@@ -37,7 +37,7 @@ class CalificacionTicketController extends Controller
             $allQualifications->getCollection()->transform(function ($qualification) {
                 $qualification->makeHidden(["id_ticket"]);
                 // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
-                $qualification->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+                $qualification->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
                 $qualification->tickets?->categoria_tickets?->makeHidden(["id", "created_at", "updated_at"]);
                 $qualification->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
                 $qualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
@@ -100,7 +100,7 @@ class CalificacionTicketController extends Controller
             // Para ocultar el FK de la tabla
             $showQualification->makeHidden(["id_ticket"]);
             // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
-            $showQualification->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+            $showQualification->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
             $showQualification->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
             $showQualification->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
             $showQualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);

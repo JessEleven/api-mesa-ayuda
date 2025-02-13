@@ -45,7 +45,7 @@ class TecnicoAsignadoController extends Controller
                 $technician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
                 $technician->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
                 // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con tickets
-                $technician->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+                $technician->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
                 $technician->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
                 $technician->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
                 $technician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
@@ -114,7 +114,7 @@ class TecnicoAsignadoController extends Controller
             $showTechnician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
             $showTechnician->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
             // Para ocultar los PKs, FKs, algunos ccmpos y timestamps de la tabla relacionada con tickets
-            $showTechnician->tickets?->makeHidden(["id", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
+            $showTechnician->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
             $showTechnician->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
             $showTechnician->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
             $showTechnician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
@@ -187,6 +187,14 @@ class TecnicoAsignadoController extends Controller
     public function destroy($tecnicoAsignado)
     {
         try {
+            // Se verifica si el técnico previamente ha sido eliminado
+            $isDeleted = TecnicoAsignado::where("id", $tecnicoAsignado)
+                ->whereNotNull("recurso_eliminado")
+                ->exists();
+
+            if ($isDeleted) {
+                throw new ModelNotFoundException();
+            }
             TecnicoAsignado::findOrFail($tecnicoAsignado)->delete();
 
             $baseRoute = $this->getBaseRoute();
@@ -210,4 +218,5 @@ class TecnicoAsignadoController extends Controller
             );
         }
     }
+
 }

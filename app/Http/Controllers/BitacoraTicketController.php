@@ -208,6 +208,14 @@ class BitacoraTicketController extends Controller
     public function destroy($bitacoraTicket)
     {
         try {
+            // Se verifica si la bitácora previamente ha sido eliminado
+            $isDeleted = BitacoraTicket::where("id", $bitacoraTicket)
+                ->whereNotNull("recurso_eliminado")
+                ->exists();
+
+            if ($isDeleted) {
+                throw new ModelNotFoundException();
+            }
             BitacoraTicket::findOrFail($bitacoraTicket)->delete();
 
             $baseRoute = $this->getBaseRoute();

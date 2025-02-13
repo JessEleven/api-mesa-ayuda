@@ -31,22 +31,12 @@ class StoreTicketRequest extends FormRequest
         return [
             "asunto"=> [
                 "required",
-                "regex:/^[a-zA-ZÀ-ÿ,ñÑ]+(?:\s[a-zA-ZÀ-ÿ,ñÑ]+)*$/u",
-                function ($attribute, $value, $fail) {
-                    // Se eliminan los espacios y se cuenta la longitud real
-                    $lengthWithoutSpaces = mb_strlen(str_replace(
-                        " ", "", $value
-                    ));
-
-                    if ($lengthWithoutSpaces > 100) {
-                        $fail("No debe exceder los 100 caracteres");
-                    }
-                }
+                "regex:/^[a-zA-ZÀ-ÿ0-9,ñÑ]+(?:\s[a-zA-ZÀ-ÿ0-9,ñÑ]+)*$/u",
             ],
             "descripcion"=> [
                 "required",
-                // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
-                "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
+                // También se permiten espacios, puntos, comas, punto y coma y la letra ñ
+                "regex:/^[a-zA-ZÀ-ÿ0-9\s.,;ñÑ]*$/u"
             ],
             "id_categoria"=> [
                 "required",

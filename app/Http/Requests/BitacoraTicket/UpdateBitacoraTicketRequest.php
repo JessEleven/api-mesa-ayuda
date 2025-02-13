@@ -44,8 +44,8 @@ class UpdateBitacoraTicketRequest extends FormRequest
         return [
             "descripcion"=> [
                 "nullable",
-                // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
-                "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
+                // También se permiten espacios, puntos, comas, punto y coma y la letra ñ
+                "regex:/^[a-zA-ZÀ-ÿ0-9\s.,;ñÑ]*$/u"
             ]
         ];
     }

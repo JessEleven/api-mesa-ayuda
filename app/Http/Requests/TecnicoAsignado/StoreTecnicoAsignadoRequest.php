@@ -13,19 +13,11 @@ use Illuminate\Validation\ValidationException;
 
 class StoreTecnicoAsignadoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $tableUser = (new Usuario())->getTable();
@@ -49,7 +41,19 @@ class StoreTecnicoAsignadoRequest extends FormRequest
              ],
             "id_ticket"=> [
                 "required",
-                "exists:" . $tableTicket . ",id",
+                function($attribute, $value, $fail) use($tableTicket) {
+                    // Se verifica si el ticket ingresado existe o está eliminado
+                    $ticketRegistered = \DB::table($tableTicket)->find($value);
+
+                    $ticketDeleted = \DB::table($tableTicket)
+                        ->where("id", $value)
+                        ->whereNotNull("recurso_eliminado")
+                        ->exists();
+
+                    if (!$ticketRegistered || $ticketDeleted) {
+                        $fail("El ticket ingresado no existe");
+                    }
+                },
                 function ($attribute, $value, $fail) use($tableTechnical) {
                     $idUsuario = $this->input("id_usuario");
 
@@ -63,7 +67,7 @@ class StoreTecnicoAsignadoRequest extends FormRequest
                         $fail("El técnico ya tiene asignado este ticket");
                     }
 
-                    // No se puede asignar el ticket de otro técnico
+                    // No se puede asignar un ticket asigando a otro técnico
                     $ticketAssigned = \DB::table($tableTechnical)
                         ->where("id_ticket", $value)
                         ->where("id_usuario", "!=", $idUsuario)
@@ -94,8 +98,7 @@ class StoreTecnicoAsignadoRequest extends FormRequest
             "id_usuario.required"=> "El usuario es requerido",
             "id_usuario.exists"=> "El usuario ingresado no existe",
 
-            "id_ticket.required"=> "El ticket es requerido",
-            "id_ticket.exists"=> "El ticket ingresado no existe"
+            "id_ticket.required"=> "El ticket es requerido"
         ];
     }
 
@@ -110,9 +113,10 @@ class StoreTecnicoAsignadoRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

@@ -34,8 +34,8 @@ class StoreCalificacionTicketRequest extends FormRequest
             ],
             "observacion"=> [
                 "nullable",
-                // Puede contener letras, espacios, puntos, punto y coma, comas y la letra ñ
-                "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
+                // También se permiten espacios, puntos, punto y coma, comas y la letra ñ
+                "regex:/^[a-zA-ZÀ-ÿ0-9\s.,;ñÑ]*$/u"
             ],
             "id_ticket"=> [
                 "required",

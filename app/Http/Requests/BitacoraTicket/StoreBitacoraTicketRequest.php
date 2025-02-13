@@ -20,27 +20,28 @@ class StoreBitacoraTicketRequest extends FormRequest
 
     public function rules(): array
     {
-        $tableTeTechnical = (new TecnicoAsignado())->getTable();
+        $tableTechnical = (new TecnicoAsignado())->getTable();
         // $tableBinnacle = (new BitacoraTicket())->getTable();
 
         return [
             "descripcion"=> [
                 "nullable",
-                // Puede contener letras, espacios, puntos, comas, punto y coma y la letra ñ
-                "regex:/^[a-zA-ZÀ-ÿ\s.,;ñÑ]*$/u"
+                // También se permiten espacios, puntos, comas, punto y coma y la letra ñ
+                "regex:/^[a-zA-ZÀ-ÿ0-9\s.,;ñÑ]*$/u"
             ],
             "id_tecnico_asignado"=> [
                 "required",
-                "exists:" . $tableTeTechnical . ",id",
-                function ($attribute, $value, $fail) use($tableTeTechnical) {
-                    // Se verifica si el técnico asignado está eliminado
-                    $isDeleted = \DB::table($tableTeTechnical)
+                function ($attribute, $value, $fail) use($tableTechnical) {
+                    // Se verifica si el técnico ingresado existe o está eliminado
+                    $registeredTechnician = \DB::table($tableTechnical)->find($value);
+
+                    $technicianEliminated = \DB::table($tableTechnical)
                         ->where("id", $value)
                         ->whereNotNull("recurso_eliminado")
                         ->exists();
 
-                    if ($isDeleted) {
-                        $fail("Técnico asignado no encontrado");
+                    if (!$registeredTechnician || $technicianEliminated) {
+                        $fail("El técnico ingresado no existe");
                     }
                 },
             /*  Rule::prohibitedIf(function () use($tableBinnacle) {
@@ -57,8 +58,7 @@ class StoreBitacoraTicketRequest extends FormRequest
         return [
             "descripcion.regex"=> "Debe ser una cadena de texto",
 
-            "id_tecnico_asignado.required"=> "El técnico es requerido",
-            "id_tecnico_asignado.exists"=> "El técnico ingresado no existe",
+            "id_tecnico_asignado.required"=> "El técnico es requerido"
             //"id_tecnico_asignado.prohibited"=> "Ya existe una bitácora para este ticket"
         ];
     }

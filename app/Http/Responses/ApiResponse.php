@@ -2,69 +2,124 @@
 
 namespace App\Http\Responses;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class ApiResponse {
 
-    public static function success($message= "Success", $statusCode= 200, $data= []) {
+    // Response::$statusTexts[$statusCode] ?? "Unknown Status" es para obtener
+    // los textos estándar de los códigos de estado HTTP de manera dinámica
 
-        // Detectar si $data es una instancia de LengthAwarePaginator (cuando se usa paginación)
-        // Ya que si se busca un solo recurso "results" tomara "data"
-        if ($data instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-            return response()->json([
-                "message"=> $message,
-                "status_code"=> $statusCode,
-                "error"=> false,
-                "results"=> [
-                    "pagination"=> [
+    public static function index($message, $statusCode, $data = []) {
+        return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> true,
+            "message"=> $message,
+            "status_code"=> $statusCode,
+            "results"=> [
+                "total_elements"=> $data->total(),
+                "pagination"=> [
+                    "page"=> [
                         "current_page"=> $data->currentPage(),
-                        "last_page"=> $data->lastPage(),
-                        "per_page"=> $data->perPage(),
-                        "start_position"=> $data->firstItem(),
-                        "end_position"=> $data->lastItem(),
-                        "total"=> $data->total()
+                        "elements_per_page"=> $data->perPage(),
+                        "total_pages"=> $data->lastPage()
                     ],
-                    "links"=> [
-                        "next_page_url"=> $data->nextPageUrl(),
-                        "prev_page_url"=> $data->previousPageUrl(),
-                        "path" => $data->path()
-                    ],
-                    "data" => $data->items(),
+                    "positions"=> [
+                        "first_item"=> $data->firstItem(),
+                        "last_item"=> $data->lastItem()
+                    ]
                 ],
-            ], $statusCode);
-        }
+                "links"=> self::formatPaginationLinks($data),
+                "data"=> $data->items(),
+            ],
+        ], $statusCode);
+    }
 
-        // Para un solo recurso,"data" sera "data"
+    // Método auxiliar para formatear los links de la paginación
+    private static function formatPaginationLinks($data) {
+        return [
+            "base_url"=> $data->path(),
+            "previous"=> [
+                "url"=> $data->previousPageUrl(),
+                "label"=> "Previous",
+                // Solo se activa si no se esta en la primera página
+                "active"=> $data->currentPage() > 1
+            ],
+            "next"=> [
+                "url"=> $data->nextPageUrl(),
+                "label"=> "Next",
+                // Solo se activo si no se esta en la última página
+                "active"=> $data->currentPage() < $data->lastPage()
+            ]
+        ];
+    }
+
+    public static function created($message, $statusCode, $data = []) {
         return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> true,
             "message"=> $message,
             "status_code"=> $statusCode,
-            "error"=> false,
             "data"=> $data
         ], $statusCode);
     }
 
-    public static function error($message= "Error", $statusCode= 404, $data= []) {
+    public static function show($message, $statusCode, $data = []) {
         return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> true,
             "message"=> $message,
             "status_code"=> $statusCode,
-            "error"=> true,
             "data"=> $data
         ], $statusCode);
     }
 
-    public static function validation($message= "Validation error", $statusCode= 422, $errors= []) {
+    public static function updated($message, $statusCode, $data = []) {
         return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> true,
             "message"=> $message,
             "status_code"=> $statusCode,
-            "error"=> true,
-            "errors"=> $errors
+            "data"=> $data
         ], $statusCode);
     }
 
-    public static function deleted($message= "Resourse deleted", $statusCode= 200, $data= []) {
+    public static function deleted($message, $statusCode, $data = []) {
         return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> true,
             "message"=> $message,
             "status_code"=> $statusCode,
-            "error"=> false,
             "links"=> $data
+        ], $statusCode);
+    }
+
+    public static function notUpdated($message, $statusCode = 200, $data = []) {
+        return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> false,
+            "message"=> $message,
+            "status_code"=> $statusCode,
+            "data"=> $data
+        ], $statusCode);
+    }
+
+    public static function error($message, $statusCode, $data = []) {
+        return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> false,
+            "message"=> $message,
+            "status_code"=> $statusCode,
+            "data"=> $data
+        ], $statusCode);
+    }
+
+    public static function validation($message, $statusCode, $errors = []) {
+        return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> false,
+            "message"=> $message,
+            "status_code"=> $statusCode,
+            "errors"=> $errors
         ], $statusCode);
     }
 }

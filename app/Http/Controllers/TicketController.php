@@ -31,7 +31,7 @@ class TicketController extends Controller
                     ->paginate(20);
 
             if ($allTickets->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de tickets vacía",
                     200,
                     $allTickets
@@ -51,7 +51,7 @@ class TicketController extends Controller
                 return $ticket;
             });
 
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de tickets",
                 200,
                 $allTickets
@@ -91,7 +91,7 @@ class TicketController extends Controller
                 ]
             ));
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Ticket creado con éxito",
                 201,
                 $newTicket->only([
@@ -130,7 +130,7 @@ class TicketController extends Controller
             $showTicket->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
             $showTicket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Ticket encontrado con éxito",
                 200,
                 $showTicket
@@ -164,7 +164,7 @@ class TicketController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar ticket",
                     200,
                     array_intersect_key($newData, array_flip([
@@ -174,7 +174,7 @@ class TicketController extends Controller
             }
             $updateTicket->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Ticket actualizado con éxito",
                 200,
                 $updateTicket->refresh()->only([

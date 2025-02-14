@@ -31,7 +31,7 @@ class BitacoraTicketController extends Controller
                     ->paginate(20);
 
             if ($allLogs->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de bitácoras de tickets vacía",
                     200,
                     $allLogs
@@ -57,7 +57,7 @@ class BitacoraTicketController extends Controller
                 return $log;
             });
 
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de bitácoras de tickets",
                 200,
                 $allLogs
@@ -91,7 +91,7 @@ class BitacoraTicketController extends Controller
                 ]
             ));
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Bitácora de ticket creada con éxito",
                 201,
                 $newLog->only([
@@ -143,7 +143,7 @@ class BitacoraTicketController extends Controller
             $showLog->tecnico_asigados?->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
             $showLog->tecnico_asigados?->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Bitácora de ticket encontrada con éxito",
                 200,
                 $showLog
@@ -177,7 +177,7 @@ class BitacoraTicketController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar la bitácora de ticket",
                     200,
                     array_intersect_key($newData, array_flip([
@@ -187,7 +187,7 @@ class BitacoraTicketController extends Controller
             }
             $updateLog->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Bitácora de ticket actualizada con éxito",
                 200,
                 $updateLog->refresh()->only([

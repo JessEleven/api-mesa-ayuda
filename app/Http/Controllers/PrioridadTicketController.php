@@ -22,13 +22,13 @@ class PrioridadTicketController extends Controller
             $allPriorities = PrioridadTicket::orderBy("id", "asc")->paginate(20);
 
             if ($allPriorities->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de prioridades de ticket vacía",
                     200,
                     $allPriorities
                 );
             }
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de prioridades de ticket",
                 200,
                 $allPriorities
@@ -47,7 +47,7 @@ class PrioridadTicketController extends Controller
         try {
             $newPriority = PrioridadTicket::create($request->validated());
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Prioridad de ticket creada con éxito",
                 201,
                 $newPriority
@@ -66,7 +66,7 @@ class PrioridadTicketController extends Controller
         try {
             $showPriority = PrioridadTicket::findOrFail($prioridadTicket);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Prioridad de ticket encontrada con éxito",
                 200,
                 $showPriority
@@ -100,7 +100,7 @@ class PrioridadTicketController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar prioridad de ticket",
                     200,
                     $newData
@@ -108,7 +108,7 @@ class PrioridadTicketController extends Controller
             }
             $updatePriority->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Prioridad de ticket actualizada con éxito",
                 200,
                 $updatePriority->refresh()

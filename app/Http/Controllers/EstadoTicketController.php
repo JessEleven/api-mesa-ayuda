@@ -22,13 +22,13 @@ class EstadoTicketController extends Controller
             $allStatuses = EstadoTicket::orderBy("id", "asc")->paginate(20);
 
             if ($allStatuses->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de estados de ticket vacía",
                     200,
                     $allStatuses
                 );
             }
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de estados de ticket",
                 200,
                 $allStatuses
@@ -47,7 +47,7 @@ class EstadoTicketController extends Controller
         try {
             $newStatus = EstadoTicket::create($request->validated());
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Estado de ticket creado con éxito",
                 201,
                 $newStatus
@@ -66,7 +66,7 @@ class EstadoTicketController extends Controller
         try {
             $showStatus = EstadoTicket::findOrFail($estadoTicket);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Estado de ticket encontrado con éxito",
                 200,
                 $showStatus
@@ -100,7 +100,7 @@ class EstadoTicketController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar el estado de ticket",
                     200,
                     $newData
@@ -108,7 +108,7 @@ class EstadoTicketController extends Controller
             }
             $updateStatus->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Estado de ticket actualizado con éxito",
                 200,
                 $updateStatus->refresh()

@@ -20,7 +20,7 @@ class DepartamentoController extends Controller
                 ->paginate(20);
 
             if ($allDepartments->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de departamentos vacía",
                     200,
                     $allDepartments
@@ -35,7 +35,7 @@ class DepartamentoController extends Controller
                 return $department;
             });
 
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de departamentos",
                 200,
                 $allDepartments
@@ -64,7 +64,7 @@ class DepartamentoController extends Controller
                 ]
             ));
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Departamento creado con éxito",
                 201,
                 $newDepartment->only([
@@ -95,7 +95,7 @@ class DepartamentoController extends Controller
             // Para ocultar el PK y timestamps de la tabla areas
             $showDepartment->areas?->makeHidden(["id", "created_at", "updated_at"]);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Departamento encontrado con éxito",
                 200,
                 $showDepartment
@@ -129,7 +129,7 @@ class DepartamentoController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar departamento",
                     200,
                     array_intersect_key($newData, array_flip([
@@ -149,7 +149,7 @@ class DepartamentoController extends Controller
             }
             $updateDepartment->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Departamento actualizado con éxito",
                 200,
                 $updateDepartment->refresh()->only([

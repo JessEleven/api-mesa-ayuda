@@ -26,7 +26,7 @@ class CalificacionTicketController extends Controller
                     ->paginate(20);
 
             if ($allQualifications->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de calificaciones de ticket vacía",
                     200,
                     $allQualifications
@@ -47,7 +47,7 @@ class CalificacionTicketController extends Controller
                 return $qualification;
             });
 
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de calificaciones de ticket",
                 200,
                 $allQualifications
@@ -66,7 +66,7 @@ class CalificacionTicketController extends Controller
         try {
             $newQualification = CalificacionTicket::create($request->validated());
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Calificación de ticket creada con éxito",
                 201,
                 $newQualification->only([
@@ -108,7 +108,7 @@ class CalificacionTicketController extends Controller
             $showQualification->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
             $showQualification->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Calificación de ticket encontrada con éxito",
                 200,
                 $showQualification
@@ -142,7 +142,7 @@ class CalificacionTicketController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar calificación de ticket",
                     200,
                     array_intersect_key($newData, array_flip([
@@ -153,7 +153,7 @@ class CalificacionTicketController extends Controller
             }
             $updateQualification->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Calificación de ticket actualizada con éxito",
                 200,
                 $updateQualification->refresh()->only([

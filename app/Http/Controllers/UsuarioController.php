@@ -21,7 +21,7 @@ class UsuarioController extends Controller
                     ->paginate(20);
 
             if ($allUsers->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de usuarios vacía",
                     200,
                     $allUsers
@@ -37,7 +37,7 @@ class UsuarioController extends Controller
                 return $user;
             });
 
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de usuarios",
                 200,
                 $allUsers
@@ -56,7 +56,7 @@ class UsuarioController extends Controller
         try {
             $newUser = Usuario::create($request->validated());
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Usuario creado con éxito",
                 201,
                 $newUser->only([
@@ -90,7 +90,7 @@ class UsuarioController extends Controller
             $showUser->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
             $showUser->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Usuario encontrado con éxito",
                 200,
                 $showUser
@@ -127,7 +127,7 @@ class UsuarioController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar usuario",
                     200,
                     array_intersect_key($newData, array_flip([
@@ -140,7 +140,7 @@ class UsuarioController extends Controller
             }
             $updateUser->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Usuario actualizado con éxito",
                 200,
                 $updateUser->refresh()->only([

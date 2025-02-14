@@ -18,13 +18,13 @@ class AreaController extends Controller
             $allAreas = Area::orderBy("id", "asc")->paginate(20);
 
             if ($allAreas->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de áreas vacía",
                     200,
                     $allAreas
                 );
             }
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de áreas",
                 200,
                 $allAreas
@@ -53,7 +53,7 @@ class AreaController extends Controller
                 ]
             ));
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Área creada con éxito",
                 201,
                 $newArea->only([
@@ -78,7 +78,7 @@ class AreaController extends Controller
         try {
             $showArea = Area::findOrFail($area);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Área encontrada con éxito",
                 200,
                 $showArea
@@ -112,7 +112,7 @@ class AreaController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar el área",
                     200,
                     $newData
@@ -128,7 +128,7 @@ class AreaController extends Controller
             }
             $updateArea->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Área actualizada con éxito",
                 200,
                 $updateArea->refresh()->only([

@@ -22,13 +22,13 @@ class CategoriaTicketController extends Controller
             $allCategories = CategoriaTicket::orderBy("id", "asc")->paginate(20);
 
             if ($allCategories->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de categorias de ticket vacía",
                     200,
                     $allCategories
                 );
             }
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de categorias de ticket",
                 200,
                 $allCategories
@@ -47,7 +47,7 @@ class CategoriaTicketController extends Controller
         try {
             $newCategory = CategoriaTicket::create($request->validated());
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Categoria de ticket creada con éxito",
                 201,
                 $newCategory
@@ -66,7 +66,7 @@ class CategoriaTicketController extends Controller
         try {
             $showCategory = CategoriaTicket::findOrFail($categoriaTicket);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Categoria de ticket encontrada con éxito",
                 200,
                 $showCategory
@@ -100,7 +100,7 @@ class CategoriaTicketController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar categoria de ticket",
                     200,
                     $newData
@@ -108,7 +108,7 @@ class CategoriaTicketController extends Controller
             }
             $updateCategory->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Categoria de ticket actualizada con éxito",
                 200,
                 $updateCategory->refresh()

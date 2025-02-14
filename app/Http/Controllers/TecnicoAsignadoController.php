@@ -30,7 +30,7 @@ class TecnicoAsignadoController extends Controller
                     ->paginate("20");
 
             if ($allTechnicians->isEmpty()) {
-                return ApiResponse::success(
+                return ApiResponse::index(
                     "Lista de técnicos asignados vacía",
                     200,
                     $allTechnicians
@@ -55,7 +55,7 @@ class TecnicoAsignadoController extends Controller
                 return $technician;
             });
 
-            return ApiResponse::success(
+            return ApiResponse::index(
                 "Lista de técnicos asignados",
                 200,
                 $allTechnicians
@@ -74,7 +74,7 @@ class TecnicoAsignadoController extends Controller
         try {
             $newTechnician = TecnicoAsignado::create($request->validated());
 
-            return ApiResponse::success(
+            return ApiResponse::created(
                 "Técnico asignado creado con éxito",
                 201,
                 $newTechnician->only([
@@ -122,7 +122,7 @@ class TecnicoAsignadoController extends Controller
             $showTechnician->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
             $showTechnician->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
 
-            return ApiResponse::success(
+            return ApiResponse::show(
                 "Técnico asignado encontrado con éxito",
                 200,
                 $showTechnician
@@ -156,7 +156,7 @@ class TecnicoAsignadoController extends Controller
             ])->toArray();
 
             if ($newData == $existingData) {
-                return ApiResponse::success(
+                return ApiResponse::notUpdated(
                     "No hay cambios para actualizar técnico asignado",
                     200,
                     array_intersect_key($newData, array_flip([
@@ -167,7 +167,7 @@ class TecnicoAsignadoController extends Controller
             }
             $updateTechnician->update($newData);
 
-            return ApiResponse::success(
+            return ApiResponse::updated(
                 "Técnico asignado actualizado con éxito",
                 200,
                 $updateTechnician->refresh()->only([

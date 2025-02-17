@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TecnicoAsignado\StoreTecnicoAsignadoRequest;
 use App\Http\Requests\TecnicoAsignado\UpdateTecnicoAsignadoRequest;
 use App\Http\Responses\ApiResponse;
+use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
+use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -195,7 +197,29 @@ class TecnicoAsignadoController extends Controller
             if ($isDeleted) {
                 throw new ModelNotFoundException();
             }
-            TecnicoAsignado::findOrFail($tecnicoAsignado)->delete();
+
+            $technicianId = TecnicoAsignado::findOrFail($tecnicoAsignado);
+
+            $ticketId = Ticket::find($technicianId->id_ticket);
+
+            // Se obtiene el estado con el orden de prioridad más alto que existe
+            $maxPriority = EstadoTicket::max("orden_prioridad");
+
+            // Se busca el estado actual que tiene el ticket
+            $currentStatus = EstadoTicket::find($ticketId->id_estado);
+
+            // Si el técnico ha finalizado el ticket no se podra eliminar
+            if ($currentStatus && $currentStatus->orden_prioridad === $maxPriority) {
+                return ApiResponse::error(
+                    "El técnico ha finalizado el ticket",
+                    400,
+                    [
+                        "current_status"=> $currentStatus->nombre_estado,
+                        "ticket_end_date"=> $ticketId->fecha_fin
+                    ]
+                );
+            }
+            $technicianId->delete();
 
             $baseRoute = $this->getBaseRoute();
 

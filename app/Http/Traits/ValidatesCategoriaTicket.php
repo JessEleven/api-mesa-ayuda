@@ -11,12 +11,13 @@ trait ValidatesCategoriaTicket
     // Se verifica si una categoría de ticket está en uso
     protected function CategoryTicketInUse(int $id): void
     {
-        $registeredTickets = Ticket::exists();
+        $registeredTickets = Ticket::count();
 
-        if ($registeredTickets) {
+        if ($registeredTickets > 0) {
             throw new HttpResponseException(ApiResponse::error(
-                "Actualmente ya existen tickets registrados",
-                422
+                "Ya existen tickets registrados",
+                422,
+                ["total_tickets"=> $registeredTickets]
             ));
         }
     }

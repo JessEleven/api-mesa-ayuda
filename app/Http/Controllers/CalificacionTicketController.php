@@ -6,6 +6,8 @@ use App\Http\Requests\CalificacionTicket\StoreCalificacionTicketRequest;
 use App\Http\Requests\CalificacionTicket\UpdateCalificacionTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\CalificacionTicket;
+use App\Models\EstadoTicket;
+use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -175,15 +177,23 @@ class CalificacionTicketController extends Controller
     public function destroy($calificacionTicket)
     {
         try {
-            CalificacionTicket::findOrFail($calificacionTicket)->delete();
+            $qualificationId = CalificacionTicket::findOrFail($calificacionTicket);
 
-            $baseRoute = $this->getBaseRoute();
+            $ticketId = Ticket::find($qualificationId->id_ticket);
 
-            return ApiResponse::deleted(
-                "Calificación de ticket eliminada con éxito",
-                200,
-                ["related"=> $baseRoute]
-            );
+            // Se busca el estado actual que tiene el ticket
+            $currentStatus = EstadoTicket::find($ticketId->id_estado);
+
+            if ($qualificationId) {
+                return ApiResponse::error(
+                    "El ticket ya está calificado",
+                    400,
+                    [
+                        "current_status"=> $currentStatus->nombre_estado,
+                        "ticket_end_date"=> $ticketId->fecha_fin
+                    ]
+                );
+            }
 
         } catch (ModelNotFoundException $e) {
             return ApiResponse::error(

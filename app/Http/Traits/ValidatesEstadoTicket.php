@@ -11,12 +11,13 @@ trait ValidatesEstadoTicket
     // Se verifica si un estado de ticket está en uso
     protected function EstadoTicketInUse(int $id): void
     {
-        $registeredTickets = Ticket::exists();
+        $registeredTickets = Ticket::count();
 
-        if ($registeredTickets) {
+        if ($registeredTickets > 0) {
             throw new HttpResponseException(ApiResponse::error(
-                "Actualmente ya existen tickets registrados",
-                422
+                "Ya existen tickets registrados",
+                422,
+                ["total_tickets"=> $registeredTickets]
             ));
         }
     }

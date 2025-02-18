@@ -221,12 +221,16 @@ class TecnicoAsignadoController extends Controller
             }
             $technicianId->delete();
 
-            $baseRoute = $this->getBaseRoute();
+            $relativePath = $this->getRelativePath();
+            $apiVersion = $this->getApiVersion();
 
             return ApiResponse::deleted(
                 "Técnico asignado eliminado con éxito",
                 200,
-                ["related"=> $baseRoute]
+                [
+                    "related"=> $relativePath,
+                    "api_version"=> $apiVersion
+                ]
             );
 
         } catch (ModelNotFoundException $e) {

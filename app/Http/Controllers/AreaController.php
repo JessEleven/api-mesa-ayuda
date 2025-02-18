@@ -153,12 +153,16 @@ class AreaController extends Controller
         try {
             Area::findOrFail($area)->delete();
 
-            $baseRoute = $this->getBaseRoute();
+            $relativePath = $this->getRelativePath();
+            $apiVersion = $this->getApiVersion();
 
             return ApiResponse::deleted(
                 "Área eliminada con éxito",
                 200,
-                ["related"=> $baseRoute]
+                [
+                    "related"=> $relativePath,
+                    "api_version"=> $apiVersion
+                ]
             );
 
         } catch (ModelNotFoundException $e) {

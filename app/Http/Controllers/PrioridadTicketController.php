@@ -130,12 +130,16 @@ class PrioridadTicketController extends Controller
 
             PrioridadTicket::findOrFail($prioridadTicket)->delete();
 
-            $baseRoute = $this->getBaseRoute();
+            $relativePath = $this->getRelativePath();
+            $apiVersion = $this->getApiVersion();
 
             return ApiResponse::deleted(
                 "Prioridad de ticket eliminada con éxito",
                 200,
-                ["related"=> $baseRoute]
+                [
+                    "related"=> $relativePath,
+                    "api_version"=> $apiVersion
+                ]
             );
 
         } catch (HttpResponseException $e) {

@@ -201,12 +201,16 @@ class TicketController extends Controller
             $ticketId = Ticket::findOrFail($ticket);
             $ticketId->delete();
 
-            $baseRoute = $this->getBaseRoute();
+            $relativePath = $this->getRelativePath();
+            $apiVersion = $this->getApiVersion();
 
             return ApiResponse::deleted(
                 "Ticket eliminado con éxito",
                 200,
-                ["related"=> $baseRoute]
+                [
+                    "related"=> $relativePath,
+                    "api_version"=> $apiVersion
+                ]
             );
 
         } catch (HttpResponseException $e) {

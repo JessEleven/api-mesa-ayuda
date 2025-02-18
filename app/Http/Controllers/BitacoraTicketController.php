@@ -218,12 +218,16 @@ class BitacoraTicketController extends Controller
             }
             BitacoraTicket::findOrFail($bitacoraTicket)->delete();
 
-            $baseRoute = $this->getBaseRoute();
+            $relativePath = $this->getRelativePath();
+            $apiVersion = $this->getApiVersion();
 
             return ApiResponse::deleted(
                 "Bitácora de ticket eliminada con éxito",
                 200,
-                ["related"=> $baseRoute]
+                [
+                    "related"=> $relativePath,
+                    "api_version"=> $apiVersion
+                ]
             );
 
         } catch (ModelNotFoundException $e) {

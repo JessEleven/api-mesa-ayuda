@@ -166,12 +166,16 @@ class UsuarioController extends Controller
         try {
             Usuario::findOrFail($usuario)->delete();
 
-            $baseRoute = $this->getBaseRoute();
+            $relativePath = $this->getRelativePath();
+            $apiVersion = $this->getApiVersion();
 
             return ApiResponse::deleted(
                 "Usuario eliminado con éxito",
                 200,
-                ["related"=> $baseRoute]
+                [
+                    "related"=> $relativePath,
+                    "api_version"=> $apiVersion
+                ]
             );
 
         } catch (ModelNotFoundException $e) {

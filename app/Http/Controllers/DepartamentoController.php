@@ -7,6 +7,7 @@ use App\Http\Requests\Departamento\StoreDepartamentoRequest;
 use App\Http\Requests\Departamento\UpdateDepartamentoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Departamento;
+use App\Services\DepartamentoModelHider;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 
@@ -15,7 +16,7 @@ class DepartamentoController extends Controller
     public function index()
     {
         try {
-            $allDepartments = Departamento::with("areas")
+            $allDepartments = Departamento::with("area")
                 ->orderBy("id","asc")
                 ->paginate(20);
 
@@ -27,12 +28,9 @@ class DepartamentoController extends Controller
                 );
             }
 
-            // Para ocultar el FK de la tabla
+            // Usando el servicio para ocultar los campos
             $allDepartments->getCollection()->transform(function ($department) {
-                $department->makeHidden(["id_area"]);
-                // Para ocultar el PK y timestamps de la tabla areas
-                $department->areas?->makeHidden(["id", "created_at", "updated_at"]);
-                return $department;
+                return DepartamentoModelHider::hideDepartamentoFields($department);
             });
 
             return ApiResponse::index(
@@ -87,13 +85,11 @@ class DepartamentoController extends Controller
     public function show($departamento)
     {
         try {
-            $showDepartment = Departamento::with("areas")
+            $showDepartment = Departamento::with("area")
                 ->findOrFail($departamento);
 
-            // Para ocultar el FK de la tabla
-            $showDepartment->makeHidden(["id_area"]);
-            // Para ocultar el PK y timestamps de la tabla areas
-            $showDepartment->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            // Usando el servicio para ocultar los campos
+            DepartamentoModelHider::hideDepartamentoFields($showDepartment);
 
             return ApiResponse::show(
                 "Departamento encontrado con éxito",

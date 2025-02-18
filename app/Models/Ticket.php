@@ -21,6 +21,14 @@ class Ticket extends Model
         'id_prioridad'
     ];
 
+    protected $hidden = [
+        'id_categoria',
+        'id_usuario',
+        'id_estado',
+        'id_prioridad',
+        'recurso_eliminado'
+    ];
+
     // Para marcar un registro como eliminado
     public function delete()
     {
@@ -61,32 +69,32 @@ class Ticket extends Model
         });
     }
 
-    public function tecnico_asignados()
+    public function tecnicoAsignado()
     {
         return $this->hasOne(TecnicoAsignado::class, 'id_ticket');
     }
 
-    public function categoria_tickets()
+    public function categoriaTicket()
     {
         return $this->belongsTo(CategoriaTicket::class, 'id_categoria');
     }
 
-    public function usuarios()
+    public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario');
     }
 
-    public function estado_tickets()
+    public function estadoTicket()
     {
         return $this->belongsTo(EstadoTicket::class, 'id_estado');
     }
 
-    public function prioridad_tickets()
+    public function prioridadTicket()
     {
         return $this->belongsTo(PrioridadTicket::class, 'id_prioridad');
     }
 
-    public function calificacion_tickets()
+    public function calificacionTicket()
     {
         return $this->hasOne(CalificacionTicket::class, 'id_calificacion');
     }

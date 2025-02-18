@@ -17,6 +17,11 @@ class BitacoraTicket extends Model
         'id_tecnico_asignado'
     ];
 
+    protected $hidden = [
+        'id_tecnico_asignado',
+        'recurso_eliminado'
+    ];
+
     // Para marcar un registro como eliminado
     public function delete()
     {
@@ -37,7 +42,7 @@ class BitacoraTicket extends Model
         return !is_null($this->recurso_eliminado);
     }
 
-    public function tecnico_asigados()
+    public function tecnicoAsignado()
     {
         return $this->belongsTo(TecnicoAsignado::class, 'id_tecnico_asignado');
     }

@@ -19,7 +19,8 @@ class Usuario extends Model
     ];
 
     protected $hidden = [
-        'password'
+        'password',
+        'id_departamento'
     ];
 
     public function tecnico_asignados()
@@ -27,7 +28,7 @@ class Usuario extends Model
         return $this->hasMany(TecnicoAsignado::class, 'id_usuario');
     }
 
-    public function departamentos()
+    public function departamento()
     {
         return $this->belongsTo(Departamento::class, 'id_departamento');
     }

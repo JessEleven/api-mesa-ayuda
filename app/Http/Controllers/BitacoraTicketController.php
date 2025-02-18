@@ -7,6 +7,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\BitacoraTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
+use App\Services\BitacoraTicketModelHider;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -17,15 +18,15 @@ class BitacoraTicketController extends Controller
     {
         try {
             // Relaciones anidadas para con la tabla tecnico_asignados
-            $allLogs = BitacoraTicket::with(["tecnico_asigados.usuarios.departamentos"])
-                ->with(["tecnico_asigados.usuarios.departamentos.areas"])
+            $allLogs = BitacoraTicket::with(["tecnicoAsignado.usuario.departamento"])
+                ->with(["tecnicoAsignado.usuario.departamento.area"])
             // Relaciones anidadas para con la tabla tickets
-                ->with(["tecnico_asigados.tickets.categoria_tickets"])
-                ->with(["tecnico_asigados.tickets.usuarios"])
-                ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
-                ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
-                ->with(["tecnico_asigados.tickets.estado_tickets"])
-                ->with(["tecnico_asigados.tickets.prioridad_tickets"])
+                ->with(["tecnicoAsignado.ticket.usuario"])
+                ->with(["tecnicoAsignado.ticket.usuario.departamento"])
+                ->with(["tecnicoAsignado.ticket.usuario.departamento.area"])
+                ->with(["tecnicoAsignado.ticket.categoriaTicket"])
+                ->with(["tecnicoAsignado.ticket.estadoTicket"])
+                ->with(["tecnicoAsignado.ticket.prioridadTicket"])
                     ->whereNull("recurso_eliminado")
                     ->orderBy("id", "asc")
                     ->paginate(20);
@@ -38,23 +39,9 @@ class BitacoraTicketController extends Controller
                 );
             }
 
-            // Para ocultar el FKs de la tabla
+            // Usando el servicio para ocultar los campos
             $allLogs->getCollection()->transform( function($log) {
-                $log->makeHidden(["id_tecnico_asignado", "recurso_eliminado"]);
-                // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
-                $log->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "recurso_eliminado", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento","created_at", "updated_at"]);
-                $log->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-                // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con tickets
-                $log->tecnico_asigados?->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->tickets?->categoria_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
-                $log->tecnico_asigados?->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
-                return $log;
+                return BitacoraTicketModelHider::hideBitacoraTicketFields($log);
             });
 
             return ApiResponse::index(
@@ -115,33 +102,20 @@ class BitacoraTicketController extends Controller
     {
         try {
             // Relaciones anidadas para con la tabla tecnico_asignados
-            $showLog = BitacoraTicket::with(["tecnico_asigados.usuarios.departamentos"])
-                ->with(["tecnico_asigados.usuarios.departamentos.areas"])
+            $showLog = BitacoraTicket::with(["tecnicoAsignado.usuario.departamento"])
+                ->with(["tecnicoAsignado.usuario.departamento.area"])
             // Relaciones anidadas para con la tabla tickets
-                ->with(["tecnico_asigados.tickets.categoria_tickets"])
-                ->with(["tecnico_asigados.tickets.usuarios"])
-                ->with(["tecnico_asigados.tickets.usuarios.departamentos"])
-                ->with(["tecnico_asigados.tickets.usuarios.departamentos.areas"])
-                ->with(["tecnico_asigados.tickets.estado_tickets"])
-                ->with(["tecnico_asigados.tickets.prioridad_tickets"])
+                ->with(["tecnicoAsignado.ticket.usuario"])
+                ->with(["tecnicoAsignado.ticket.usuario.departamento"])
+                ->with(["tecnicoAsignado.ticket.usuario.departamento.area"])
+                ->with(["tecnicoAsignado.ticket.categoriaTicket"])
+                ->with(["tecnicoAsignado.ticket.estadoTicket"])
+                ->with(["tecnicoAsignado.ticket.prioridadTicket"])
                     ->whereNull("recurso_eliminado")
                     ->findOrFail($bitacoraTicket);
 
-            // Para ocultar el FKs de la tabla
-            $showLog->makeHidden(["id_tecnico_asignado", "recurso_eliminado"]);
-            // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
-            $showLog->tecnico_asigados?->makeHidden(["id", "id_usuario", "id_ticket", "recurso_eliminado", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento","created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-            // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con tickets
-            $showLog->tecnico_asigados?->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->tickets?->categoria_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
-            $showLog->tecnico_asigados?->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
+            // Usando el servicio para ocultar los campos
+            BitacoraTicketModelHider::hideBitacoraTicketFields($showLog);
 
             return ApiResponse::show(
                 "Bitácora de ticket encontrada con éxito",

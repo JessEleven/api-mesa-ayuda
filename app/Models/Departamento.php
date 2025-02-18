@@ -17,12 +17,16 @@ class Departamento extends Model
         'id_area'
     ];
 
+    protected $hidden = [
+        'id_area'
+    ];
+
     public function usuarios()
     {
         return $this->hasMany(Usuario::class, 'id_departamento');
     }
 
-    public function areas()
+    public function area()
     {
         return $this->belongsTo(Area::class, 'id_area');
     }

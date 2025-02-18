@@ -14,6 +14,12 @@ class TecnicoAsignado extends Model
         'id_ticket'
     ];
 
+    protected $hidden = [
+        'id_usuario',
+        'id_ticket',
+        'recurso_eliminado'
+    ];
+
     // Para marcar un registro como eliminado
     public function delete()
     {
@@ -39,12 +45,12 @@ class TecnicoAsignado extends Model
         return $this->hasMany(BitacoraTicket::class, 'id_tecnico_asignado');
     }
 
-    public function usuarios()
+    public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'id_usuario');
     }
 
-    public function tickets()
+    public function ticket()
     {
         return $this->belongsTo(Ticket::class, 'id_ticket');
     }

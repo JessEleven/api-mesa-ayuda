@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\BitacoraTicket\StoreBitacoraTicketRequest;
-use App\Http\Requests\BitacoraTicket\UpdateBitacoraTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\BitacoraTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 class BitacoraTicketController extends Controller
 {
@@ -163,38 +163,21 @@ class BitacoraTicketController extends Controller
         }
     }
 
-    public function update(UpdateBitacoraTicketRequest $request, $bitacoraTicket)
+    public function update(Request $request, $bitacoraTicket)
     {
         try {
             $updateLog = BitacoraTicket::findOrFail($bitacoraTicket);
 
-            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
-                $key => is_string($value) ? trim($value) : $value,
-            ])->toArray();
+            return ApiResponse::error(
+                "Bitácora de ticket no actualizada",
+                400,
+                ["created_at"=> $updateLog->created_at]
+            );
 
-            $existingData = collect($updateLog->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
-                $key => is_string($value) ? trim($value) : $value,
-            ])->toArray();
-
-            if ($newData == $existingData) {
-                return ApiResponse::notUpdated(
-                    "No hay cambios para actualizar la bitácora de ticket",
-                    200,
-                    array_intersect_key($newData, array_flip([
-                        "descripcion"
-                    ]))
-                );
-            }
-            $updateLog->update($newData);
-
-            return ApiResponse::updated(
-                "Bitácora de ticket actualizada con éxito",
-                200,
-                $updateLog->refresh()->only([
-                    "descripcion",
-                    "created_at",
-                    "updated_at"
-                ])
+        } catch (ModelNotFoundException $e) {
+            return ApiResponse::error(
+                "Bitácora de ticket no encontrada",
+                404
             );
 
         } catch (Exception $e) {

@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CalificacionTicket\StoreCalificacionTicketRequest;
-use App\Http\Requests\CalificacionTicket\UpdateCalificacionTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\CalificacionTicket;
 use App\Models\EstadoTicket;
 use App\Models\Ticket;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 class CalificacionTicketController extends Controller
 {
@@ -130,40 +130,21 @@ class CalificacionTicketController extends Controller
         }
     }
 
-    public function update(UpdateCalificacionTicketRequest $request, $calificacionTicket)
+    public function update(Request $request, $calificacionTicket)
     {
         try {
             $updateQualification = CalificacionTicket::findOrFail($calificacionTicket);
 
-            $newData = collect($request->validated())->mapWithKeys(fn($value, $key) => [
-                $key => is_string($value) ? trim($value) : $value,
-            ])->toArray();
-
-            $existingData = collect($updateQualification->only(array_keys($newData)))->mapWithKeys(fn($value, $key) => [
-                $key => is_string($value) ? trim($value) : $value,
-            ])->toArray();
-
-            if ($newData == $existingData) {
-                return ApiResponse::notUpdated(
-                    "No hay cambios para actualizar calificación de ticket",
-                    200,
-                    array_intersect_key($newData, array_flip([
-                        "calificacion",
-                        "observacion"
-                    ]))
-                );
-            }
-            $updateQualification->update($newData);
-
             return ApiResponse::updated(
-                "Calificación de ticket actualizada con éxito",
-                200,
-                $updateQualification->refresh()->only([
-                    "calificacion",
-                    "observacion",
-                    "created_at",
-                    "updated_at"
-                ])
+                "Calificación de ticket no actualizada",
+                400,
+                ["created_at"=> $updateQualification->created_at]
+            );
+
+        } catch(ModelNotFoundException $e) {
+            return ApiResponse::error(
+                "Calificación de ticket no encontrada",
+                404
             );
 
         } catch (Exception $e) {

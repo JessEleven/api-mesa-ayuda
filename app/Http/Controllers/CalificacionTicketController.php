@@ -7,6 +7,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\CalificacionTicket;
 use App\Models\EstadoTicket;
 use App\Models\Ticket;
+use App\Services\CalificacionTicketModelHider;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -17,40 +18,31 @@ class CalificacionTicketController extends Controller
     {
         try {
             // Relaciones anidadas para con la tabla tickets
-            $allQualifications = CalificacionTicket::with("tickets")
-                ->with(["tickets.categoria_tickets"])
-                ->with(["tickets.usuarios"])
-                ->with(["tickets.usuarios.departamentos"])
-                ->with(["tickets.usuarios.departamentos.areas"])
-                ->with(["tickets.estado_tickets"])
-                ->with(["tickets.prioridad_tickets"])
+            $allQualifications = CalificacionTicket::with("ticket")
+                ->with(["ticket.usuario"])
+                ->with(["ticket.usuario.departamento"])
+                ->with(["ticket.usuario.departamento.area"])
+                ->with(["ticket.categoriaTicket"])
+                ->with(["ticket.estadoTicket"])
+                ->with(["ticket.prioridadTicket"])
                     ->orderBy("id", "asc")
                     ->paginate(20);
 
             if ($allQualifications->isEmpty()) {
                 return ApiResponse::index(
-                    "Lista de calificaciones de ticket vacía",
+                    "Lista de calificaciones de tickets vacía",
                     200,
                     $allQualifications
                 );
             }
 
-            // Para ocultar el FK de la tabla
+            // Usando el servicio para ocultar los campos
             $allQualifications->getCollection()->transform(function ($qualification) {
-                $qualification->makeHidden(["id_ticket"]);
-                // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
-                $qualification->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-                $qualification->tickets?->categoria_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-                $qualification->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-                $qualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-                $qualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-                $qualification->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
-                $qualification->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
-                return $qualification;
+                return CalificacionTicketModelHider::hideCalificacionTicketFields($qualification);
             });
 
             return ApiResponse::index(
-                "Lista de calificaciones de ticket",
+                "Lista de calificaciones de tickets",
                 200,
                 $allQualifications
             );
@@ -90,25 +82,17 @@ class CalificacionTicketController extends Controller
     {
         try {
             // Relaciones anidadas para con la tabla tickets
-            $showQualification = CalificacionTicket::with("tickets")
-                ->with(["tickets.categoria_tickets"])
-                ->with(["tickets.usuarios"])
-                ->with(["tickets.usuarios.departamentos"])
-                ->with(["tickets.usuarios.departamentos.areas"])
-                ->with(["tickets.estado_tickets"])
-                ->with(["tickets.prioridad_tickets"])
+            $showQualification = CalificacionTicket::with("ticket")
+                ->with(["ticket.usuario"])
+                ->with(["ticket.usuario.departamento"])
+                ->with(["ticket.usuario.departamento.area"])
+                ->with(["ticket.categoriaTicket"])
+                ->with(["ticket.estadoTicket"])
+                ->with(["ticket.prioridadTicket"])
                     ->findOrFail($calificacionTicket);
 
-            // Para ocultar el FK de la tabla
-            $showQualification->makeHidden(["id_ticket"]);
-            // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
-            $showQualification->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-            $showQualification->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-            $showQualification->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-            $showQualification->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-            $showQualification->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-            $showQualification->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
-            $showQualification->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
+            // Usando el servicio para ocultar los campos
+            CalificacionTicketModelHider::hideCalificacionTicketFields($showQualification);
 
             return ApiResponse::show(
                 "Calificación de ticket encontrada con éxito",

@@ -15,7 +15,11 @@ class CalificacionTicket extends Model
         'id_ticket'
     ];
 
-    public function tickets()
+    protected $hidden = [
+        'id_ticket'
+    ];
+
+    public function ticket()
     {
         return $this->belongsTo(Ticket::class, 'id_ticket');
     }

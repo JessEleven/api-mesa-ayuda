@@ -8,6 +8,7 @@ use App\Http\Responses\ApiResponse;
 use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
+use App\Services\TecnicoAsignadoModelHider;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -17,16 +18,16 @@ class TecnicoAsignadoController extends Controller
     {
         try {
             // Relaciones anidadas para con la tabla usuarios
-            $allTechnicians = TecnicoAsignado::with("usuarios")
-                ->with(["usuarios.departamentos"])
-                ->with(["usuarios.departamentos.areas"])
+            $allTechnicians = TecnicoAsignado::with("usuario")
+                ->with(["usuario.departamento"])
+                ->with(["usuario.departamento.area"])
             // Relaciones anidadas para con la tabla tickets
-                ->with(["tickets.categoria_tickets"])
-                ->with(["tickets.usuarios"])
-                ->with(["tickets.usuarios.departamentos"])
-                ->with(["tickets.usuarios.departamentos.areas"])
-                ->with(["tickets.estado_tickets"])
-                ->with(["tickets.prioridad_tickets"])
+                ->with(["ticket.usuario"])
+                ->with(["ticket.usuario.departamento"])
+                ->with(["ticket.usuario.departamento.area"])
+                ->with(["ticket.categoriaTicket"])
+                ->with(["ticket.estadoTicket"])
+                ->with(["ticket.prioridadTicket"])
                     ->whereNull("recurso_eliminado")
                     ->orderBy("id", "asc")
                     ->paginate("20");
@@ -39,22 +40,9 @@ class TecnicoAsignadoController extends Controller
                 );
             }
 
-            // Para ocultar los FKs de la tabla
+            // Usando el servicio para ocultar los campos
             $allTechnicians->getCollection()->transform( function($technician) {
-                $technician->makeHidden(["id_usuario", "id_ticket", "recurso_eliminado"]);
-                // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
-                $technician->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-                $technician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-                $technician->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-                // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con tickets
-                $technician->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-                $technician->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-                $technician->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-                $technician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-                $technician->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-                $technician->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
-                $technician->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
-                return $technician;
+                return TecnicoAsignadoModelHider::hideTecnicoAsignadoFields($technician);
             });
 
             return ApiResponse::index(
@@ -96,33 +84,21 @@ class TecnicoAsignadoController extends Controller
     {
         try {
             // Relaciones anidadas para con la tabla usuarios
-            $showTechnician = TecnicoAsignado::with("usuarios")
-                ->with(["usuarios.departamentos"])
-                ->with(["usuarios.departamentos.areas"])
+            $showTechnician = TecnicoAsignado::with("usuario")
+                ->with(["usuario.departamento"])
+                ->with(["usuario.departamento.area"])
             // Relaciones anidadas para con la tabla tickets
-                ->with(["tickets.categoria_tickets"])
-                ->with(["tickets.usuarios"])
-                ->with(["tickets.usuarios.departamentos"])
-                ->with(["tickets.usuarios.departamentos.areas"])
-                ->with(["tickets.estado_tickets"])
-                ->with(["tickets.prioridad_tickets"])
+                ->with(["ticket.usuario"])
+                ->with(["ticket.usuario.departamento"])
+                ->with(["ticket.usuario.departamento.area"])
+                ->with(["ticket.categoriaTicket"])
+                ->with(["ticket.estadoTicket"])
+                ->with(["ticket.prioridadTicket"])
                     ->whereNull("recurso_eliminado")
                     ->findOrFail($tecnicoAsignado);
 
-            // Para ocultar los FKs de la tabla
-            $showTechnician->makeHidden(["id_usuario", "id_ticket", "recurso_eliminado"]);
-            // Para ocultar los PKs, FKs, algunos campos y timestamps de la tabla relacionada con usuarios
-            $showTechnician->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-            $showTechnician->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-            $showTechnician->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-            // Para ocultar los PKs, FKs, algunos ccmpos y timestamps de la tabla relacionada con tickets
-            $showTechnician->tickets?->makeHidden(["id", "recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at", "updated_at"]);
-            $showTechnician->tickets?->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-            $showTechnician->tickets?->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-            $showTechnician->tickets?->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-            $showTechnician->tickets?->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-            $showTechnician->tickets?->estado_tickets?->makeHidden(["id", "color_estado", "orden_prioridad", "created_at", "updated_at"]);
-            $showTechnician->tickets?->prioridad_tickets?->makeHidden(["id", "color_prioridad", "orden_prioridad", "created_at", "updated_at"]);
+            // Usando el servicio para ocultar los campos
+            TecnicoAsignadoModelHider::hideTecnicoAsignadoFields($showTechnician);
 
             return ApiResponse::show(
                 "Técnico asignado encontrado con éxito",

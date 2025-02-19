@@ -166,7 +166,7 @@ class TicketController extends Controller
                 200,
                 $updateTicket->refresh()->only([
                     "descripcion",
-                    "created_at",
+                    "fecha_inicio",
                     "updated_at"
                 ])
             );

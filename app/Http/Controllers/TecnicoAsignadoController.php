@@ -138,8 +138,8 @@ class TecnicoAsignadoController extends Controller
                     "No hay cambios para actualizar técnico asignado",
                     200,
                     array_intersect_key($newData, array_flip([
-                        "id_usuario",
-                        "id_ticket"
+                        "created_at",
+                        "updated_at"
                     ]))
                 );
             }

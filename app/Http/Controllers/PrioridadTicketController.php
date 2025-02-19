@@ -50,7 +50,12 @@ class PrioridadTicketController extends Controller
             return ApiResponse::created(
                 "Prioridad de ticket creada con éxito",
                 201,
-                $newPriority
+                $newPriority->only([
+                    "nombre_prioridad",
+                    "color_prioridad",
+                    "orden_prioridad",
+                    "created_at"
+                ])
             );
 
         } catch (Exception $e) {
@@ -111,7 +116,12 @@ class PrioridadTicketController extends Controller
             return ApiResponse::updated(
                 "Prioridad de ticket actualizada con éxito",
                 200,
-                $updatePriority->refresh()
+                $updatePriority->refresh()->only([
+                    "nombre_prioridad",
+                    "color_prioridad",
+                    "created_at",
+                    "updated_at"
+                ])
             );
 
         }   catch (Exception $e) {

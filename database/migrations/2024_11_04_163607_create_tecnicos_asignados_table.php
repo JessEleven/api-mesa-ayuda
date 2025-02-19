@@ -21,6 +21,7 @@ return new class extends Migration
             ->cascadeOnDelete()
             ->cascadeOnUpdate();
             $table->foreignId('id_ticket')
+            ->nullable()
             ->constrained('tickets')
             ->cascadeOnDelete()
             ->cascadeOnUpdate();

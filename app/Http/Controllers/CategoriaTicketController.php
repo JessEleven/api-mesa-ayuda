@@ -50,7 +50,11 @@ class CategoriaTicketController extends Controller
             return ApiResponse::created(
                 "Categoria de ticket creada con éxito",
                 201,
-                $newCategory
+                $newCategory->only([
+                    "nombre_categoria",
+                    "sigla_categoria",
+                    "created_at"
+                ])
             );
 
         } catch (Exception $e) {
@@ -111,7 +115,12 @@ class CategoriaTicketController extends Controller
             return ApiResponse::updated(
                 "Categoria de ticket actualizada con éxito",
                 200,
-                $updateCategory->refresh()
+                $updateCategory->refresh()->only([
+                    "nombre_categoria",
+                    "sigla_categoria",
+                    "created_at",
+                    "updated_at"
+                ])
             );
 
         } catch (Exception $e) {

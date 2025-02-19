@@ -40,7 +40,7 @@ class StoreTecnicoAsignadoRequest extends FormRequest
                 }
              ],
             "id_ticket"=> [
-                "required",
+                "nullable",
                 function($attribute, $value, $fail) use($tableTicket) {
                     // Se verifica si el ticket ingresado existe o está eliminado
                     $ticketRegistered = \DB::table($tableTicket)->find($value);
@@ -96,9 +96,7 @@ class StoreTecnicoAsignadoRequest extends FormRequest
     {
         return [
             "id_usuario.required"=> "El usuario es requerido",
-            "id_usuario.exists"=> "El usuario ingresado no existe",
-
-            "id_ticket.required"=> "El ticket es requerido"
+            "id_usuario.exists"=> "El usuario ingresado no existe"
         ];
     }
 

@@ -50,7 +50,12 @@ class EstadoTicketController extends Controller
             return ApiResponse::created(
                 "Estado de ticket creado con éxito",
                 201,
-                $newStatus
+                $newStatus->only([
+                    "nombre_estado",
+                    "color_estado",
+                    "orden_prioridad",
+                    "created_at"
+                ])
             );
 
         } catch (Exception $e) {
@@ -111,7 +116,12 @@ class EstadoTicketController extends Controller
             return ApiResponse::updated(
                 "Estado de ticket actualizado con éxito",
                 200,
-                $updateStatus->refresh()
+                $updateStatus->refresh()->only([
+                    "nombre_estado",
+                    "color_estado",
+                    "created_at",
+                    "updated_at"
+                ])
             );
 
         }   catch (Exception $e) {

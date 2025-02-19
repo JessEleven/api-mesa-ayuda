@@ -63,8 +63,20 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
                 }
             ],
             "id_ticket"=> [
-                "required",
-                "exists:" . $tableTicket . ",id",
+                "nullable",
+                function($attribute, $value, $fail) use($tableTicket) {
+                    // Se verifica si el ticket ingresado existe o está eliminado
+                    $ticketRegistered = \DB::table($tableTicket)->find($value);
+
+                    $ticketDeleted = \DB::table($tableTicket)
+                        ->where("id", $value)
+                        ->whereNotNull("recurso_eliminado")
+                        ->exists();
+
+                    if (!$ticketRegistered || $ticketDeleted) {
+                        $fail("El ticket ingresado no existe");
+                    }
+                },
                 function ($attribute, $value, $fail) use($id, $tableTechnical) {
                     $idUsuario = $this->input("id_usuario");
 
@@ -108,10 +120,7 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
     {
         return [
             "id_usuario.required"=> "El usuario es requerido",
-            "id_usuario.exists"=> "El usuario ingresado no existe",
-
-            "id_ticket.required"=> "El ticket es requerido",
-            "id_ticket.exists"=> "El ticket ingresado no existe"
+            "id_usuario.exists"=> "El usuario ingresado no existe"
         ];
     }
 

@@ -31,9 +31,8 @@ class SecuenciaAreaHelper
         $currentSequence = $area->secuencia_area;
         // Se extrae la parte numérica de la secuencia actual
         $sequenceNumber = substr($currentSequence, 0, 3);
-
         // Se genera la nueva secuencia concatenando la nueva sigla
-        $updateSequence = sprintf('%03d-%s', $sequenceNumber, $newSiglaArea);
+        $updateSequence = sprintf("%03d-%s", $sequenceNumber, $newSiglaArea);
 
         return $updateSequence;
     }

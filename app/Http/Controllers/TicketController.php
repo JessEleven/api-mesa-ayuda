@@ -8,7 +8,9 @@ use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesTicketStatus;
 use App\Models\EstadoTicket;
+use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
+use App\Services\TicketModelHider;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -22,10 +24,10 @@ class TicketController extends Controller
     {
         try {
             // Relación anidada entre las tablas usuarios y departamentos
-            $allTickets = Ticket::with(["usuarios.departamentos"])
+            $allTickets = Ticket::with(["usuario.departamento"])
             // Relación anidada entre las tablas usuarios, departamentos y areas
-                ->with(["usuarios.departamentos.areas"])
-                ->with("categoria_tickets", "estado_tickets", "prioridad_tickets")
+                ->with(["usuario.departamento.area"])
+                ->with("categoriaTicket", "estadoTicket", "prioridadTicket")
                     ->whereNull("recurso_eliminado")
                     ->orderBy("id", "asc")
                     ->paginate(20);
@@ -38,17 +40,9 @@ class TicketController extends Controller
                 );
             }
 
-            // Para ocultar los FKs de la tabla
+            // Usando el servicio para ocultar los campos
             $allTickets->getCollection()->transform(function ($ticket) {
-                $ticket->makeHidden(["recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
-                // Para ocultar los PKs, FKs algunos campos y timestamps de las tablas relaciones
-                $ticket->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-                $ticket->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-                $ticket->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-                $ticket->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-                $ticket->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-                $ticket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-                return $ticket;
+                return TicketModelHider::hideTicketFields($ticket);
             });
 
             return ApiResponse::index(
@@ -113,22 +107,15 @@ class TicketController extends Controller
     {
         try {
             // Relación anidada entre las tablas usuarios y departamentos
-            $showTicket = Ticket::with(["usuarios.departamentos"])
+            $showTicket = Ticket::with(["usuario.departamento"])
             // Relación anidada entre las tablas usuarios, departamentos y areas
-                ->with(["usuarios.departamentos.areas"])
-                ->with("categoria_tickets","estado_tickets", "prioridad_tickets")
+                ->with(["usuario.departamento.area"])
+                ->with("categoriaTicket","estadoTicket", "prioridadTicket")
                     ->whereNull("recurso_eliminado")
                     ->findOrFail($ticket);
 
-            // Para ocultar los FKs de la tabla
-            $showTicket->makeHidden(["recurso_eliminado", "id_categoria", "id_usuario", "id_estado", "id_prioridad", "created_at"]);
-            // Para ocultar los PKs, FKs, algunos campos y timestamps de las tablas relaciones
-            $showTicket->usuarios?->makeHidden(["id", "telefono", "email", "id_departamento", "created_at", "updated_at"]);
-            $showTicket->usuarios?->departamentos?->makeHidden(["id", "secuencia_departamento", "peso_prioridad", "id_area", "created_at", "updated_at"]);
-            $showTicket->usuarios?->departamentos?->areas?->makeHidden(["id", "secuencia_area", "peso_prioridad", "created_at", "updated_at"]);
-            $showTicket->categoria_tickets?->makeHidden(["id","created_at", "updated_at"]);
-            $showTicket->estado_tickets?->makeHidden(["id", "created_at", "updated_at"]);
-            $showTicket->prioridad_tickets?->makeHidden(["id", "created_at", "updated_at"]);
+            // Usando el servicio para ocultar los campos
+            TicketModelHider::hideTicketFields($showTicket);
 
             return ApiResponse::show(
                 "Ticket encontrado con éxito",
@@ -199,6 +186,18 @@ class TicketController extends Controller
             $this->ticketIsFinalized($ticket);
 
             $ticketId = Ticket::findOrFail($ticket);
+
+            $isAssigned = TecnicoAsignado::where("id_ticket", $ticket)
+                ->exists();
+
+            // Si el ticket está asignado, no se puede eliminar
+            if ($isAssigned) {
+                return ApiResponse::error(
+                    "El ticket ha sido asignado",
+                    400,
+                    ["ticket_created"=> $ticketId->created_at]
+                );
+            }
             $ticketId->delete();
 
             $relativePath = $this->getRelativePath();

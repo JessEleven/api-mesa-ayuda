@@ -26,7 +26,8 @@ class Ticket extends Model
         'id_usuario',
         'id_estado',
         'id_prioridad',
-        'recurso_eliminado'
+        'recurso_eliminado',
+        'created_at'
     ];
 
     // Para marcar un registro como eliminado

@@ -6,6 +6,7 @@ use App\Http\Requests\Usuario\StoreUsuarioRequest;
 use App\Http\Requests\Usuario\UpdateUsuarioRequest;
 use App\Http\Responses\ApiResponse;
 use App\Models\Usuario;
+use App\Services\UsuarioModelHider;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 
@@ -15,10 +16,10 @@ class UsuarioController extends Controller
     {
         try {
             // Relación anidada entre las tablas departamentos y areas
-            $allUsers = Usuario::with(["departamentos.areas"])
-                ->whereDoesntHave("tecnico_asignados")
-                    ->orderBy("id", "asc")
-                    ->paginate(20);
+            $allUsers = Usuario::with(["departamento.area"])
+                ->whereDoesntHave("tecnicoAsignado")
+                ->orderBy("id", "asc")
+                ->paginate(20);
 
             if ($allUsers->isEmpty()) {
                 return ApiResponse::index(
@@ -28,13 +29,9 @@ class UsuarioController extends Controller
                 );
             }
 
-            // Para ocultar el FK de la tabla
+            // Usando el servicio para ocultar los campos
             $allUsers->getCollection()->transform(function ($user) {
-                $user->makeHidden(["id_departamento"]);
-                // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
-                $user->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-                $user->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
-                return $user;
+                return UsuarioModelHider::hideUsuarioFields($user);
             });
 
             return ApiResponse::index(
@@ -80,15 +77,12 @@ class UsuarioController extends Controller
     {
         try {
             // Relación anidada entre las tablas departamentos y areas
-            $showUser = Usuario::with(["departamentos.areas"])
-                ->whereDoesntHave("tecnico_asignados")
-                    ->findOrFail($usuario);
+            $showUser = Usuario::with(["departamento.area"])
+                ->whereDoesntHave("tecnicoAsignado")
+                ->findOrFail($usuario);
 
-            // Para ocultar el FK de la tabla
-            $showUser->makeHidden(["id_departamento"]);
-            // Para ocultar los PKs, FKs y timestamps de las tablas relaciones
-            $showUser->departamentos?->makeHidden(["id", "id_area", "created_at", "updated_at"]);
-            $showUser->departamentos?->areas?->makeHidden(["id", "created_at", "updated_at"]);
+            // Usando el servicio para ocultar los campos
+            UsuarioModelHider::hideUsuarioFields($showUser);
 
             return ApiResponse::show(
                 "Usuario encontrado con éxito",

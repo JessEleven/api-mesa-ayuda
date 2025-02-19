@@ -23,9 +23,10 @@ class Usuario extends Model
         'id_departamento'
     ];
 
-    public function tecnico_asignados()
+    // Un usuario puede tener una sola asignación
+    public function tecnicoAsignado()
     {
-        return $this->hasMany(TecnicoAsignado::class, 'id_usuario');
+        return $this->hasOne(TecnicoAsignado::class, 'id_usuario');
     }
 
     public function departamento()

@@ -4,16 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BitacoraTicket\StoreBitacoraTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\BitacoraTicketNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\BitacoraTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
 use App\Services\BitacoraTicketModelHider;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class BitacoraTicketController extends Controller
 {
+    // Reutilizando los Traits
+    use HandlesRequestId;
+    use BitacoraTicketNotFound;
+
     public function index()
     {
         try {
@@ -98,21 +103,12 @@ class BitacoraTicketController extends Controller
         }
     }
 
-    public function show($bitacoraTicket)
+    public function show()
     {
         try {
-            // Relaciones anidadas para con la tabla tecnico_asignados
-            $showLog = BitacoraTicket::with(["tecnicoAsignado.usuario.departamento"])
-                ->with(["tecnicoAsignado.usuario.departamento.area"])
-            // Relaciones anidadas para con la tabla tickets
-                ->with(["tecnicoAsignado.ticket.usuario"])
-                ->with(["tecnicoAsignado.ticket.usuario.departamento"])
-                ->with(["tecnicoAsignado.ticket.usuario.departamento.area"])
-                ->with(["tecnicoAsignado.ticket.categoriaTicket"])
-                ->with(["tecnicoAsignado.ticket.estadoTicket"])
-                ->with(["tecnicoAsignado.ticket.prioridadTicket"])
-                    ->whereNull("recurso_eliminado")
-                    ->findOrFail($bitacoraTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showLog = $this->findBitacoraTicketOrFail($id);
 
             // Usando el servicio para ocultar los campos
             BitacoraTicketModelHider::hideBitacoraTicketFields($showLog);
@@ -123,11 +119,8 @@ class BitacoraTicketController extends Controller
                 $showLog
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Bitácora de ticket no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -137,22 +130,24 @@ class BitacoraTicketController extends Controller
         }
     }
 
-    public function update(Request $request, $bitacoraTicket)
+    public function update()
     {
         try {
-            $updateLog = BitacoraTicket::findOrFail($bitacoraTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $updateLog = $this->findBitacoraTicketOrFail($id);
 
             return ApiResponse::error(
-                "Bitácora de ticket no actualizada",
+                "La bitácora de ticket no se actualiza",
                 400,
-                ["created_at"=> $updateLog->created_at]
+                [
+                    "current_status"=> $updateLog->estado_bitacora,
+                    "binnacle_created"=> $updateLog->created_at
+                ]
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Bitácora de ticket no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -162,18 +157,25 @@ class BitacoraTicketController extends Controller
         }
     }
 
-    public function destroy($bitacoraTicket)
+    public function destroy()
     {
         try {
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+
             // Se verifica si la bitácora previamente ha sido eliminado
-            $isDeleted = BitacoraTicket::where("id", $bitacoraTicket)
+            $isDeleted = BitacoraTicket::where("id", $id)
                 ->whereNotNull("recurso_eliminado")
                 ->exists();
 
             if ($isDeleted) {
-                throw new ModelNotFoundException();
+                return ApiResponse::error(
+                    "La bitácora de ticket ya no existe",
+                    404
+                );
             }
-            BitacoraTicket::findOrFail($bitacoraTicket)->delete();
+            $deleteLog = $this->findBitacoraTicketOrFail($id);
+            $deleteLog->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -187,11 +189,8 @@ class BitacoraTicketController extends Controller
                 ]
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Bitácora no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(

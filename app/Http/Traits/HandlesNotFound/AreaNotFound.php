@@ -7,7 +7,6 @@ use App\Models\Area;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-
 trait AreaNotFound
 {
     public function findAreaOrFail($area)
@@ -17,7 +16,7 @@ trait AreaNotFound
 
         } catch (ModelNotFoundException $e) {
             throw new HttpResponseException(ApiResponse::error(
-                "Área no encontrada 🚀",
+                "Área no encontrada",
                 404
             ));
         }

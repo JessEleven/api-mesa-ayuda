@@ -6,16 +6,23 @@ use App\Helpers\SecuenciaAreaHelper;
 use App\Http\Requests\Area\StoreAreaRequest;
 use App\Http\Requests\Area\UpdateAreaRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\AreaNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\Area;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class AreaController extends Controller
 {
+    // Reutilizando los Traits
+    use HandlesRequestId;
+    use AreaNotFound;
+
     public function index()
     {
         try {
-            $allAreas = Area::orderBy("id", "asc")->paginate(20);
+            $allAreas = Area::orderBy("id", "asc")
+                ->paginate(20);
 
             if ($allAreas->isEmpty()) {
                 return ApiResponse::index(
@@ -73,10 +80,13 @@ class AreaController extends Controller
         }
     }
 
-    public function show($area)
+    public function show()
     {
         try {
-            $showArea = Area::findOrFail($area);
+            // Uso del Trait
+            $id = $this->validateRequestId();
+
+            $showArea = $this->findAreaOrFail($id);
 
             return ApiResponse::show(
                 "Área encontrada con éxito",
@@ -84,11 +94,8 @@ class AreaController extends Controller
                 $showArea
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Área no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -148,10 +155,14 @@ class AreaController extends Controller
         }
     }
 
-    public function destroy($area)
+    public function destroy()
     {
         try {
-            Area::findOrFail($area)->delete();
+            // Uso del Trait
+            $id = $this->validateRequestId();
+
+            $deleteArea = $this->findAreaOrFail($id);
+            $deleteArea->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -165,11 +176,8 @@ class AreaController extends Controller
                 ]
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Área no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(

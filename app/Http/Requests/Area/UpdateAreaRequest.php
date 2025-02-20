@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Area;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\AreaNotFound;
 use App\Http\Traits\HandlesRequestId;
 use App\Models\Area;
 use Illuminate\Contracts\Validation\Validator;
@@ -13,26 +14,23 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateAreaRequest extends FormRequest
 {
-    // Reutilizando el trait
+    // Reutilizando los Traits
     use HandlesRequestId;
+    use AreaNotFound;
 
     public function authorize(): bool
     {
-        // Uso del trait
+        // Uso de los Traits
         $id = $this->validateRequestId();
 
-        if (!Area::find($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Área no encontrada",
-                404
-            ));
-        }
+        $this->findAreaOrFail($id);
+
         return true;
     }
 
     public function rules(): array
     {
-        // Uso del trait
+        // Uso del Trait
         $id = $this->validateRequestId();
 
         $tableName = (new Area())->getTable();

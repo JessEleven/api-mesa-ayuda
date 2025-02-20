@@ -4,16 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CalificacionTicket\StoreCalificacionTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\CalificacionTicketNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\CalificacionTicket;
 use App\Models\EstadoTicket;
 use App\Models\Ticket;
 use App\Services\CalificacionTicketModelHider;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CalificacionTicketController extends Controller
 {
+    // Reutilizando los Traits
+    use HandlesRequestId;
+    use CalificacionTicketNotFound;
+
     public function index()
     {
         try {
@@ -78,18 +83,12 @@ class CalificacionTicketController extends Controller
         }
     }
 
-    public function show($calificacionTicket)
+    public function show()
     {
         try {
-            // Relaciones anidadas para con la tabla tickets
-            $showQualification = CalificacionTicket::with("ticket")
-                ->with(["ticket.usuario"])
-                ->with(["ticket.usuario.departamento"])
-                ->with(["ticket.usuario.departamento.area"])
-                ->with(["ticket.categoriaTicket"])
-                ->with(["ticket.estadoTicket"])
-                ->with(["ticket.prioridadTicket"])
-                    ->findOrFail($calificacionTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showQualification = $this->findCalificacionTicketOrFail($id);
 
             // Usando el servicio para ocultar los campos
             CalificacionTicketModelHider::hideCalificacionTicketFields($showQualification);
@@ -100,11 +99,8 @@ class CalificacionTicketController extends Controller
                 $showQualification
             );
 
-        } catch(ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Calificación de ticket no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -114,22 +110,29 @@ class CalificacionTicketController extends Controller
         }
     }
 
-    public function update(Request $request, $calificacionTicket)
+    public function update()
     {
         try {
-            $updateQualification = CalificacionTicket::findOrFail($calificacionTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $qualificationId = $this->findCalificacionTicketOrFail($id);
 
-            return ApiResponse::updated(
-                "Calificación de ticket no actualizada",
+            $ticketId = Ticket::find($qualificationId->id_ticket);
+
+            // Se busca el estado actual que tiene el ticket
+            $currentStatus = EstadoTicket::find($ticketId->id_estado);
+
+            return ApiResponse::error(
+                "La calificación de ticket no se actualizada",
                 400,
-                ["created_at"=> $updateQualification->created_at]
+                [
+                    "current_status"=> $currentStatus->nombre_estado,
+                    "qualification_created"=> $qualificationId->created_at
+                ]
             );
 
-        } catch(ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Calificación de ticket no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -139,10 +142,12 @@ class CalificacionTicketController extends Controller
         }
     }
 
-    public function destroy($calificacionTicket)
+    public function destroy()
     {
         try {
-            $qualificationId = CalificacionTicket::findOrFail($calificacionTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $qualificationId = $this->findCalificacionTicketOrFail($id);
 
             $ticketId = Ticket::find($qualificationId->id_ticket);
 
@@ -160,13 +165,10 @@ class CalificacionTicketController extends Controller
                 );
             }
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Calificación de ticket no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
-        } catch (Exception $e) {
+        }  catch (Exception $e) {
             return ApiResponse::error(
                 "Ha ocurrido un error inesperado",
                 500

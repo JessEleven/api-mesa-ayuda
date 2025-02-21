@@ -3,6 +3,7 @@
 namespace App\Http\Requests\PrioridadTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\PrioridadTicketNotFound;
 use App\Http\Traits\HandlesRequestId;
 use App\Models\PrioridadTicket;
 use Illuminate\Contracts\Validation\Validator;
@@ -13,26 +14,23 @@ use Illuminate\Validation\ValidationException;
 
 class UpdatePrioridadTicketRequest extends FormRequest
 {
-    // Reutilizando el trait
+    // Reutilizando los Traits
     use HandlesRequestId;
+    use PrioridadTicketNotFound;
 
     public function authorize(): bool
     {
-        // Uso del trait
+        // Uso de los Traits
         $id = $this->validateRequestId();
 
-        if (!PrioridadTicket::find($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Prioridad de ticket no encontrado",
-                404
-            ));
-        }
+        $this->findPrioridadTicketOrFail($id);
+
         return true;
     }
 
     public function rules(): array
     {
-        // Uso del trait
+        // Uso del Trait
         $id = $this->validateRequestId();
 
         $tableName = (new PrioridadTicket())->getTable();

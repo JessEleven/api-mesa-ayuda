@@ -5,21 +5,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\PrioridadTicket\StorePrioridadTicketRequest;
 use App\Http\Requests\PrioridadTicket\UpdatePrioridadTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\PrioridadTicketNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\ValidatesPrioridadTicket;
 use App\Models\PrioridadTicket;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PrioridadTicketController extends Controller
 {
-    // Reutilizamos el trait
+    // Reutilizamos los Traits
     use ValidatesPrioridadTicket;
+    use HandlesRequestId;
+    use PrioridadTicketNotFound;
 
     public function index()
     {
         try {
-            $allPriorities = PrioridadTicket::orderBy("id", "asc")->paginate(20);
+            $allPriorities = PrioridadTicket::orderBy("id", "asc")
+                ->paginate(20);
 
             if ($allPriorities->isEmpty()) {
                 return ApiResponse::index(
@@ -66,10 +70,12 @@ class PrioridadTicketController extends Controller
         }
     }
 
-    public function show($prioridadTicket)
+    public function show()
     {
         try {
-            $showPriority = PrioridadTicket::findOrFail($prioridadTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showPriority = $this->findPrioridadTicketOrFail($id);
 
             return ApiResponse::show(
                 "Prioridad de ticket encontrada con éxito",
@@ -77,11 +83,8 @@ class PrioridadTicketController extends Controller
                 $showPriority
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Prioridad de ticket no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -132,13 +135,17 @@ class PrioridadTicketController extends Controller
         }
     }
 
-    public function destroy($prioridadTicket)
+    public function destroy()
     {
         try {
-            // Se valida si está en uso la prioridad de ticket antes de eliminar
-            $this->PriorityTicketInUse($prioridadTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $deletePriority = $this->findPrioridadTicketOrFail($id);
 
-            PrioridadTicket::findOrFail($prioridadTicket)->delete();
+            // Se valida si está en uso la prioridad de ticket antes de eliminar
+            $this->PriorityTicketInUse($id);
+
+            $deletePriority->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -154,12 +161,6 @@ class PrioridadTicketController extends Controller
 
         } catch (HttpResponseException $e) {
             return $e->getResponse();
-
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Prioridad de ticket no encontrada",
-                404
-            );
 
         } catch (Exception $e) {
             return ApiResponse::error(

@@ -3,6 +3,8 @@
 namespace App\Http\Requests\TecnicoAsignado;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\TecnicoAsignadoNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
 use App\Models\Usuario;
@@ -13,35 +15,35 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateTecnicoAsignadoRequest extends FormRequest
 {
+    // Reutilizando los Traits
+    use HandlesRequestId;
+    use TecnicoAsignadoNotFound;
+
     public function authorize(): bool
     {
+        // Uso de los Traits
+        $id = $this->validateRequestId();
+
+        // Se busca también los técnicos que ha sido eliminados
+        /* $technicianEliminated = TecnicoAsignado::where("id", $id)
+            ->whereNotNull("recurso_eliminado")
+            ->exists();
+
+        if ($technicianEliminated) {
+            throw new HttpResponseException(ApiResponse::error(
+                "El técnico asignado ya no existe",
+                404
+            ));
+        } */
+        $this->findTecnicoAsignadoOrFail($id);
+
         return true;
     }
 
     public function rules(): array
     {
-        $routeName = $this->route()?->parameterNames[0] ?? null;
-        $id = $routeName ? $this->route($routeName) : null;
-
-        if (!is_numeric($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "El ID proporcionado no es válido",
-                400
-            ));
-        }
-
-        $technical = TecnicoAsignado::find($id);
-        // Se busca también los técnicos que ha sido eliminados
-        $technicianEliminated = TecnicoAsignado::where("id", $id)
-            ->whereNotNull("recurso_eliminado")
-            ->exists();
-
-        if (!$technical || $technicianEliminated) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Técnico asignado no encontrado",
-                404
-            ));
-        }
+        // Uso del Trait
+        $id = $this->validateRequestId();
 
         $tableUser = (new Usuario())->getTable();
         $tableTicket = (new Ticket())->getTable();

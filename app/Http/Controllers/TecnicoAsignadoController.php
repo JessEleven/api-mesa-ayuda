@@ -5,15 +5,22 @@ namespace App\Http\Controllers;
 use App\Http\Requests\TecnicoAsignado\StoreTecnicoAsignadoRequest;
 use App\Http\Requests\TecnicoAsignado\UpdateTecnicoAsignadoRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\TecnicoAsignadoNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
 use App\Services\TecnicoAsignadoModelHider;
 use Exception;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class TecnicoAsignadoController extends Controller
 {
+    // Reutilizamos los Traits
+    use HandlesRequestId;
+    use TecnicoAsignadoNotFound;
+
     public function index()
     {
         try {
@@ -80,22 +87,12 @@ class TecnicoAsignadoController extends Controller
         }
     }
 
-    public function show($tecnicoAsignado)
+    public function show()
     {
         try {
-            // Relaciones anidadas para con la tabla usuarios
-            $showTechnician = TecnicoAsignado::with("usuario")
-                ->with(["usuario.departamento"])
-                ->with(["usuario.departamento.area"])
-            // Relaciones anidadas para con la tabla tickets
-                ->with(["ticket.usuario"])
-                ->with(["ticket.usuario.departamento"])
-                ->with(["ticket.usuario.departamento.area"])
-                ->with(["ticket.categoriaTicket"])
-                ->with(["ticket.estadoTicket"])
-                ->with(["ticket.prioridadTicket"])
-                    ->whereNull("recurso_eliminado")
-                    ->findOrFail($tecnicoAsignado);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showTechnician = $this->findTecnicoAsignadoOrFail($id);
 
             // Usando el servicio para ocultar los campos
             TecnicoAsignadoModelHider::hideTecnicoAsignadoFields($showTechnician);
@@ -106,11 +103,8 @@ class TecnicoAsignadoController extends Controller
                 $showTechnician
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Técnico asignado no encontrado",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -162,19 +156,24 @@ class TecnicoAsignadoController extends Controller
         }
     }
 
-    public function destroy($tecnicoAsignado)
+    public function destroy()
     {
         try {
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+
             // Se verifica si el técnico previamente ha sido eliminado
-            $isDeleted = TecnicoAsignado::where("id", $tecnicoAsignado)
+            $isDeleted = TecnicoAsignado::where("id", $id)
                 ->whereNotNull("recurso_eliminado")
                 ->exists();
 
             if ($isDeleted) {
-                throw new ModelNotFoundException();
+                return ApiResponse::error(
+                    "El técnico asignado ya no existe",
+                    404
+                );
             }
-
-            $technicianId = TecnicoAsignado::findOrFail($tecnicoAsignado);
+            $technicianId = $this->findTecnicoAsignadoOrFail($id);
 
             $ticketId = Ticket::find($technicianId->id_ticket);
 
@@ -209,11 +208,8 @@ class TecnicoAsignadoController extends Controller
                 ]
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Técnico asignado no encontrado",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(

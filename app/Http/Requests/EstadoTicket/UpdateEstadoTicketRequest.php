@@ -3,6 +3,7 @@
 namespace App\Http\Requests\EstadoTicket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\EstadoTicketNotFound;
 use App\Http\Traits\HandlesRequestId;
 use App\Models\EstadoTicket;
 use Illuminate\Contracts\Validation\Validator;
@@ -13,26 +14,23 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateEstadoTicketRequest extends FormRequest
 {
-    // Reutilizando el trait
+    // Reutilizando los Traits
     use HandlesRequestId;
+    use EstadoTicketNotFound;
 
     public function authorize(): bool
     {
-        // Uso del trait
+        // Uso de los Traits
         $id = $this->validateRequestId();
 
-        if (!EstadoTicket::find($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Estado de ticket no encontrado",
-                404
-            ));
-        }
+        $this->findEstadoTicketOrFail($id);
+
         return true;
     }
 
     public function rules(): array
     {
-        // Uso del trait
+        // Uso del Trait
         $id = $this->validateRequestId();
 
         $tableName = (new EstadoTicket())->getTable();

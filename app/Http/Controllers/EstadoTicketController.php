@@ -5,21 +5,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\EstadoTicket\StoreEstadoTicketRequest;
 use App\Http\Requests\EstadoTicket\UpdateEstadoTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\EstadoTicketNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\ValidatesEstadoTicket;
 use App\Models\EstadoTicket;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class EstadoTicketController extends Controller
 {
-    // Reutilizamos el Trait
+    // Reutilizando los Traits
     use ValidatesEstadoTicket;
+    use HandlesRequestId;
+    use EstadoTicketNotFound;
 
     public function index()
     {
         try {
-            $allStatuses = EstadoTicket::orderBy("id", "asc")->paginate(20);
+            $allStatuses = EstadoTicket::orderBy("id", "asc")
+                ->paginate(20);
 
             if ($allStatuses->isEmpty()) {
                 return ApiResponse::index(
@@ -66,10 +70,12 @@ class EstadoTicketController extends Controller
         }
     }
 
-    public function show($estadoTicket)
+    public function show()
     {
         try {
-            $showStatus = EstadoTicket::findOrFail($estadoTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showStatus = $this->findEstadoTicketOrFail($id);
 
             return ApiResponse::show(
                 "Estado de ticket encontrado con éxito",
@@ -77,11 +83,8 @@ class EstadoTicketController extends Controller
                 $showStatus
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Estado de ticket no encontrado",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -106,7 +109,7 @@ class EstadoTicketController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::notUpdated(
-                    "No hay cambios para actualizar el estado de ticket",
+                    "No hay cambios para actualizar estado de ticket",
                     200,
                     $newData
                 );
@@ -132,13 +135,17 @@ class EstadoTicketController extends Controller
         }
     }
 
-    public function destroy($estadoTicket)
+    public function destroy()
     {
         try {
-            // Se valida si está en uso el estado de ticket antes de eliminar
-            $this->EstadoTicketInUse($estadoTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $deleteStatus = $this->findEstadoTicketOrFail($id);
 
-            EstadoTicket::findOrFail($estadoTicket)->delete();
+            // Se valida si está en uso el estado de ticket antes de eliminar
+            $this->EstadoTicketInUse($id);
+
+            $deleteStatus->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -154,12 +161,6 @@ class EstadoTicketController extends Controller
 
         } catch (HttpResponseException $e) {
             return $e->getResponse();
-
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Estado de ticket no encontrado",
-                404
-            );
 
         } catch (Exception $e) {
             return ApiResponse::error(

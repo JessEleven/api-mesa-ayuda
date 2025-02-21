@@ -5,21 +5,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CategoriaTicket\StoreCategoriaTicketRequest;
 use App\Http\Requests\CategoriaTicket\UpdateCategoriaTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\CategoriaTicketNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\ValidatesCategoriaTicket;
 use App\Models\CategoriaTicket;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CategoriaTicketController extends Controller
 {
-    // Reutilizamos el trait
+    // Reutilizando los Traits
     use ValidatesCategoriaTicket;
+    use HandlesRequestId;
+    use CategoriaTicketNotFound;
 
     public function index()
     {
         try {
-            $allCategories = CategoriaTicket::orderBy("id", "asc")->paginate(20);
+            $allCategories = CategoriaTicket::orderBy("id", "asc")
+                ->paginate(20);
 
             if ($allCategories->isEmpty()) {
                 return ApiResponse::index(
@@ -65,10 +69,12 @@ class CategoriaTicketController extends Controller
         }
     }
 
-    public function show($categoriaTicket)
+    public function show()
     {
         try {
-            $showCategory = CategoriaTicket::findOrFail($categoriaTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showCategory = $this->findCategoriaTicketOrFail($id);
 
             return ApiResponse::show(
                 "Categoria de ticket encontrada con éxito",
@@ -76,11 +82,8 @@ class CategoriaTicketController extends Controller
                 $showCategory
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Categoria de ticket no encontrada",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -131,13 +134,17 @@ class CategoriaTicketController extends Controller
         }
     }
 
-    public function destroy($categoriaTicket)
+    public function destroy()
     {
         try {
-            // Se valida si está en uso la categoría de ticket antes de eliminar
-            $this->CategoryTicketInUse($categoriaTicket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $deleteCategory = $this->findCategoriaTicketOrFail($id);
 
-            CategoriaTicket::findOrFail($categoriaTicket)->delete();
+            // Se valida si está en uso la categoría de ticket antes de eliminar
+            $this->CategoryTicketInUse($id);
+
+            $deleteCategory->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -153,12 +160,6 @@ class CategoriaTicketController extends Controller
 
         } catch (HttpResponseException $e) {
             return $e->getResponse();
-
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Categoria de ticket no encontrada",
-                404
-            );
 
         } catch (Exception $e) {
             return ApiResponse::error(

@@ -6,13 +6,19 @@ use App\Helpers\SecuenciaDepartamentoHelper;
 use App\Http\Requests\Departamento\StoreDepartamentoRequest;
 use App\Http\Requests\Departamento\UpdateDepartamentoRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\DepartamentoNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\Departamento;
 use App\Services\DepartamentoModelHider;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class DepartamentoController extends Controller
 {
+    // Reutilizando los Traits
+    use HandlesRequestId;
+    use DepartamentoNotFound;
+
     public function index()
     {
         try {
@@ -82,11 +88,12 @@ class DepartamentoController extends Controller
         }
     }
 
-    public function show($departamento)
+    public function show()
     {
         try {
-            $showDepartment = Departamento::with("area")
-                ->findOrFail($departamento);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showDepartment = $this->findDepartamentoOrFail($id);
 
             // Usando el servicio para ocultar los campos
             DepartamentoModelHider::hideDepartamentoFields($showDepartment);
@@ -97,11 +104,8 @@ class DepartamentoController extends Controller
                 $showDepartment
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Departamento no encontrado",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -165,10 +169,14 @@ class DepartamentoController extends Controller
         }
     }
 
-    public function destroy($departamento)
+    public function destroy()
     {
         try {
-            Departamento::findOrFail($departamento)->delete();
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+
+            $deleteDepartment = $this->findDepartamentoOrFail($id);
+            $deleteDepartment->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -182,11 +190,8 @@ class DepartamentoController extends Controller
                 ]
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Departamento no encontrado",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(

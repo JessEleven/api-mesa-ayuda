@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Departamento;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\DepartamentoNotFound;
 use App\Http\Traits\HandlesRequestId;
 use App\Models\Area;
 use App\Models\Departamento;
@@ -14,26 +15,23 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateDepartamentoRequest extends FormRequest
 {
-    // Reutilizando el trait
+    // Reutilizando los Traits
     use HandlesRequestId;
+    use DepartamentoNotFound;
 
     public function authorize(): bool
     {
-        // Uso del trait
+        // Uso de los Traits
         $id = $this->validateRequestId();
 
-        if (!Departamento::find($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Departamento no encontrado",
-                404
-            ));
-        }
+        $this->findDepartamentoOrFail($id);
+
         return true;
     }
 
     public function rules(): array
     {
-        // Uso del trait
+        // Uso del Trait
         $id = $this->validateRequestId();
 
         $tableDepartment = (new Departamento())->getTable();

@@ -6,6 +6,8 @@ use App\Helpers\CodigoTicketHelper;
 use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\TicketNotFound;
+use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\HandlesTicketStatus;
 use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
@@ -19,6 +21,8 @@ class TicketController extends Controller
 {
     // Reutilizando el trait
     use HandlesTicketStatus;
+    use HandlesRequestId;
+    use TicketNotFound;
 
     public function index()
     {
@@ -103,16 +107,12 @@ class TicketController extends Controller
         }
     }
 
-    public function show($ticket)
+    public function show()
     {
         try {
-            // Relación anidada entre las tablas usuarios y departamentos
-            $showTicket = Ticket::with(["usuario.departamento"])
-            // Relación anidada entre las tablas usuarios, departamentos y areas
-                ->with(["usuario.departamento.area"])
-                ->with("categoriaTicket","estadoTicket", "prioridadTicket")
-                    ->whereNull("recurso_eliminado")
-                    ->findOrFail($ticket);
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+            $showTicket = $this->findTicketOrFail($id);
 
             // Usando el servicio para ocultar los campos
             TicketModelHider::hideTicketFields($showTicket);
@@ -123,11 +123,8 @@ class TicketController extends Controller
                 $showTicket
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Ticket no encontrado",
-                404
-            );
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -155,6 +152,7 @@ class TicketController extends Controller
                     "No hay cambios para actualizar ticket",
                     200,
                     array_intersect_key($newData, array_flip([
+                        "asunto",
                         "descripcion"
                     ]))
                 );
@@ -165,6 +163,7 @@ class TicketController extends Controller
                 "Ticket actualizado con éxito",
                 200,
                 $updateTicket->refresh()->only([
+                    "asunto",
                     "descripcion",
                     "fecha_inicio",
                     "updated_at"
@@ -179,18 +178,21 @@ class TicketController extends Controller
         }
     }
 
-    public function destroy($ticket)
+    public function destroy()
     {
         try {
+            // Uso de los Traits
+            $id = $this->validateRequestId();
+
             // Se verifica si el ticket ya está finalizado antes de eliminarlo
-            $this->ticketIsFinalized($ticket);
+            $this->ticketIsFinalized($id);
 
-            $ticketId = Ticket::findOrFail($ticket);
-
-            $isAssigned = TecnicoAsignado::where("id_ticket", $ticket)
-                ->exists();
+            $ticketId = $this->findTicketOrFail($id);
 
             // Si el ticket está asignado, no se puede eliminar
+            $isAssigned = TecnicoAsignado::where("id_ticket", $id)
+                ->exists();
+
             if ($isAssigned) {
                 return ApiResponse::error(
                     "El ticket ha sido asignado",

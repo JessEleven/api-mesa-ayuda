@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Ticket;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\TicketNotFound;
 use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\HandlesTicketStatus;
 use App\Models\CategoriaTicket;
@@ -15,14 +16,17 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateTicketRequest extends FormRequest
 {
-    // Reutilizando de los traits
+    // Reutilizando los Traits
     use HandlesRequestId;
     use HandlesTicketStatus;
+    use TicketNotFound;
 
     public function authorize(): bool
     {
-        // Uso de los traits
+        // Uso de los Traits
         $id = $this->validateRequestId();
+
+        $this->findTicketOrFail($id);
 
         $this->ticketIsFinalized($id);
 

@@ -3,26 +3,20 @@
 namespace App\Http\Traits;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\TicketNotFound;
 use App\Models\EstadoTicket;
-use App\Models\Ticket;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait HandlesTicketStatus
 {
-    public function ticketIsFinalized($ticket)
-    {
-        // Se verifica si el ticket ingresado existe o esta eliminado
-        $ticketId = Ticket::find($ticket);
-        $ticketDeleted = Ticket::where("id", $ticket)
-            ->whereNotNull("recurso_eliminado")
-            ->exists();
+    // Reutilizando el Trait
+    use TicketNotFound;
 
-        if (!$ticketId || $ticketDeleted) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Ticket no encontrado",
-                404
-            ));
-        }
+    public function ticketIsFinalized()
+    {
+        // El Trait ya trae si el ticket ingresado existe o esta eliminado
+        // si se cumple muestra el catch (mensaje y 404)
+        $ticketId = $this->findTicketOrFail();
 
         // Se obtiene el estado con el orden de prioridad más alto que existe
         $maxPriority = EstadoTicket::max("orden_prioridad");
@@ -36,7 +30,10 @@ trait HandlesTicketStatus
             throw new HttpResponseException(ApiResponse::error(
                 "El ticket ha sido finalizado",
                 400,
-                ["current_status"=> $currentStatus->nombre_estado]
+                [
+                    "current_status"=> $currentStatus->nombre_estado,
+                    "ticket_finished_at"=> $ticketId->fecha_fin
+                ]
             ));
         }
         return $ticketId;

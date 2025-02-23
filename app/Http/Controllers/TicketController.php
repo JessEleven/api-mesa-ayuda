@@ -7,21 +7,18 @@ use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\TicketNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\HandlesTicketStatus;
 use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
 use App\Services\TicketModelHider;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class TicketController extends Controller
 {
-    // Reutilizando el trait
+    // Reutilizando los Traits
     use HandlesTicketStatus;
-    use HandlesRequestId;
     use TicketNotFound;
 
     public function index()
@@ -44,7 +41,7 @@ class TicketController extends Controller
                 );
             }
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/TicketModelHider.php) para ocultar los campos
             $allTickets->getCollection()->transform(function ($ticket) {
                 return TicketModelHider::hideTicketFields($ticket);
             });
@@ -66,8 +63,9 @@ class TicketController extends Controller
     public function store(StoreTicketRequest $request)
     {
         try {
-            // Buscar el estado inicial para el ticket
-            $defaultState = EstadoTicket::where("orden_prioridad", 1)->first();
+            // Buscar el estado inicial para el ticket (ej. Nuevo)
+            $defaultState = EstadoTicket::where("orden_prioridad", 1)
+                ->first();
 
             if (!$defaultState) {
                 return ApiResponse::error(
@@ -76,7 +74,7 @@ class TicketController extends Controller
                 );
             }
 
-            // Uso del helper (app/Helpers/CodigoTicketHelper.php) para crear codido_ticket
+            // Uso del Helper (app/Helpers/CodigoTicketHelper.php) para crear codigo_ticket
             $codigoTicket = CodigoTicketHelper::generateCodigoTicket(
                 $request->id_usuario, $request->id_categoria
             );
@@ -94,6 +92,7 @@ class TicketController extends Controller
                 201,
                 $newTicket->only([
                     "codigo_ticket",
+                    "asunto",
                     "descripcion",
                     "fecha_inicio"
                 ])
@@ -110,11 +109,10 @@ class TicketController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showTicket = $this->findTicketOrFail($id);
+            // Uso del Trait
+            $showTicket = $this->findTicketOrFail();
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/TicketModelHider.php) para ocultar los campos
             TicketModelHider::hideTicketFields($showTicket);
 
             return ApiResponse::show(
@@ -123,6 +121,7 @@ class TicketController extends Controller
                 $showTicket
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -181,26 +180,49 @@ class TicketController extends Controller
     public function destroy()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
+            // El Trait no devuelve el ID sino el modelo completo, ya que trae si el
+            // ticket existe o esta eliminado (findTicketOrFail) y si esta finalizado
+            // por tanto ya no es necesario traer en este caso el findTicketOrFail()
+            $ticket = $this->ticketIsFinalized();
 
-            // Se verifica si el ticket ya está finalizado antes de eliminarlo
-            $this->ticketIsFinalized($id);
+            // Se obtiene del modelo solo el ID para poder hacer la consulta
+            $id = $ticket->id;
 
-            $ticketId = $this->findTicketOrFail($id);
-
-            // Si el ticket está asignado, no se puede eliminar
+            // Ticket asignado, no se puede eliminar
             $isAssigned = TecnicoAsignado::where("id_ticket", $id)
                 ->exists();
+
+            // Se hizo por separado por temas de eficiencia
+            $technicalId = TecnicoAsignado::find($id);
+
+            if ($technicalId && $technicalId->usuario) {
+                $names = explode(" ", $technicalId->usuario->nombre);
+                $n = $names[0]; // Se trae el primer nombre
+
+                $lastNames = explode(" ", $technicalId->usuario->apellido);
+                $l = $lastNames[0]; // Se trae el primer apellido
+
+                $result = $n . " " . $l;
+                $code = $technicalId->ticket->codigo_ticket;
+
+            } else {
+                $code = "No se encontró el código ticket";
+                $result = "No se encontró el técnico";
+            }
 
             if ($isAssigned) {
                 return ApiResponse::error(
                     "El ticket ha sido asignado",
                     400,
-                    ["ticket_created"=> $ticketId->created_at]
+                    [
+                        "ticket_code"=> $code,
+                        "ticket_assigned_to"=> $result
+                    ]
                 );
             }
-            $ticketId->delete();
+
+            // Para eliminar se usa la instancia del modelo
+            $ticket->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -214,6 +236,7 @@ class TicketController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

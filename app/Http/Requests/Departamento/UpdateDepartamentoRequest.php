@@ -4,7 +4,6 @@ namespace App\Http\Requests\Departamento;
 
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\DepartamentoNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\Area;
 use App\Models\Departamento;
 use Illuminate\Contracts\Validation\Validator;
@@ -15,16 +14,13 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateDepartamentoRequest extends FormRequest
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando el Trait
     use DepartamentoNotFound;
 
     public function authorize(): bool
     {
-        // Uso de los Traits
-        $id = $this->validateRequestId();
-
-        $this->findDepartamentoOrFail($id);
+        // Uso del Trait
+        $this->findDepartamentoOrFail();
 
         return true;
     }
@@ -32,7 +28,7 @@ class UpdateDepartamentoRequest extends FormRequest
     public function rules(): array
     {
         // Uso del Trait
-        $id = $this->validateRequestId();
+        $id = $this->findDepartamentoOrFail();
 
         $tableDepartment = (new Departamento())->getTable();
         $tableArea = (new Area())->getTable();

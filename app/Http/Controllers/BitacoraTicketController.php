@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BitacoraTicket\StoreBitacoraTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\BitacoraTicketNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\BitacoraTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
@@ -15,8 +14,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class BitacoraTicketController extends Controller
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando del Trait
     use BitacoraTicketNotFound;
 
     public function index()
@@ -44,7 +42,7 @@ class BitacoraTicketController extends Controller
                 );
             }
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/BitacoraTicketModelHider) para ocultar los campos
             $allLogs->getCollection()->transform( function($log) {
                 return BitacoraTicketModelHider::hideBitacoraTicketFields($log);
             });
@@ -106,11 +104,10 @@ class BitacoraTicketController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showLog = $this->findBitacoraTicketOrFail($id);
+            // Uso del Trait
+            $showLog = $this->findBitacoraTicketOrFail();
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/BitacoraTicketModelHider) para ocultar los campos
             BitacoraTicketModelHider::hideBitacoraTicketFields($showLog);
 
             return ApiResponse::show(
@@ -119,6 +116,7 @@ class BitacoraTicketController extends Controller
                 $showLog
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -133,19 +131,19 @@ class BitacoraTicketController extends Controller
     public function update()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $updateLog = $this->findBitacoraTicketOrFail($id);
+            // Uso del Trait
+            $updateLog = $this->findBitacoraTicketOrFail();
 
             return ApiResponse::error(
-                "La bitácora de ticket no se actualiza",
+                "No se puede actualizar la bitácora",
                 400,
                 [
                     "current_status"=> $updateLog->estado_bitacora,
-                    "binnacle_created"=> $updateLog->created_at
+                    "log_created_at"=> $updateLog->created_at
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -160,21 +158,8 @@ class BitacoraTicketController extends Controller
     public function destroy()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-
-            // Se verifica si la bitácora previamente ha sido eliminado
-            $isDeleted = BitacoraTicket::where("id", $id)
-                ->whereNotNull("recurso_eliminado")
-                ->exists();
-
-            if ($isDeleted) {
-                return ApiResponse::error(
-                    "La bitácora de ticket ya no existe",
-                    404
-                );
-            }
-            $deleteLog = $this->findBitacoraTicketOrFail($id);
+            // Uso del Trait
+            $deleteLog = $this->findBitacoraTicketOrFail();
             $deleteLog->delete();
 
             $relativePath = $this->getRelativePath();
@@ -189,6 +174,7 @@ class BitacoraTicketController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

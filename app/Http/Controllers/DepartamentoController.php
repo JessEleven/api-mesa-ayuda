@@ -7,7 +7,6 @@ use App\Http\Requests\Departamento\StoreDepartamentoRequest;
 use App\Http\Requests\Departamento\UpdateDepartamentoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\DepartamentoNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\Departamento;
 use App\Services\DepartamentoModelHider;
 use Exception;
@@ -15,8 +14,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class DepartamentoController extends Controller
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando el Trait
     use DepartamentoNotFound;
 
     public function index()
@@ -34,7 +32,7 @@ class DepartamentoController extends Controller
                 );
             }
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/DepartamentoModelHider) para ocultar los campos
             $allDepartments->getCollection()->transform(function ($department) {
                 return DepartamentoModelHider::hideDepartamentoFields($department);
             });
@@ -91,11 +89,10 @@ class DepartamentoController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showDepartment = $this->findDepartamentoOrFail($id);
+            // Uso del Trait
+            $showDepartment = $this->findDepartamentoOrFail();
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/DepartamentoModelHider) para ocultar los campos
             DepartamentoModelHider::hideDepartamentoFields($showDepartment);
 
             return ApiResponse::show(
@@ -104,6 +101,7 @@ class DepartamentoController extends Controller
                 $showDepartment
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -172,10 +170,8 @@ class DepartamentoController extends Controller
     public function destroy()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-
-            $deleteDepartment = $this->findDepartamentoOrFail($id);
+            // Uso del Trait
+            $deleteDepartment = $this->findDepartamentoOrFail();
             $deleteDepartment->delete();
 
             $relativePath = $this->getRelativePath();
@@ -190,6 +186,7 @@ class DepartamentoController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

@@ -4,7 +4,6 @@ namespace App\Http\Requests\Area;
 
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\AreaNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\Area;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,16 +13,13 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateAreaRequest extends FormRequest
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando el Trait
     use AreaNotFound;
 
     public function authorize(): bool
     {
-        // Uso de los Traits
-        $id = $this->validateRequestId();
-
-        $this->findAreaOrFail($id);
+        // Uso del Trait
+        $this->findAreaOrFail();
 
         return true;
     }
@@ -31,7 +27,7 @@ class UpdateAreaRequest extends FormRequest
     public function rules(): array
     {
         // Uso del Trait
-        $id = $this->validateRequestId();
+        $id = $this->findAreaOrFail();
 
         $tableName = (new Area())->getTable();
 

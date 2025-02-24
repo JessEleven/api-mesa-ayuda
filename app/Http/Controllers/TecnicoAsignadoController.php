@@ -6,19 +6,16 @@ use App\Http\Requests\TecnicoAsignado\StoreTecnicoAsignadoRequest;
 use App\Http\Requests\TecnicoAsignado\UpdateTecnicoAsignadoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\TecnicoAsignadoNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
 use App\Services\TecnicoAsignadoModelHider;
 use Exception;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class TecnicoAsignadoController extends Controller
 {
-    // Reutilizamos los Traits
-    use HandlesRequestId;
+    // Reutilizamo el Trait
     use TecnicoAsignadoNotFound;
 
     public function index()
@@ -47,7 +44,7 @@ class TecnicoAsignadoController extends Controller
                 );
             }
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/TecnicoAsignadoModelHider) para ocultar los campos
             $allTechnicians->getCollection()->transform( function($technician) {
                 return TecnicoAsignadoModelHider::hideTecnicoAsignadoFields($technician);
             });
@@ -90,11 +87,10 @@ class TecnicoAsignadoController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showTechnician = $this->findTecnicoAsignadoOrFail($id);
+            // Uso del Trait
+            $showTechnician = $this->findTecnicoAsignadoOrFail();
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/TecnicoAsignadoModelHider) para ocultar los campos
             TecnicoAsignadoModelHider::hideTecnicoAsignadoFields($showTechnician);
 
             return ApiResponse::show(
@@ -103,6 +99,7 @@ class TecnicoAsignadoController extends Controller
                 $showTechnician
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -159,29 +156,17 @@ class TecnicoAsignadoController extends Controller
     public function destroy()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
+            // Uso del Trait
+            $technicianId = $this->findTecnicoAsignadoOrFail();
 
-            // Se verifica si el técnico previamente ha sido eliminado
-            $isDeleted = TecnicoAsignado::where("id", $id)
-                ->whereNotNull("recurso_eliminado")
-                ->exists();
-
-            if ($isDeleted) {
-                return ApiResponse::error(
-                    "El técnico asignado ya no existe",
-                    404
-                );
-            }
-            $technicianId = $this->findTecnicoAsignadoOrFail($id);
-
-            $ticketId = Ticket::find($technicianId->id_ticket);
+            // Se busca el ticket ososiado al técnico (technicianId)
+            $ticketId = Ticket::where("id", $technicianId->id_ticket)->first();
 
             // Se obtiene el estado con el orden de prioridad más alto que existe
             $maxPriority = EstadoTicket::max("orden_prioridad");
 
             // Se busca el estado actual que tiene el ticket
-            $currentStatus = EstadoTicket::find($ticketId->id_estado);
+            $currentStatus = EstadoTicket::where("id", $ticketId->id_estado)->first();
 
             // Si el técnico ha finalizado el ticket no se podra eliminar
             if ($currentStatus && $currentStatus->orden_prioridad === $maxPriority) {
@@ -190,7 +175,7 @@ class TecnicoAsignadoController extends Controller
                     400,
                     [
                         "current_status"=> $currentStatus->nombre_estado,
-                        "ticket_end_date"=> $ticketId->fecha_fin
+                        "ticket_finished_at"=> $ticketId->fecha_fin
                     ]
                 );
             }
@@ -208,6 +193,7 @@ class TecnicoAsignadoController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

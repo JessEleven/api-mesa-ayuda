@@ -15,27 +15,13 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateTecnicoAsignadoRequest extends FormRequest
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando el Trait
     use TecnicoAsignadoNotFound;
 
     public function authorize(): bool
     {
-        // Uso de los Traits
-        $id = $this->validateRequestId();
-
-        // Se busca también los técnicos que ha sido eliminados
-        /* $technicianEliminated = TecnicoAsignado::where("id", $id)
-            ->whereNotNull("recurso_eliminado")
-            ->exists();
-
-        if ($technicianEliminated) {
-            throw new HttpResponseException(ApiResponse::error(
-                "El técnico asignado ya no existe",
-                404
-            ));
-        } */
-        $this->findTecnicoAsignadoOrFail($id);
+        // Uso del Trait
+        $this->findTecnicoAsignadoOrFail();
 
         return true;
     }
@@ -43,7 +29,7 @@ class UpdateTecnicoAsignadoRequest extends FormRequest
     public function rules(): array
     {
         // Uso del Trait
-        $id = $this->validateRequestId();
+        $id = $this->findTecnicoAsignadoOrFail();
 
         $tableUser = (new Usuario())->getTable();
         $tableTicket = (new Ticket())->getTable();

@@ -7,15 +7,13 @@ use App\Http\Requests\Area\StoreAreaRequest;
 use App\Http\Requests\Area\UpdateAreaRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\AreaNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\Area;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class AreaController extends Controller
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando el Trait
     use AreaNotFound;
 
     public function index()
@@ -84,9 +82,7 @@ class AreaController extends Controller
     {
         try {
             // Uso del Trait
-            $id = $this->validateRequestId();
-
-            $showArea = $this->findAreaOrFail($id);
+            $showArea = $this->findAreaOrFail();
 
             return ApiResponse::show(
                 "Área encontrada con éxito",
@@ -94,6 +90,7 @@ class AreaController extends Controller
                 $showArea
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -120,7 +117,7 @@ class AreaController extends Controller
 
             if ($newData == $existingData) {
                 return ApiResponse::notUpdated(
-                    "No hay cambios para actualizar el área",
+                    "No hay cambios para actualizar área",
                     200,
                     $newData
                 );
@@ -159,9 +156,7 @@ class AreaController extends Controller
     {
         try {
             // Uso del Trait
-            $id = $this->validateRequestId();
-
-            $deleteArea = $this->findAreaOrFail($id);
+            $deleteArea = $this->findAreaOrFail();
             $deleteArea->delete();
 
             $relativePath = $this->getRelativePath();
@@ -176,6 +171,7 @@ class AreaController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

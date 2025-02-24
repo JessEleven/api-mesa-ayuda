@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CalificacionTicket\StoreCalificacionTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\CalificacionTicketNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\CalificacionTicket;
 use App\Models\EstadoTicket;
 use App\Models\Ticket;
@@ -15,8 +14,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CalificacionTicketController extends Controller
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando el Trait
     use CalificacionTicketNotFound;
 
     public function index()
@@ -41,7 +39,7 @@ class CalificacionTicketController extends Controller
                 );
             }
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/CalificacionTicketModelHider) para ocultar los campos
             $allQualifications->getCollection()->transform(function ($qualification) {
                 return CalificacionTicketModelHider::hideCalificacionTicketFields($qualification);
             });
@@ -86,11 +84,10 @@ class CalificacionTicketController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showQualification = $this->findCalificacionTicketOrFail($id);
+            // Uso del Trait
+            $showQualification = $this->findCalificacionTicketOrFail();
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/CalificacionTicketModelHider) para ocultar los campos
             CalificacionTicketModelHider::hideCalificacionTicketFields($showQualification);
 
             return ApiResponse::show(
@@ -99,6 +96,7 @@ class CalificacionTicketController extends Controller
                 $showQualification
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -114,8 +112,7 @@ class CalificacionTicketController extends Controller
     {
         try {
             // Uso de los Traits
-            $id = $this->validateRequestId();
-            $qualificationId = $this->findCalificacionTicketOrFail($id);
+            $qualificationId = $this->findCalificacionTicketOrFail();
 
             $ticketId = Ticket::find($qualificationId->id_ticket);
 
@@ -131,6 +128,7 @@ class CalificacionTicketController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -145,9 +143,8 @@ class CalificacionTicketController extends Controller
     public function destroy()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $qualificationId = $this->findCalificacionTicketOrFail($id);
+            // Uso del Trait
+            $qualificationId = $this->findCalificacionTicketOrFail();
 
             $ticketId = Ticket::find($qualificationId->id_ticket);
 
@@ -165,6 +162,7 @@ class CalificacionTicketController extends Controller
                 );
             }
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

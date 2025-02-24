@@ -3,15 +3,22 @@
 namespace App\Http\Traits\HandlesNotFound;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\CalificacionTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait CalificacionTicketNotFound
 {
-    public function findCalificacionTicketOrFail($calificacionTicket)
+    // Reutilizando el Trait
+    use HandlesRequestId;
+
+    public function findCalificacionTicketOrFail()
     {
         try {
+            // Se obtiene y valida el ID desde la request a travez del Trait HandlesRequestId
+            $qualificationId = $this->validateRequestId();
+
             // Relaciones anidadas para con la tabla tickets
             $showQualification = CalificacionTicket::with("ticket")
                 ->with(["ticket.usuario"])
@@ -20,7 +27,7 @@ trait CalificacionTicketNotFound
                 ->with(["ticket.categoriaTicket"])
                 ->with(["ticket.estadoTicket"])
                 ->with(["ticket.prioridadTicket"])
-                    ->findOrFail($calificacionTicket);
+                    ->findOrFail($qualificationId);
 
             return $showQualification;
 

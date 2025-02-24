@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Usuario;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\UsuarioNotFound;
 use App\Models\Departamento;
 use App\Models\Usuario;
 use Illuminate\Contracts\Validation\Validator;
@@ -13,37 +14,21 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateUsuarioRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+    // Reutilizando el Trait
+    use UsuarioNotFound;
+
     public function authorize(): bool
     {
+        // Uso del Trait
+        $this->findUsuarioOrFail();
+
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        $routeName = $this->route()?->parameterNames[0] ?? null;
-        $id = $routeName ? $this->route($routeName) : null;
-
-        if (!is_numeric($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "El ID proporcionado no es válido",
-                400
-            ));
-        }
-
-        if (!Usuario::find($id)) {
-            throw new HttpResponseException(ApiResponse::error(
-                "Usuario no encontrado",
-                404
-            ));
-        }
+        // Uso del Trait
+        $id = $this->findUsuarioOrFail();
 
         $tableUser = (new Usuario())->getTable();
         $tableDepartment = (new Departamento())->getTable();

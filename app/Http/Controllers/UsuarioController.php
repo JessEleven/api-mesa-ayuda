@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Usuario\StoreUsuarioRequest;
 use App\Http\Requests\Usuario\UpdateUsuarioRequest;
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesNotFound\UsuarioNotFound;
 use App\Models\Usuario;
 use App\Services\UsuarioModelHider;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UsuarioController extends Controller
 {
+    // Reutilizando el Trait
+    use UsuarioNotFound;
+
     public function index()
     {
         try {
@@ -29,7 +33,7 @@ class UsuarioController extends Controller
                 );
             }
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/UsuarioModelHider) para ocultar los campos
             $allUsers->getCollection()->transform(function ($user) {
                 return UsuarioModelHider::hideUsuarioFields($user);
             });
@@ -73,15 +77,13 @@ class UsuarioController extends Controller
         }
     }
 
-    public function show($usuario)
+    public function show()
     {
         try {
-            // Relación anidada entre las tablas departamentos y areas
-            $showUser = Usuario::with(["departamento.area"])
-                ->whereDoesntHave("tecnicoAsignado")
-                ->findOrFail($usuario);
+            // Uso del Trait
+            $showUser = $this->findUsuarioOrFail();
 
-            // Usando el servicio para ocultar los campos
+            // Uso del Service (app/Services/UsuarioModelHider) para ocultar los campos
             UsuarioModelHider::hideUsuarioFields($showUser);
 
             return ApiResponse::show(
@@ -90,11 +92,9 @@ class UsuarioController extends Controller
                 $showUser
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Usuario no encontrado",
-                404
-            );
+        // Trae los mensajes de los Traits (404, 400, etc.)
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(
@@ -155,10 +155,12 @@ class UsuarioController extends Controller
         }
     }
 
-    public function destroy($usuario)
+    public function destroy()
     {
         try {
-            Usuario::findOrFail($usuario)->delete();
+            // Uso del Trait
+            $deleteUser = $this->findUsuarioOrFail();
+            $deleteUser->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();
@@ -172,11 +174,9 @@ class UsuarioController extends Controller
                 ]
             );
 
-        } catch (ModelNotFoundException $e) {
-            return ApiResponse::error(
-                "Usuario no encontrado",
-                404
-            );
+        // Trae los mensajes de los Traits (404, 400, etc.)
+        } catch (HttpResponseException $e) {
+            return $e->getResponse();
 
         } catch (Exception $e) {
             return ApiResponse::error(

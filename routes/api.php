@@ -11,6 +11,7 @@ use App\Http\Controllers\TecnicoAsignadoController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UsuarioController;
 
+use App\Http\Responses\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -24,4 +25,16 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('ticket', TicketController::class);
     Route::apiResource('usuario', UsuarioController::class);
     Route::apiResource('bitacora-ticket', BitacoraTicketController::class);
+});
+
+// Para manejar las rutas mal definidas
+Route::fallback(function () {
+    $currentUrl = url()->current();
+    $path = preg_replace('/\/[^\/]+$/', '', $currentUrl);
+
+    return ApiResponse::pathNotFound(
+        "La ruta proporcionada no es válida",
+        404,
+        ["path"=> $path]
+    );
 });

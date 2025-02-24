@@ -9,6 +9,7 @@ class ApiResponse {
     // Response::$statusTexts[$statusCode] ?? "Unknown Status" es para obtener
     // los textos estándar de los códigos de estado HTTP de manera dinámica
 
+    // Para los métodos index()
     public static function index($message, $statusCode, $data = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -53,6 +54,7 @@ class ApiResponse {
         ];
     }
 
+    // Para los métodos store()
     public static function created($message, $statusCode, $data = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -63,6 +65,7 @@ class ApiResponse {
         ], $statusCode);
     }
 
+    // Para los métodos show()
     public static function show($message, $statusCode, $data = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -73,6 +76,7 @@ class ApiResponse {
         ], $statusCode);
     }
 
+    // Para los métodos update()
     public static function updated($message, $statusCode, $data = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -83,6 +87,7 @@ class ApiResponse {
         ], $statusCode);
     }
 
+    // Para los métodos destroy()
     public static function deleted($message, $statusCode, $data = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -93,6 +98,7 @@ class ApiResponse {
         ], $statusCode);
     }
 
+    // Para los métodos update() cuando no se actualiza nada, los campos
     public static function notUpdated($message, $statusCode = 200, $data = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -103,6 +109,7 @@ class ApiResponse {
         ], $statusCode);
     }
 
+    // Para todo los métodos index(), store(), show(), etc...
     public static function error($message, $statusCode, $data = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -113,6 +120,7 @@ class ApiResponse {
         ], $statusCode);
     }
 
+    // Para los Form Requests tanto para crear o actulizar los campos
     public static function validation($message, $statusCode, $errors = []) {
         return response()->json([
             "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
@@ -120,6 +128,17 @@ class ApiResponse {
             "message"=> $message,
             "status_code"=> $statusCode,
             "errors"=> $errors
+        ], $statusCode);
+    }
+
+    // Para cuando una ruta no coincida con ninguna definida en el archivo de routes/api.php
+    public static function pathNotFound($message, $statusCode, $hint = []) {
+        return response()->json([
+            "status"=> Response::$statusTexts[$statusCode] ?? "Unknown Status",
+            "success"=> false,
+            "message"=> $message,
+            "status_code"=> $statusCode,
+            "hint"=> $hint
         ], $statusCode);
     }
 }

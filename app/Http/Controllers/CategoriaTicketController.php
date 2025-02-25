@@ -6,7 +6,6 @@ use App\Http\Requests\CategoriaTicket\StoreCategoriaTicketRequest;
 use App\Http\Requests\CategoriaTicket\UpdateCategoriaTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\CategoriaTicketNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\ValidatesCategoriaTicket;
 use App\Models\CategoriaTicket;
 use Exception;
@@ -16,7 +15,6 @@ class CategoriaTicketController extends Controller
 {
     // Reutilizando los Traits
     use ValidatesCategoriaTicket;
-    use HandlesRequestId;
     use CategoriaTicketNotFound;
 
     public function index()
@@ -72,9 +70,8 @@ class CategoriaTicketController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showCategory = $this->findCategoriaTicketOrFail($id);
+            // Uso del Trait
+            $showCategory = $this->findCategoriaTicketOrFail();
 
             return ApiResponse::show(
                 "Categoria de ticket encontrada con éxito",
@@ -82,6 +79,7 @@ class CategoriaTicketController extends Controller
                 $showCategory
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -138,8 +136,8 @@ class CategoriaTicketController extends Controller
     {
         try {
             // Uso de los Traits
-            $id = $this->validateRequestId();
-            $deleteCategory = $this->findCategoriaTicketOrFail($id);
+            $deleteCategory = $this->findCategoriaTicketOrFail();
+            $id = $deleteCategory->id;
 
             // Se valida si está en uso la categoría de ticket antes de eliminar
             $this->CategoryTicketInUse($id);
@@ -158,6 +156,7 @@ class CategoriaTicketController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

@@ -6,7 +6,6 @@ use App\Http\Requests\EstadoTicket\StoreEstadoTicketRequest;
 use App\Http\Requests\EstadoTicket\UpdateEstadoTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\EstadoTicketNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\ValidatesEstadoTicket;
 use App\Models\EstadoTicket;
 use Exception;
@@ -16,7 +15,6 @@ class EstadoTicketController extends Controller
 {
     // Reutilizando los Traits
     use ValidatesEstadoTicket;
-    use HandlesRequestId;
     use EstadoTicketNotFound;
 
     public function index()
@@ -73,9 +71,8 @@ class EstadoTicketController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showStatus = $this->findEstadoTicketOrFail($id);
+            // Uso del Trait
+            $showStatus = $this->findEstadoTicketOrFail();
 
             return ApiResponse::show(
                 "Estado de ticket encontrado con éxito",
@@ -83,6 +80,7 @@ class EstadoTicketController extends Controller
                 $showStatus
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -139,8 +137,8 @@ class EstadoTicketController extends Controller
     {
         try {
             // Uso de los Traits
-            $id = $this->validateRequestId();
-            $deleteStatus = $this->findEstadoTicketOrFail($id);
+            $deleteStatus = $this->findEstadoTicketOrFail();
+            $id = $deleteStatus->id;
 
             // Se valida si está en uso el estado de ticket antes de eliminar
             $this->EstadoTicketInUse($id);
@@ -159,6 +157,7 @@ class EstadoTicketController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

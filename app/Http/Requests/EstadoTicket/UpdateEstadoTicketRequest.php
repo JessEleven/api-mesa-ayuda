@@ -4,7 +4,6 @@ namespace App\Http\Requests\EstadoTicket;
 
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\EstadoTicketNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Models\EstadoTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -14,16 +13,13 @@ use Illuminate\Validation\ValidationException;
 
 class UpdateEstadoTicketRequest extends FormRequest
 {
-    // Reutilizando los Traits
-    use HandlesRequestId;
+    // Reutilizando el Trait
     use EstadoTicketNotFound;
 
     public function authorize(): bool
     {
-        // Uso de los Traits
-        $id = $this->validateRequestId();
-
-        $this->findEstadoTicketOrFail($id);
+        // Uso del Trait
+        $this->findEstadoTicketOrFail();
 
         return true;
     }
@@ -31,7 +27,7 @@ class UpdateEstadoTicketRequest extends FormRequest
     public function rules(): array
     {
         // Uso del Trait
-        $id = $this->validateRequestId();
+        $id = $this->findEstadoTicketOrFail();
 
         $tableName = (new EstadoTicket())->getTable();
 

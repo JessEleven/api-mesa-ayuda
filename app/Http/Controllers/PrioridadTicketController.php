@@ -6,7 +6,6 @@ use App\Http\Requests\PrioridadTicket\StorePrioridadTicketRequest;
 use App\Http\Requests\PrioridadTicket\UpdatePrioridadTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\PrioridadTicketNotFound;
-use App\Http\Traits\HandlesRequestId;
 use App\Http\Traits\ValidatesPrioridadTicket;
 use App\Models\PrioridadTicket;
 use Exception;
@@ -16,7 +15,6 @@ class PrioridadTicketController extends Controller
 {
     // Reutilizamos los Traits
     use ValidatesPrioridadTicket;
-    use HandlesRequestId;
     use PrioridadTicketNotFound;
 
     public function index()
@@ -73,9 +71,8 @@ class PrioridadTicketController extends Controller
     public function show()
     {
         try {
-            // Uso de los Traits
-            $id = $this->validateRequestId();
-            $showPriority = $this->findPrioridadTicketOrFail($id);
+            // Uso del Trait
+            $showPriority = $this->findPrioridadTicketOrFail();
 
             return ApiResponse::show(
                 "Prioridad de ticket encontrada con éxito",
@@ -83,6 +80,7 @@ class PrioridadTicketController extends Controller
                 $showPriority
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 
@@ -139,8 +137,8 @@ class PrioridadTicketController extends Controller
     {
         try {
             // Uso de los Traits
-            $id = $this->validateRequestId();
-            $deletePriority = $this->findPrioridadTicketOrFail($id);
+            $deletePriority = $this->findPrioridadTicketOrFail();
+            $id = $deletePriority->id;
 
             // Se valida si está en uso la prioridad de ticket antes de eliminar
             $this->PriorityTicketInUse($id);
@@ -159,6 +157,7 @@ class PrioridadTicketController extends Controller
                 ]
             );
 
+        // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
             return $e->getResponse();
 

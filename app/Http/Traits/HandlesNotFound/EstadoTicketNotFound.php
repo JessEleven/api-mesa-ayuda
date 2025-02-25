@@ -3,17 +3,24 @@
 namespace App\Http\Traits\HandlesNotFound;
 
 use App\Http\Responses\ApiResponse;
+use App\Http\Traits\HandlesRequestId;
 use App\Models\EstadoTicket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 trait EstadoTicketNotFound
 {
-    public function findEstadoTicketOrFail($estadoTicket)
+    // Reutilizando el Trait
+    use HandlesRequestId;
+
+    public function findEstadoTicketOrFail()
     {
         try {
-            $status = EstadoTicket::findOrFail($estadoTicket);
-            return $status;
+            // Se obtiene y valida el ID desde la request a travez del Trait HandlesRequestId
+            $statusId = $this->validateRequestId();
+
+            $showStatus = EstadoTicket::findOrFail($statusId);
+            return $showStatus;
 
         } catch (ModelNotFoundException $e) {
             throw new HttpResponseException(ApiResponse::error(

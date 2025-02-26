@@ -3,7 +3,7 @@
 namespace App\Http\Requests\CategoriaTicket;
 
 use App\Http\Responses\ApiResponse;
-use App\Http\Traits\ValidatesCategoriaTicket;
+use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\CategoriaTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,22 +12,18 @@ use Illuminate\Validation\ValidationException;
 
 class StoreCategoriaTicketRequest extends FormRequest
 {
-    // Reutilizamos el trait
-    use ValidatesCategoriaTicket;
+    // Reutilizando el Trait
+    use ValidatesRegisteredTickets;
 
     public function authorize(): bool
     {
-        // 0 porque no se pasa un ID, solo se verifica
-        $this->CategoryTicketInUse(0);
+        // Uso del Trait
+        // Antes de crear la categoria se verifica si existen tickets
+        $this->registeredOrActiveTickets();
 
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $tableName = (new CategoriaTicket())->getTable();
@@ -70,9 +66,10 @@ class StoreCategoriaTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

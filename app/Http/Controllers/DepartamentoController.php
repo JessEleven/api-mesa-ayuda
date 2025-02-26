@@ -7,6 +7,7 @@ use App\Http\Requests\Departamento\StoreDepartamentoRequest;
 use App\Http\Requests\Departamento\UpdateDepartamentoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\DepartamentoNotFound;
+use App\Http\Traits\ValidatesInstitution;
 use App\Models\Departamento;
 use App\Services\DepartamentoModelHider;
 use Exception;
@@ -14,8 +15,9 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class DepartamentoController extends Controller
 {
-    // Reutilizando el Trait
+    // Reutilizando los Traits
     use DepartamentoNotFound;
+    use ValidatesInstitution;
 
     public function index()
     {
@@ -170,9 +172,14 @@ class DepartamentoController extends Controller
     public function destroy()
     {
         try {
-            // Uso del Trait
-            $deleteDepartment = $this->findDepartamentoOrFail();
-            $deleteDepartment->delete();
+            // Uso de los Traits
+            $departmentId = $this->findDepartamentoOrFail();
+
+            // Antes de eliminar el departamento se verifica si esta
+            // asociado a uno o ha varios usuarios
+            $this->departmentIsActive($departmentId);
+
+            $departmentId->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();

@@ -6,7 +6,7 @@ use App\Http\Requests\EstadoTicket\StoreEstadoTicketRequest;
 use App\Http\Requests\EstadoTicket\UpdateEstadoTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\EstadoTicketNotFound;
-use App\Http\Traits\ValidatesEstadoTicket;
+use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\EstadoTicket;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -14,7 +14,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 class EstadoTicketController extends Controller
 {
     // Reutilizando los Traits
-    use ValidatesEstadoTicket;
+    use ValidatesRegisteredTickets;
     use EstadoTicketNotFound;
 
     public function index()
@@ -138,10 +138,9 @@ class EstadoTicketController extends Controller
         try {
             // Uso de los Traits
             $deleteStatus = $this->findEstadoTicketOrFail();
-            $id = $deleteStatus->id;
 
-            // Se valida si está en uso el estado de ticket antes de eliminar
-            $this->EstadoTicketInUse($id);
+            // Antes de eliminar el estado se verifica si existen tickets
+            $this->registeredOrActiveTickets();
 
             $deleteStatus->delete();
 

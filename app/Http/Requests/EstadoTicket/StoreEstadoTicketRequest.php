@@ -3,7 +3,7 @@
 namespace App\Http\Requests\EstadoTicket;
 
 use App\Http\Responses\ApiResponse;
-use App\Http\Traits\ValidatesEstadoTicket;
+use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\EstadoTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,21 +12,18 @@ use Illuminate\Validation\ValidationException;
 
 class StoreEstadoTicketRequest extends FormRequest
 {
-    use ValidatesEstadoTicket;
+    // Reutilizando el Trait
+    use ValidatesRegisteredTickets;
 
     public function authorize(): bool
     {
-        // 0 porque no se pasa un ID, solo se verifica
-        $this->EstadoTicketInUse(0);
+        // Uso del Trait
+        // Antes de crear el estado se verifica si existen tickets
+        $this->registeredOrActiveTickets();
 
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $tableName = (new EstadoTicket())->getTable();
@@ -78,9 +75,10 @@ class StoreEstadoTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

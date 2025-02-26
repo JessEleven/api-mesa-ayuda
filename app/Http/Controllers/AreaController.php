@@ -7,14 +7,16 @@ use App\Http\Requests\Area\StoreAreaRequest;
 use App\Http\Requests\Area\UpdateAreaRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\AreaNotFound;
+use App\Http\Traits\ValidatesInstitution;
 use App\Models\Area;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class AreaController extends Controller
 {
-    // Reutilizando el Trait
+    // Reutilizando los Traits
     use AreaNotFound;
+    use ValidatesInstitution;
 
     public function index()
     {
@@ -155,9 +157,14 @@ class AreaController extends Controller
     public function destroy()
     {
         try {
-            // Uso del Trait
-            $deleteArea = $this->findAreaOrFail();
-            $deleteArea->delete();
+            // Uso de los Traits
+            $areaId = $this->findAreaOrFail();
+
+            // Antes de eliminar la área se verifica si esta
+            // asociado a uno o ha varios departamentos
+            $this->areaIsActive($areaId);
+
+            $areaId->delete();
 
             $relativePath = $this->getRelativePath();
             $apiVersion = $this->getApiVersion();

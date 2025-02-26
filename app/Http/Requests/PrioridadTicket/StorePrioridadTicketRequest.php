@@ -3,7 +3,7 @@
 namespace App\Http\Requests\PrioridadTicket;
 
 use App\Http\Responses\ApiResponse;
-use App\Http\Traits\ValidatesPrioridadTicket;
+use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\PrioridadTicket;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,21 +12,18 @@ use Illuminate\Validation\ValidationException;
 
 class StorePrioridadTicketRequest extends FormRequest
 {
-    use ValidatesPrioridadTicket;
+    // Reutilizando el Trait
+    use ValidatesRegisteredTickets;
 
     public function authorize(): bool
     {
-        // 0 porque no se pasa un ID, solo se verifica
-        $this->PriorityTicketInUse(0);
+        // Uso del Trait
+        // Antes de crear la prioridad se verifica si existen tickets
+        $this->registeredOrActiveTickets();
 
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $tableName = (new PrioridadTicket())->getTable();
@@ -78,9 +75,10 @@ class StorePrioridadTicketRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

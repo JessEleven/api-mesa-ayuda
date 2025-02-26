@@ -112,21 +112,8 @@ class CalificacionTicketController extends Controller
     {
         try {
             // Uso de los Traits
-            $qualificationId = $this->findCalificacionTicketOrFail();
-
-            $ticketId = Ticket::find($qualificationId->id_ticket);
-
-            // Se busca el estado actual que tiene el ticket
-            $currentStatus = EstadoTicket::find($ticketId->id_estado);
-
-            return ApiResponse::error(
-                "La calificación de ticket no se actualizada",
-                400,
-                [
-                    "current_status"=> $currentStatus->nombre_estado,
-                    "qualification_created"=> $qualificationId->created_at
-                ]
-            );
+            $this->findCalificacionTicketOrFail();
+            $this->ticketQualifiedAt("update");
 
         // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {
@@ -143,24 +130,9 @@ class CalificacionTicketController extends Controller
     public function destroy()
     {
         try {
-            // Uso del Trait
-            $qualificationId = $this->findCalificacionTicketOrFail();
-
-            $ticketId = Ticket::find($qualificationId->id_ticket);
-
-            // Se busca el estado actual que tiene el ticket
-            $currentStatus = EstadoTicket::find($ticketId->id_estado);
-
-            if ($qualificationId) {
-                return ApiResponse::error(
-                    "El ticket ya está calificado",
-                    400,
-                    [
-                        "current_status"=> $currentStatus->nombre_estado,
-                        "ticket_end_date"=> $ticketId->fecha_fin
-                    ]
-                );
-            }
+            // Uso de los Traits
+            $this->findCalificacionTicketOrFail();
+            $this->ticketQualifiedAt("destroy");
 
         // Trae los mensajes de los Traits (404, 400, etc.)
         } catch (HttpResponseException $e) {

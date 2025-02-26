@@ -6,15 +6,15 @@ use App\Http\Requests\PrioridadTicket\StorePrioridadTicketRequest;
 use App\Http\Requests\PrioridadTicket\UpdatePrioridadTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\PrioridadTicketNotFound;
-use App\Http\Traits\ValidatesPrioridadTicket;
+use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\PrioridadTicket;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class PrioridadTicketController extends Controller
 {
-    // Reutilizamos los Traits
-    use ValidatesPrioridadTicket;
+    // Reutilizando los Traits
+    use ValidatesRegisteredTickets;
     use PrioridadTicketNotFound;
 
     public function index()
@@ -138,10 +138,9 @@ class PrioridadTicketController extends Controller
         try {
             // Uso de los Traits
             $deletePriority = $this->findPrioridadTicketOrFail();
-            $id = $deletePriority->id;
 
-            // Se valida si está en uso la prioridad de ticket antes de eliminar
-            $this->PriorityTicketInUse($id);
+            // Antes de eliminar la prioridad se verifica si existen tickets
+            $this->registeredOrActiveTickets();
 
             $deletePriority->delete();
 

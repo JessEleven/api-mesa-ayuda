@@ -6,7 +6,7 @@ use App\Http\Requests\CategoriaTicket\StoreCategoriaTicketRequest;
 use App\Http\Requests\CategoriaTicket\UpdateCategoriaTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\CategoriaTicketNotFound;
-use App\Http\Traits\ValidatesCategoriaTicket;
+use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\CategoriaTicket;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -14,7 +14,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 class CategoriaTicketController extends Controller
 {
     // Reutilizando los Traits
-    use ValidatesCategoriaTicket;
+    use ValidatesRegisteredTickets;
     use CategoriaTicketNotFound;
 
     public function index()
@@ -137,10 +137,9 @@ class CategoriaTicketController extends Controller
         try {
             // Uso de los Traits
             $deleteCategory = $this->findCategoriaTicketOrFail();
-            $id = $deleteCategory->id;
 
-            // Se valida si está en uso la categoría de ticket antes de eliminar
-            $this->CategoryTicketInUse($id);
+            // Antes de eliminar la categoria se verifica si existen tickets
+            $this->registeredOrActiveTickets();
 
             $deleteCategory->delete();
 

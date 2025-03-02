@@ -82,7 +82,7 @@ class UpdateUsuarioRequest extends FormRequest
 
             "email.required"=> "El correo es requerido",
             "email.email"=> "La dirección del correo no es válida",
-            "email.unique"=> "Ya existe un correo igual",
+            "email.unique"=> "El correo ya está en uso",
 
             "password.required"=> "La contraseña es requerida",
             "password.min"=> "Debe tener al menos 8 caracteres",
@@ -104,9 +104,10 @@ class UpdateUsuarioRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

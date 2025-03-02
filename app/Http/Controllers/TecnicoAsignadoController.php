@@ -6,6 +6,7 @@ use App\Http\Requests\TecnicoAsignado\StoreTecnicoAsignadoRequest;
 use App\Http\Requests\TecnicoAsignado\UpdateTecnicoAsignadoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\TecnicoAsignadoNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
@@ -15,8 +16,9 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class TecnicoAsignadoController extends Controller
 {
-    // Reutilizamo el Trait
+    // Reutilizando los Traits
     use TecnicoAsignadoNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -55,11 +57,9 @@ class TecnicoAsignadoController extends Controller
                 $allTechnicians
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -77,10 +77,7 @@ class TecnicoAsignadoController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -104,10 +101,7 @@ class TecnicoAsignadoController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -146,10 +140,7 @@ class TecnicoAsignadoController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -188,8 +179,8 @@ class TecnicoAsignadoController extends Controller
                 "Técnico asignado eliminado con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -198,11 +189,7 @@ class TecnicoAsignadoController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
-
 }

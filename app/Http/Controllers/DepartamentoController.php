@@ -7,6 +7,7 @@ use App\Http\Requests\Departamento\StoreDepartamentoRequest;
 use App\Http\Requests\Departamento\UpdateDepartamentoRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\DepartamentoNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Http\Traits\ValidatesInstitution;
 use App\Models\Departamento;
 use App\Services\DepartamentoModelHider;
@@ -18,6 +19,7 @@ class DepartamentoController extends Controller
     // Reutilizando los Traits
     use DepartamentoNotFound;
     use ValidatesInstitution;
+    use HandleException;
 
     public function index()
     {
@@ -45,11 +47,9 @@ class DepartamentoController extends Controller
                 $allDepartments
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -81,10 +81,7 @@ class DepartamentoController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -108,10 +105,7 @@ class DepartamentoController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -162,10 +156,7 @@ class DepartamentoController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -188,8 +179,8 @@ class DepartamentoController extends Controller
                 "Departamento eliminado con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -198,10 +189,7 @@ class DepartamentoController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

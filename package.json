@@ -3,7 +3,8 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "tailwind": "npx tailwindcss -i ./resources/css/app.css -o ./public/tailwind.css --watch"
     },
     "devDependencies": {
         "autoprefixer": "^10.4.20",

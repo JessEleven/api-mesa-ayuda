@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BitacoraTicket\StoreBitacoraTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\BitacoraTicketNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Models\BitacoraTicket;
 use App\Models\TecnicoAsignado;
 use App\Models\Ticket;
@@ -14,8 +15,9 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class BitacoraTicketController extends Controller
 {
-    // Reutilizando del Trait
+    // Reutilizando los Traits
     use BitacoraTicketNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -53,11 +55,9 @@ class BitacoraTicketController extends Controller
                 $allLogs
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -94,10 +94,7 @@ class BitacoraTicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -121,10 +118,7 @@ class BitacoraTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -148,10 +142,7 @@ class BitacoraTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -169,8 +160,8 @@ class BitacoraTicketController extends Controller
                 "Bitácora de ticket eliminada con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -179,10 +170,7 @@ class BitacoraTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

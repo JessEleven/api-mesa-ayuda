@@ -14,7 +14,10 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Responses\ApiResponse;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('v1')->group(function () {
+// Se define la versión globalmente para poder accederla desde el routes/web.php
+define('API_VERSION', 'v1');
+
+Route::prefix(API_VERSION)->group(function ()  {
     Route::apiResource('area', AreaController::class);
     Route::apiResource('calificacion-ticket', CalificacionTicketController::class);
     Route::apiResource('categoria-ticket', CategoriaTicketController::class);

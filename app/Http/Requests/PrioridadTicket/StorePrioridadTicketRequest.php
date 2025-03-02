@@ -52,15 +52,15 @@ class StorePrioridadTicketRequest extends FormRequest
         return [
             "nombre_prioridad.required"=> "El nombre de la prioridad es requerido",
             "nombre_prioridad.regex"=> "Debe ser una cadena de texto",
-            "nombre_prioridad.unique"=> "El nombre de la prioridad debe ser única",
+            "nombre_prioridad.unique"=> "El nombre de la prioridad ya está registrado",
 
             "color_prioridad.required"=> "El color de la prioridad es requerido",
-            "color_prioridad.unique"=> "El color de la prioridad debe ser única",
+            "color_prioridad.unique"=> "El color de la prioridad ya está registrado",
 
             "orden_prioridad.required"=> "La prioridad del ticket es requerida",
             "orden_prioridad.integer"=> "Solo se aceptan números enteros",
             "orden_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-            "orden_prioridad.unique"=> "La prioridad del ticket debe ser única"
+            "orden_prioridad.unique"=> "La prioridad del ticket ya está registrado"
         ];
     }
 

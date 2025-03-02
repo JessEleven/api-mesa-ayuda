@@ -6,6 +6,7 @@ use App\Http\Requests\Usuario\StoreUsuarioRequest;
 use App\Http\Requests\Usuario\UpdateUsuarioRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\UsuarioNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Models\Usuario;
 use App\Services\UsuarioModelHider;
 use Exception;
@@ -13,8 +14,9 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UsuarioController extends Controller
 {
-    // Reutilizando el Trait
+    // Reutilizando los Traits
     use UsuarioNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -44,11 +46,9 @@ class UsuarioController extends Controller
                 $allUsers
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -70,10 +70,7 @@ class UsuarioController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -97,10 +94,7 @@ class UsuarioController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -148,10 +142,7 @@ class UsuarioController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -169,8 +160,8 @@ class UsuarioController extends Controller
                 "Usuario eliminado con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -179,10 +170,7 @@ class UsuarioController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

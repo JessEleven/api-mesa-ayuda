@@ -6,6 +6,7 @@ use App\Http\Requests\PrioridadTicket\StorePrioridadTicketRequest;
 use App\Http\Requests\PrioridadTicket\UpdatePrioridadTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\PrioridadTicketNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\PrioridadTicket;
 use Exception;
@@ -16,6 +17,7 @@ class PrioridadTicketController extends Controller
     // Reutilizando los Traits
     use ValidatesRegisteredTickets;
     use PrioridadTicketNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -36,11 +38,9 @@ class PrioridadTicketController extends Controller
                 $allPriorities
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                404
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -61,10 +61,7 @@ class PrioridadTicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -85,10 +82,7 @@ class PrioridadTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -125,11 +119,8 @@ class PrioridadTicketController extends Controller
                 ])
             );
 
-        }   catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+        } catch (Exception $e) {
+            return $this->isAnException($e);
         }
     }
 
@@ -151,8 +142,8 @@ class PrioridadTicketController extends Controller
                 "Prioridad de ticket eliminada con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -161,10 +152,7 @@ class PrioridadTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);;
         }
     }
 }

@@ -50,11 +50,11 @@ class UpdateAreaRequest extends FormRequest
         return [
             "nombre_area.required"=> "El nombre del área es requerida",
             "nombre_area.regex"=> "Debe ser una cadena de texto",
-            "nombre_area.unique"=> "El nombre del área ya exite",
+            "nombre_area.unique"=> "El nombre del área ya está en uso",
 
             "sigla_area.required"=> "La sigla del área es requerida",
             "sigla_area.regex"=> "Empieza con mayúscula y puede contener minúsculas",
-            "sigla_area.unique"=> "La sigla del área ya existe"
+            "sigla_area.unique"=> "La sigla del área ya está en uso"
         ];
     }
 

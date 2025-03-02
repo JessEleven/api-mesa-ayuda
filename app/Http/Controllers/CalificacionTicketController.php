@@ -5,17 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CalificacionTicket\StoreCalificacionTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\CalificacionTicketNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Models\CalificacionTicket;
-use App\Models\EstadoTicket;
-use App\Models\Ticket;
 use App\Services\CalificacionTicketModelHider;
 use Exception;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class CalificacionTicketController extends Controller
 {
-    // Reutilizando el Trait
+    // Reutilizando los Traits
     use CalificacionTicketNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -50,11 +50,9 @@ class CalificacionTicketController extends Controller
                 $allQualifications
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -74,10 +72,7 @@ class CalificacionTicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -101,10 +96,7 @@ class CalificacionTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -120,10 +112,7 @@ class CalificacionTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -139,10 +128,7 @@ class CalificacionTicketController extends Controller
             return $e->getResponse();
 
         }  catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

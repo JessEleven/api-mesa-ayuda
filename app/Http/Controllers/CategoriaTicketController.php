@@ -6,6 +6,7 @@ use App\Http\Requests\CategoriaTicket\StoreCategoriaTicketRequest;
 use App\Http\Requests\CategoriaTicket\UpdateCategoriaTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\CategoriaTicketNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\CategoriaTicket;
 use Exception;
@@ -16,6 +17,7 @@ class CategoriaTicketController extends Controller
     // Reutilizando los Traits
     use ValidatesRegisteredTickets;
     use CategoriaTicketNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -36,11 +38,9 @@ class CategoriaTicketController extends Controller
                 $allCategories
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -60,10 +60,7 @@ class CategoriaTicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -84,10 +81,7 @@ class CategoriaTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -125,10 +119,7 @@ class CategoriaTicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -150,8 +141,8 @@ class CategoriaTicketController extends Controller
                 "Categoria de ticket eliminada con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -160,10 +151,7 @@ class CategoriaTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

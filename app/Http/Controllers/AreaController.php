@@ -7,6 +7,7 @@ use App\Http\Requests\Area\StoreAreaRequest;
 use App\Http\Requests\Area\UpdateAreaRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\AreaNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Http\Traits\ValidatesInstitution;
 use App\Models\Area;
 use Exception;
@@ -17,6 +18,7 @@ class AreaController extends Controller
     // Reutilizando los Traits
     use AreaNotFound;
     use ValidatesInstitution;
+    use HandleException;
 
     public function index()
     {
@@ -37,11 +39,9 @@ class AreaController extends Controller
                 $allAreas
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -73,10 +73,7 @@ class AreaController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -97,10 +94,7 @@ class AreaController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -147,10 +141,7 @@ class AreaController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -173,8 +164,8 @@ class AreaController extends Controller
                 "Área eliminada con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -183,10 +174,7 @@ class AreaController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

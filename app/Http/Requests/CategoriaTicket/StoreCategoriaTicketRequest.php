@@ -47,11 +47,11 @@ class StoreCategoriaTicketRequest extends FormRequest
         return [
             "nombre_categoria.required"=> "El nombre de la categoria es requerida",
             "nombre_categoria.regex"=> "Debe ser una cadena de texto",
-            "nombre_categoria.unique"=>  "El nombre de la categoria debe ser único",
+            "nombre_categoria.unique"=>  "El nombre de la categoria ya está registrada",
 
             "sigla_categoria.required"=> "La sigla de la categoría es requerida",
-            "sigla_categoria.regex"=>    "Solo letras mayúsculas y mínimo 2 caracteres",
-            "sigla_categoria.unique"=> "La sigla de la categoría debe ser única"
+            "sigla_categoria.regex"=>    "Solo mayúsculas y mínimo 2 caracteres",
+            "sigla_categoria.unique"=> "La sigla de la categoría ya está registrada"
         ];
     }
 

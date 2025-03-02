@@ -52,15 +52,15 @@ class StoreEstadoTicketRequest extends FormRequest
         return [
             "nombre_estado.required"=> "El nombre del estado es requerido",
             "nombre_estado.regex"=> "Debe ser una cadena de texto",
-            "nombre_estado.unique"=> "El nombre del estado debe ser único",
+            "nombre_estado.unique"=> "El nombre del estado ya está registrado",
 
             "color_estado.required"=> "El color del estado es requerido",
-            "color_estado.unique"=> "El color del estado debe ser único",
+            "color_estado.unique"=> "El color del estado ya está registrado",
 
             "orden_prioridad.required"=> "La prioridad del estado es requerida",
             "orden_prioridad.integer"=> "Solo se aceptan números enteros",
             "orden_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-            "orden_prioridad.unique"=> "La prioridad del estado debe ser única"
+            "orden_prioridad.unique"=> "La prioridad del estado ya está registrado"
         ];
     }
 

@@ -6,6 +6,7 @@ use App\Http\Requests\EstadoTicket\StoreEstadoTicketRequest;
 use App\Http\Requests\EstadoTicket\UpdateEstadoTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\EstadoTicketNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Http\Traits\ValidatesRegisteredTickets;
 use App\Models\EstadoTicket;
 use Exception;
@@ -16,6 +17,7 @@ class EstadoTicketController extends Controller
     // Reutilizando los Traits
     use ValidatesRegisteredTickets;
     use EstadoTicketNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -36,11 +38,9 @@ class EstadoTicketController extends Controller
                 $allStatuses
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -61,10 +61,7 @@ class EstadoTicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -85,10 +82,7 @@ class EstadoTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -125,11 +119,8 @@ class EstadoTicketController extends Controller
                 ])
             );
 
-        }   catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+        } catch (Exception $e) {
+            return $this->isAnException($e);
         }
     }
 
@@ -151,8 +142,8 @@ class EstadoTicketController extends Controller
                 "Estado de ticket eliminado con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -161,10 +152,7 @@ class EstadoTicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

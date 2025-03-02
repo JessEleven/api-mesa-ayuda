@@ -38,17 +38,17 @@ class ApiResponse {
     // Método auxiliar para formatear los links de la paginación
     private static function formatPaginationLinks($data) {
         return [
-            "base_url"=> $data->path(),
+            "path"=> $data->path(),
             "previous"=> [
-                "url"=> $data->previousPageUrl(),
+                "prev_page_url"=> $data->previousPageUrl(),
                 "label"=> "Previous",
                 // Solo se activa si no se esta en la primera página
                 "active"=> $data->currentPage() > 1
             ],
             "next"=> [
-                "url"=> $data->nextPageUrl(),
+                "next_page_url"=> $data->nextPageUrl(),
                 "label"=> "Next",
-                // Solo se activo si no se esta en la última página
+                // Solo se activa si no se esta en la última página
                 "active"=> $data->currentPage() < $data->lastPage()
             ]
         ];
@@ -94,7 +94,7 @@ class ApiResponse {
             "success"=> true,
             "message"=> $message,
             "status_code"=> $statusCode,
-            "links"=> $data
+            "related"=> $data
         ], $statusCode);
     }
 

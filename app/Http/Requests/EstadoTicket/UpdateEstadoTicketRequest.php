@@ -49,10 +49,10 @@ class UpdateEstadoTicketRequest extends FormRequest
         return [
             "nombre_estado.required"=> "El nombre del estado es requerido",
             "nombre_estado.regex"=> "Debe ser una cadena de texto",
-            "nombre_estado.unique"=> "El nombre del estado ya existe",
+            "nombre_estado.unique"=> "El nombre del estado ya está en uso",
 
             "color_estado.required"=> "El color del estado es requerido",
-            "color_estado.unique"=> "El color del estado ya existe"
+            "color_estado.unique"=> "El color del estado ya está en uso"
         ];
     }
 

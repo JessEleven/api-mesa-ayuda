@@ -7,6 +7,7 @@ use App\Http\Requests\Ticket\StoreTicketRequest;
 use App\Http\Requests\Ticket\UpdateTicketRequest;
 use App\Http\Responses\ApiResponse;
 use App\Http\Traits\HandlesNotFound\TicketNotFound;
+use App\Http\Traits\HandlesServerErrors\HandleException;
 use App\Http\Traits\HandlesTicketStatus;
 use App\Models\EstadoTicket;
 use App\Models\TecnicoAsignado;
@@ -20,6 +21,7 @@ class TicketController extends Controller
     // Reutilizando los Traits
     use HandlesTicketStatus;
     use TicketNotFound;
+    use HandleException;
 
     public function index()
     {
@@ -52,11 +54,9 @@ class TicketController extends Controller
                 $allTickets
             );
 
+        // Uso del Trait en index, store, show, update y destroy
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -99,10 +99,7 @@ class TicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -126,10 +123,7 @@ class TicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -170,10 +164,7 @@ class TicketController extends Controller
             );
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 
@@ -231,8 +222,8 @@ class TicketController extends Controller
                 "Ticket eliminado con éxito",
                 200,
                 [
-                    "related"=> $relativePath,
-                    "api_version"=> $apiVersion
+                    "relative_path"=> $relativePath,
+                    "version"=> $apiVersion
                 ]
             );
 
@@ -241,10 +232,7 @@ class TicketController extends Controller
             return $e->getResponse();
 
         } catch (Exception $e) {
-            return ApiResponse::error(
-                "Ha ocurrido un error inesperado",
-                500
-            );
+            return $this->isAnException($e);
         }
     }
 }

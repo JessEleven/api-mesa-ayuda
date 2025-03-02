@@ -12,19 +12,11 @@ use Illuminate\Validation\ValidationException;
 
 class StoreUsuarioRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $tableUser = (new Usuario())->getTable();
@@ -79,7 +71,7 @@ class StoreUsuarioRequest extends FormRequest
 
             "email.required"=> "El correo es requerido",
             "email.email"=> "La dirección del correo no es válida",
-            "email.unique"=> "El correo debe ser único",
+            "email.unique"=> "El correo ya está registrada",
 
             "password.required"=> "La contraseña es requerida",
             "password.min"=> "Debe tener al menos 8 caracteres",
@@ -101,9 +93,10 @@ class StoreUsuarioRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }

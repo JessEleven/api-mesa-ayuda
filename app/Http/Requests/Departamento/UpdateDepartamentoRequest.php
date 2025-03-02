@@ -56,11 +56,11 @@ class UpdateDepartamentoRequest extends FormRequest
         return [
             "nombre_departamento.required"=> "El nombre del departamento es requerido",
             "nombre_departamento.regex"=> "Debe ser una cadena de texto",
-            "nombre_departamento.unique"=> "El nombre del departamento ya exite",
+            "nombre_departamento.unique"=> "El nombre del departamento ya está en uso",
 
             "sigla_departamento.required"=> "La sigla del departamento es requerida",
             "sigla_departamento.regex"=> "Empieza con mayúscula y puede contener minúsculas",
-            "sigla_departamento.unique"=> "La sigla del departamento ya existe",
+            "sigla_departamento.unique"=> "La sigla del departamento ya está en uso",
 
             "id_area.required"=> "El área es requerido",
             "id_area.exists"=> "El área ingresada no existe"

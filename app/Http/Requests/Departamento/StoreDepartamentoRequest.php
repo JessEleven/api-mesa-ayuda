@@ -13,19 +13,11 @@ use Illuminate\Validation\ValidationException;
 
 class StoreDepartamentoRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         $tableDepartment = (new Departamento())->getTable();
@@ -61,16 +53,16 @@ class StoreDepartamentoRequest extends FormRequest
         return [
             "nombre_departamento.required"=> "El nombre del departamento es requerido",
             "nombre_departamento.regex"=> "Debe ser una cadena de texto",
-            "nombre_departamento.unique"=> "El nombre del departamento debe ser único",
+            "nombre_departamento.unique"=> "El nombre del departamento ya está registrado",
 
             "sigla_departamento.required"=> "La sigla del departamento es requerida",
             "sigla_departamento.regex"=> "Empieza con mayúscula y puede contener minúsculas",
-            "sigla_departamento.unique"=> "La sigla del departamento debe ser única",
+            "sigla_departamento.unique"=> "La sigla del departamento ya está registrado",
 
             "peso_prioridad.required"=> "La prioridad del departamento es requerida",
             "peso_prioridad.integer"=> "Solo se aceptan números enteros",
             "peso_prioridad.min"=> "Solo números enteros mayores o iguales a uno",
-            "peso_prioridad.unique"=> "La prioridad del departamento debe ser única por área",
+            "peso_prioridad.unique"=> "La prioridad del departamento ya está registrado",
 
             "id_area.required"=> "El área es requerida",
             "id_area.exists"=> "El área ingresada no existe"
@@ -88,9 +80,10 @@ class StoreDepartamentoRequest extends FormRequest
             : "Se produjeron varios errores de validación";
 
         throw new HttpResponseException(ApiResponse::validation(
-            $errorMessage,
-            422,
-            $errors)
+                $errorMessage,
+                422,
+                $errors
+            )
         );
     }
 }
